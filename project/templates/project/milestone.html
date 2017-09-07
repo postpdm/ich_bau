@@ -1,0 +1,45 @@
+{% extends 'site_base.html' %}
+
+{% load i18n %}
+{% load url from future %}
+{% load bootstrap %}
+
+{% block head_title %}{{milestone}}{% endblock %}
+
+{% block body %}
+    <div class="row">
+        <div class="col-md-12">
+        
+<ol class="breadcrumb">
+<li>  <a href="{% url 'project:index' %}">Projects</a></li></li>
+<li>  <a href="{{ milestone.project.get_absolute_url }}">{{ milestone.project }}</a></li>
+</ol>
+        
+<h1>{{milestone}}</h1>
+
+<p>{% if milestone.planned_at %}Plan date: {{milestone.planned_at|date}} {% endif %}</p>
+<p>{% if milestone.finished_at %}Fact finish date: {{milestone.finished_at|date}} {% endif %}</p>
+
+{% if user_can_admin %}
+<a class="btn btn-default" href="{{milestone.get_absolute_url}}edit"><i class="fa fa-pencil-square-o"></i> Edit milestone</a>
+
+{% if milestone.created_at = milestone.modified_at %}
+no history to view
+
+{% else %}
+<a href="{{milestone.get_absolute_url}}history">History</a>
+{% endif %}
+
+
+{% endif %}
+
+<h2>Tasks {% if user_can_admin or user_can_work %}<a class="btn btn-default" href="/project/task_add_to_milestone/{{milestone.id}}/"><i class="fa fa-plus"></i> {% trans "Create task" %}</a>{% endif %}</h2>
+
+{% include "project/task_list.html" with table_mode='milestone' %}
+
+</div>
+</div>
+
+<small>This page was last modified on {{ milestone.modified_at }}</small>
+    
+{% endblock %}

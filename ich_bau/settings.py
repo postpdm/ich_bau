@@ -133,8 +133,12 @@ INSTALLED_APPS = [
     "account",
     "pinax.eventlog",
     #"pinax.webanalytics",
-
+    "django_filters",
+    
     # project
+    "commons",
+    "project",
+    
     "ich_bau",
 ]
 

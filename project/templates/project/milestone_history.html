@@ -1,0 +1,44 @@
+{% extends 'site_base.html' %}
+
+{% load url from future %}
+{% load bootstrap %}
+
+{% block head_title %}{{milestone}} history{% endblock %}
+
+{% block body %}
+    <div class="row">
+        <div class="col-md-12">
+        
+<h1>{{milestone}} history</h1>
+<a href="{{milestone.get_absolute_url}}">back</a>
+
+    <table class="table table-striped">
+    <thead>
+    <tr>
+    <th>Date-time</th>
+    <th>Full name</th>
+    <th>Planned at</th>
+    <th>Finished at</th>
+    <th>User</th>
+    </tr>
+    </thead>
+    <tbody>
+        {% for v in versions %}
+        <tr>
+        <td>{{v.revision.date_created}}</td>
+        <td>{{v.field_dict.fullname}}</td>
+        <td>{{v.field_dict.planned_at|date}}</td>
+        <td>{{v.field_dict.finished_at|date}}</td>
+        <td><a href="{% url 'profiles_detail' username=v.revision.user.username %}">{{v.revision.user}}</a></td>
+        </tr>
+        {% endfor %}
+
+    </tbody>
+    <table>  
+
+</div>
+</div>
+
+<small>This page was last modified on {{ milestone.modified_at }}</small>
+    
+{% endblock %}

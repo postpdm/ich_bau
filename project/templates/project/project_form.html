@@ -1,0 +1,46 @@
+{% extends 'form_with_thumbnail.html' %}
+
+{% load bootstrap %}
+
+{% block body_class %}project{% endblock %}
+
+{% block head_title %}
+{% if project.pk %}
+Edit project
+{% else %}
+Create project
+{% endif %}        
+
+{% endblock %}
+
+
+{% block body %}
+<div class="row">
+<div class="col-md-9">
+
+{{ form.media }}
+
+        <form class="span6" id="project_form" method="post" action="" enctype="multipart/form-data">
+        
+                {% if project.pk %}
+                    <legend>Edit project</legend>
+                {% else %}
+                    <legend>Create project</legend>
+                {% endif %}        
+        
+            {% csrf_token %}
+            {% for hidden in form.hidden_fields %}
+                {{ hidden }}
+            {% endfor %}
+            
+            {% for field in form.visible_fields %}
+
+                {{ field|bootstrap }}
+            {% endfor %}
+            
+
+            <button class="btn btn-primary" type="submit" name="submit">Save</button>
+        </form>
+</div>        
+</div>
+{% endblock %}

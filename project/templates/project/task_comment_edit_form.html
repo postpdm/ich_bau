@@ -1,0 +1,39 @@
+{% extends 'form_with_thumbnail.html' %}
+
+{% load url from future %}
+{% load bootstrap %}
+
+{% block body_class %}edit task comment{% endblock %}
+
+{% block head_title %}
+Edit task comment
+{% endblock %}
+
+
+{% block body %}
+<div class="row">
+<div class="col-md-9">
+
+{{ form.media }}
+
+        <form class="span6" id="edit_task_comment_form" method="post" action="" enctype="multipart/form-data">
+        
+            <legend>Edit task comment</legend>
+
+        
+            {% csrf_token %}
+            {% for hidden in form.hidden_fields %}
+                {{ hidden }}
+            {% endfor %}
+            
+            {% for field in form.visible_fields %}
+
+                {{ field|bootstrap }}
+            {% endfor %}
+            
+
+            <button class="btn btn-primary" type="submit" name="submit">Save</button>
+        </form>
+</div>        
+</div>
+{% endblock %}

@@ -1,0 +1,146 @@
+{% extends 'site_base.html' %}
+
+{% load i18n %}
+{% load url from future %}
+{% load bootstrap %}
+{% load thumbnail %}
+
+{% block head_title %}{{project}}{% endblock %}
+
+{% block body %}
+    <div class="row">
+        <div class="col-md-12">
+<h1>{{project}}
+{% if project.private_flag %}
+<i class="fa fa-lock"></i>
+{% endif %}
+
+{% if not project.active_flag %}
+   <span class="label label-primary">Closed</span>
+{% endif %}
+
+</h1>
+
+{% if project.description %}
+{{ project.description|safe }}
+{% endif %}
+
+
+{% if user_can_admin %}
+<a class="btn btn-default" href="{{project.get_absolute_url}}project_edit"><i class="fa fa-pencil-square-o"></i> {% trans "Edit projects" %}</a>
+
+{% endif %}
+
+{% if project.created_at = project.modified_at %}
+no history to view
+
+{% else %}
+<a href="{{project.get_absolute_url}}history">History</a>
+{% endif %}
+
+<h2>{% trans "Tasks" %} {% if user_can_admin or user_can_work %}<a class="btn btn-default" href="/project/task_add/{{project.id}}/"><i class="fa fa-plus"></i> {% trans "Create task" %}</a>{% endif %}</h2>
+
+<ul class="nav nav-tabs">
+  <li role="presentation" {% if filter_type == '' %} class="active" {% endif %}><a href="{{project.get_absolute_url}}">{% trans "Open" %}</a></li>
+  <li role="presentation" {% if filter_type == 'filter_task_closed' %} class="active" {% endif %}><a href="{{project.get_absolute_url}}closed_task/">{% trans "Closed" %}</a></li>
+  <li role="presentation" {% if filter_type == 'filter_task_search' %} class="active" {% endif %}><a href="{{project.get_absolute_url}}search_task/">{% trans "Search" %}</a></li>
+</ul>
+
+{% if filter_type == 'filter_task_search' %}
+    <div class="row">
+        <div class="col-md-5">
+        
+    <form action="" method="get">
+        {{ filter.form|bootstrap }}
+        <input type="submit" class="btn btn-info" />
+    </form>
+</div>
+</div>
+{% endif %}
+
+{% include "project/task_list.html" with table_mode='project' %}
+
+<h2>Day notes {% if user_can_admin or user_can_work %}<a class="btn btn-default" href="/project/daynote_edit_today/{{project.id}}/"><i class="fa fa-plus"></i> {% trans "Edit today note" %}</a>{% endif %}
+</h2>
+
+<table class="table table-striped">
+<thead>
+<tr>
+<th>Note</th>
+<th>Date</th>
+</tr>
+</thead>
+<tbody>
+
+{% for daynote in daynotes %}
+    <tr>
+   
+    <td>{{ daynote|safe }}
+    </td>
+    <td>
+<a href="{{ daynote.get_absolute_url }}">{{ daynote.note_date|date }}</a>    
+    
+    </td>
+    </tr>
+    {% endfor %}
+</tbody>
+</table>
+
+<h2>{% trans "Members" %} {% if user_can_admin %}<a class="btn btn-default" href="/project/member_add/{{project.id}}/"><i class="fa fa-plus"></i> {% trans "Добавить участника" %}</a>{% endif %}</h2>
+
+<ul>
+{% for m in members %}
+<li>{{m.member_user}}
+
+{% if m.admin_flag %}
+{% trans "(admin)" %}
+{% endif %}
+
+{% if not m.team_accept %}
+{% trans "(team not accept)" %}
+{% endif %}
+
+{% if not m.member_accept %}
+{% trans "(member not accept)" %}
+
+{% if request.user.is_authenticated and request.user = m.member_user %}
+<a class="btn btn-primary" href="/project/member/{{m.pk}}/member_accept/"><i class="fa fa-chevron-down"></i> {% trans "Accept membership" %}</a>
+{% endif %}
+{% endif %}
+
+</li>
+{% endfor %}
+</ul>
+
+<h2>{% trans "Milestones" %}{% if user_can_admin %} <a class="btn btn-default" href="/project/milestone_add/{{project.id}}/"><i class="fa fa-plus"></i> {% trans "Create milestone" %}</a>{% endif %}</h2>
+
+
+<table class="table table-striped">
+<thead>
+<tr>
+<th>{% trans "Milestone" %}</th>
+<th>{% trans "Plan date" %}</th>
+<th>{% trans "Fact finish date" %}</th>
+</tr>
+</thead>
+<tbody>
+
+{% for m in milestones %}
+<tr>
+<td><a href="{{m.get_absolute_url }}">{{m}}</a></td>
+<td>{% if m.planned_at %}{{m.planned_at|date}} {% endif %}</td>
+<td>{% if m.finished_at %}{{m.finished_at|date}} {% endif %}</td>
+
+</tr>
+{% endfor %}
+
+
+</tbody>
+</table>
+
+</div>
+</div>
+
+<small>This page was last modified on {{ project.modified_at }}</small>
+    
+{% endblock %}

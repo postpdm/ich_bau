@@ -1,0 +1,48 @@
+
+<h3>Active</h3>
+
+<big>
+
+<ul>
+
+
+{% for p in projects %}
+
+{% if p.active_flag %}
+
+<li>
+
+<a href="{{p.get_absolute_url}}">{{p}}</a> 
+{% if p.private_flag %}
+<i class="fa fa-lock"></i>
+{% endif %}
+
+</li>
+{% endif %}
+
+{% endfor %}
+
+</ul>
+
+</big>
+
+<h3>Closed</h3>
+
+<ul>
+
+{% for p in projects %}
+
+{% if not p.active_flag %}
+<li>
+<strike>
+<a href="{{p.get_absolute_url}}">{{p}}</a> 
+{% if p.private_flag %}
+<i class="fa fa-lock"></i>
+{% endif %}
+</strike>
+</li>
+{% endif %}
+
+{% endfor %}
+
+</ul>

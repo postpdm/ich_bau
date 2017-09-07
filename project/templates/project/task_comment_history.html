@@ -1,0 +1,40 @@
+{% extends 'site_base.html' %}
+
+{% load i18n %}
+{% load url from future %}
+{% load bootstrap %}
+
+{% block head_title %}task comment history{% endblock %}
+
+{% block body %}
+    <div class="row">
+        <div class="col-md-12">
+<h1>task comment history</h1>
+
+<a href="{{tc.parenttask.get_absolute_url}}">back</a>
+
+    <table class="table table-striped">
+    <thead>
+    <tr>
+    <th>Date-time</th>
+    <th>Comment</th>
+    <th>User</th>
+    </tr>
+    </thead>
+    <tbody>
+        {% for v in versions %}
+        <tr>
+        <td>{{v.revision.date_created}}</td>
+        <td>{{v.field_dict.comment|safe}}</td>
+        <td><a href="{% url 'profiles_detail' username=v.revision.user.username %}">{{v.revision.user}}</a></td>
+        </tr>
+        {% endfor %}
+
+    </tbody>
+    <table>  
+
+
+</div>
+</div>
+  
+{% endblock %}

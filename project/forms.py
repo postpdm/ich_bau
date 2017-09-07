@@ -1,0 +1,114 @@
+﻿# project forms
+
+from django import forms
+from project.models import Project, Task, TaskComment, Milestone, Member, TaskLink, TaskCheckList, Resource
+
+from django.forms.widgets import HiddenInput
+
+#from bootstrap3_datetime.widgets import DateTimePicker
+
+class ProjectForm(forms.ModelForm):
+    #description = HTML_Field( required = False )
+    
+    class Meta:
+        model = Project
+        fields = ['fullname', 'private_flag', 'active_flag', 'description' ]
+
+class MilestoneForm(forms.ModelForm):
+    #planned_at = forms.DateField( required = False,
+    #    widget=DateTimePicker(options={"format": "YYYY-MM-DD",
+    #                                   "pickTime": False}))
+                                       
+    #finished_at = forms.DateField( required = False,
+    #    widget=DateTimePicker(options={"format": "YYYY-MM-DD",
+    #                                   "pickTime": False}))
+
+    class Meta:
+        model = Milestone
+        fields = ['fullname', 'planned_at', 'finished_at' ]
+
+#from ytask.profiles.models import GetHumans
+
+#from django.contrib.auth.models import User
+
+class MemberForm(forms.ModelForm):
+    class Meta:
+        model = Member
+        fields = ['member_user', 'admin_flag' ]
+        
+    def __init__(self, *args, **kwargs):
+        super(MemberForm, self).__init__(*args, **kwargs)
+        # форма работает в режиме создания (смотрим 'initial')
+        p = kwargs.pop('initial', None)['project']
+            
+        # отображать только свободных людей
+#        if not ( p is None):
+#            self.fields['member_user'].queryset = GetHumans().exclude( member_user__project_id = p.id )
+          
+class TaskForm(forms.ModelForm):
+    #description = HTML_Field( required = False )
+    
+    class Meta:
+        model = Task
+        fields = ['fullname', 'milestone', 'holder_user', 'assigned_user', 'resource', 'important', 'description', ]
+        
+    def __init__(self, *args, **kwargs):
+        super(TaskForm, self).__init__(*args, **kwargs)
+        # форма работает в 2х режимах - создания (смотрим 'initial') и редактирования (смотрим 'instance') свойства.
+        instance = kwargs.pop('instance', None)
+        if (instance is None):
+            pop = kwargs.pop('initial', None)
+            p = pop['project']
+        else:
+            p = instance.project
+            
+        # отображать вехи и пользователей только этого проекта
+        if not ( p is None):
+            self.fields['milestone'].queryset = Milestone.objects.filter( project = p, finished_at__isnull = True )
+            self.fields['holder_user'].queryset = p.GetFullMemberUsers()
+            self.fields['assigned_user'].queryset = p.GetFullMemberUsers()# GetHumans().filter( member_user__project_id = p.id )
+                        
+class TaskEditTargetDateForm(forms.ModelForm):
+    #target_date_at = forms.DateField( required = False,
+    #    widget=DateTimePicker(options={"format": "YYYY-MM-DD",
+    #                                   "pickTime": False}))
+                                       
+    class Meta:
+        model = Task
+        fields = ['target_date_at',
+        ]
+            
+class TaskLinkedForm(forms.ModelForm):
+    subtask=forms.ModelChoiceField( Task.objects, help_text="subtask", required=True )
+
+    def __init__(self, *args, **kwargs):
+        argmaintaskid = kwargs.pop('argmaintaskid', None)
+        super(TaskLinkedForm, self).__init__(*args, **kwargs)
+
+        if (argmaintaskid != "" ):
+            main_task = Task.objects.get( id = argmaintaskid )
+            self.fields['subtask'].queryset = main_task.project.Get_Tasks( True ).exclude(id=argmaintaskid).exclude( sub__maintask = argmaintaskid )
+
+    class Meta:
+        model = TaskLink
+        fields = ['subtask']            
+
+        
+class TaskCommentForm(forms.ModelForm):   
+    #comment = HTML_Field( required = True )
+    
+    class Meta:
+        model = TaskComment
+        fields = ['comment' ]
+        
+class TaskCheckListForm(forms.ModelForm):
+    class Meta:
+        model = TaskCheckList
+        fields = ['checkname', 'check_flag' ]        
+
+        
+class ResourceForm(forms.ModelForm):
+
+    class Meta:
+        model = Resource
+        fields = ['shortname', 'fullname', 'parent' ]

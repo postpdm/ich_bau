@@ -1,0 +1,62 @@
+{% extends 'form_with_thumbnail.html' %}
+
+{% load url from future %}
+{% load bootstrap %}
+{% load thumbnail %}
+
+{% block head_title %}{{task}} check list{% endblock %}
+
+{% block body %}
+    <div class="row">
+        <div class="col-md-12">  
+
+<div class="panel panel-default">
+  <!-- Default panel contents -->
+  <div class="panel-heading"><strong>Task <a href="{{task.get_absolute_url}}">{{task}}</a> check list</strong>
+  
+  
+  </div>
+  
+  <div class="panel-body">
+  
+  </div>
+  
+<ul class="list-group">
+<li class="list-group-item">
+
+
+
+<form method="post" action="">
+<table class="table table-hover">
+
+<tbody>
+
+<THEAD>
+<tr>
+<th>Check name</th>
+<th>Check flag</th>
+</tr>
+</THEAD>
+
+<TBODY>
+{% csrf_token %}
+    {{ formset.management_form }}
+    {% for form in formset %}
+{{ form.id }}
+<tr>        
+<td>{{ form.checkname }}</td>
+<td>{{ form.check_flag }}</td>
+</tr>                    
+        
+    {% endfor %}
+</tbody>
+</table>
+<button class="btn btn-primary" type="submit" name="submit">Save</button>
+</form>
+</li>
+
+</div>
+</div>
+</div>
+   
+{% endblock %}

@@ -1,0 +1,47 @@
+{% extends 'site_base.html' %}
+
+{% load url from future %}
+{% load bootstrap %}
+
+{% block body_class %}task{% endblock %}
+
+{% block head_title %}
+{% if task.pk %}
+Edit task
+{% else %}
+Create task
+{% endif %}        
+
+{% endblock %}
+
+
+{% block body %}
+<div class="row">
+<div class="col-md-9">
+
+{{ form.media }}
+
+        <form class="span6" id="task_form" method="post" action="" enctype="multipart/form-data">
+        
+                {% if task.pk %}
+                    <legend>Edit task</legend>
+                {% else %}
+                    <legend>Create task</legend>
+                {% endif %}        
+        
+            {% csrf_token %}
+            {% for hidden in form.hidden_fields %}
+                {{ hidden }}
+            {% endfor %}
+            
+            {% for field in form.visible_fields %}
+
+                {{ field|bootstrap }}
+            {% endfor %}
+            
+
+            <button class="btn btn-primary" type="submit" name="submit">Save</button>
+        </form>
+</div>        
+</div>
+{% endblock %}

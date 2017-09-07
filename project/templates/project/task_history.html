@@ -1,0 +1,58 @@
+{% extends 'site_base.html' %}
+
+{% load i18n %}
+{% load url from future %}
+{% load bootstrap %}
+
+{% block head_title %}{{task}} history{% endblock %}
+
+{% block body %}
+    <div class="row">
+        <div class="col-md-12">
+<h1>{{task}} history</h1>
+
+<a href="{{task.get_absolute_url}}">back</a>
+
+    <table class="table table-striped">
+    <thead>
+    <tr>
+    <th>Date-time</th>
+    <th>Full name</th>
+    <th>Description</th>
+    <th>Holder</th>
+    <th>Assignee</th>
+    <th>Resource</th>
+    <th>State</th>
+    <th>Milestone</th>
+    <th>Target date</th>
+    <th>Finished fact</th>
+    <th>Important</th>
+    <th>User</th>
+    </tr>
+    </thead>
+    <tbody>
+        {% for v in versions %}
+        <tr>
+        <td>{{v.revision.date_created}}</td>
+        <td>{{v.field_dict.fullname}}</td>
+        <td>{{v.field_dict.description|safe}}</td>
+        <td>{{v.field_dict.holder_user}}</td>
+        <td>{{v.field_dict.assigned_user}}</td>
+        <td>{{v.field_dict.resource}}</td>
+        <td>{{v.field_dict.state}}</td>
+        <td>{{v.field_dict.milestone}}</td>
+        <td>{{v.field_dict.target_date_at|date}}</td>
+        <td>{{v.field_dict.finished_fact_at|date}}</td>
+        <td>{{v.field_dict.important}}</td>
+        <td><a href="{% url 'profiles_detail' username=v.revision.user.username %}">{{v.revision.user}}</a></td>
+        </tr>
+        {% endfor %}
+
+    </tbody>
+    <table>  
+
+
+</div>
+</div>
+  
+{% endblock %}

@@ -1,0 +1,49 @@
+<table class="table table-striped">
+<thead>
+<tr>
+
+{% if table_mode == 'resource' or table_mode == 'index' %}
+<th>Project</th>
+{% endif %}
+
+
+<th>Task</th>
+<th>Target (milestone or date)</th>
+<th>Holder</th>
+<th>Assignee</th>
+{% if table_mode != 'resource' %}
+<th>Resource</th>
+{% endif %}
+<th>State</th>
+</tr>
+</thead>
+<tbody>
+    {% for t in tasks %}
+    <tr>
+    
+{% if table_mode == 'resource' or table_mode == 'index' %}
+<td><a href="{{t.project.get_absolute_url}}">{{t.project}}</a></td>
+{% endif %}
+    
+    <td>
+    {% if not t.get_opened %}<strike>{% endif %}
+   
+    <a href="{{t.get_absolute_url}}">{{t}}</a>
+    {% if not t.get_opened %}</strike>{% endif %}
+    
+    {% if t.important %}
+    <i class="fa fa-exclamation-triangle" style="color:red"></i>
+    {% endif %}
+    </td>
+    <td>{% if t.milestone %} Milestone - <a href="{{t.milestone.get_absolute_url}}">{{t.milestone}} {% if t.milestone.planned_at %} {{ t.milestone.planned_at|date }} {% endif %} </a>{% endif %}
+    <div {% if t.target_date_at > t.milestone.planned_at %} class="bg-danger" {% endif %} > {% if t.target_date_at %}Target date - {{t.target_date_at|date}} {% endif %}</div></td>
+    <td>{% if t.holder_user %} {{t.holder_user}}{% endif %}</td>
+    <td>{% if t.assigned_user %} {{t.assigned_user}} {% endif %}</td>
+{% if table_mode != 'resource' %}
+    <td>{% if t.resource %} {{t.resource}} {% endif %}</td>
+{% endif %}    
+    <td>{{t.get_state_name}}</td>
+    </tr>
+    {% endfor %}
+</tbody>
+</table>

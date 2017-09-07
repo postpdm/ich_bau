@@ -13,6 +13,11 @@
     {% block extra_head %}{% endblock %}
 {% endblock %}
 
+{% block nav %}
+    <ul class="nav navbar-nav pull-left">
+      <li><a href="{% url 'project:index' %}">Projects</a></li>
+    </ul>
+{% endblock %}
 
 {% block footer %}
     {% include "_footer.html" %}
