@@ -134,12 +134,14 @@ INSTALLED_APPS = [
     "pinax.eventlog",
     #"pinax.webanalytics",
     "django_filters",
+    "easy_thumbnails",
     
     # project
     "commons",
     "project",
     
     "ich_bau",
+    "ich_bau.profiles",
 ]
 
 # A sample logging configuration. The only tangible logging
