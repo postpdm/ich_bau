@@ -31,6 +31,7 @@ PROJECT_ACCESS_ADMIN = 3 # админить проект - создавать и
 # - авторизованный участник может работать
 # - админ может админить
     
+@reversion.register()
 class Project(BaseStampedModel):
     # shortname = models.CharField(max_length=255)
     # slug = models.SlugField( unique = True, default=make_uuid ) # заготовка параноикам

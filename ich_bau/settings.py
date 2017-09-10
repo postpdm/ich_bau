@@ -135,6 +135,7 @@ INSTALLED_APPS = [
     #"pinax.webanalytics",
     "django_filters",
     "easy_thumbnails",
+    "reversion",
     
     # project
     "commons",

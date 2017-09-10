@@ -16,8 +16,8 @@ urlpatterns = [
 
     url(r"^u/(?P<username>[\w\._-]+)/$", ProfileDetailView.as_view(), name="profiles_detail"),
 
-    url(r'^project/', include('project.urls', namespace="project")),
-    
+    url(r"^project/", include('project.urls', namespace="project") ),
+   
 ]
 
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

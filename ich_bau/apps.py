@@ -10,3 +10,4 @@ class AppConfig(BaseAppConfig):
     def ready(self):
         import_module("ich_bau.receivers")
         import_module("ich_bau.profiles.receivers")
+        import_module("project")

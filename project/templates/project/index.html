@@ -1,19 +1,17 @@
-{% extends 'site_base.html' %}
+{% extends "site_base.html" %}
 
-{% load i18n %}
-
-{% block head_title %}{% trans "Project" %}{% endblock %}
+{% block head_title %}Project{% endblock %}
 
 {% block body %}
     <div class="row">
         <div class="col-md-12">
         
-<h1>Projects <a class="btn btn-default" href="/project/project_add/"><i class="fa fa-plus"></i> {% trans "Create project" %}</a></h1>
+<h1>Projects <a class="btn btn-default" href="/project/project_add/"><i class="fa fa-plus"></i>Create project</a></h1>
 
 <ul class="nav nav-tabs">
-  <li role="presentation" {% if filter_type == '' %} class="active" {% endif %}><a href="/project/">{% trans "Mine" %}</a></li>
-  <li role="presentation" {% if filter_type == 'search_public' %} class="active" {% endif %}><a href="/project/search_public/">{% trans "Search public" %}</a></li>
-  <li role="presentation" {% if filter_type == 'all_public' %} class="active" {% endif %}><a href="/project/all_public/">{% trans "All public" %}</a></li>
+  <li role="presentation" {% if filter_type == '' %} class="active" {% endif %}><a href="/project/">Mine</a></li>
+  <li role="presentation" {% if filter_type == 'search_public' %} class="active" {% endif %}><a href="/project/search_public/">Search public</a></li>
+  <li role="presentation" {% if filter_type == 'all_public' %} class="active" {% endif %}><a href="/project/all_public/">All public</a></li>
 </ul>
 
 <p></p>
@@ -38,7 +36,7 @@
 
 {% if filter_type == '' and not request.user.is_authenticated %}
 
-{% trans "Please, log in to see your projects." %}
+Please, log in to see your projects.
 
 {% else %}
 {% include "project/project_list.html" %}

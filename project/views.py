@@ -20,6 +20,7 @@ from account.decorators import login_required
 
 from django.db import transaction
 import reversion
+from reversion.models import Version
 
 from project.filters import ProjectFilter, TaskFilter
 
@@ -105,7 +106,7 @@ def project_edit(request, project_id):
     else:        
         form = ProjectForm( instance=project )
 
-    return render_to_response( 'project/project_form.html',
+    return render(  request, 'project/project_form.html',
             {'form': form, 'project':project},
              context)
 
@@ -131,7 +132,7 @@ def project_history(request, project_id):
     if ual == PROJECT_ACCESS_NONE:
         raise Http404()
     
-    versions = reversion.get_for_object(project)
+    versions = Version.objects.get_for_object( project )
     
     context_dict = { 'project': project, 
                      'versions': versions }
@@ -161,8 +162,6 @@ def get_project_view(request, project_id, arg_task_filter = TASK_FILTER_OPEN ):
     members = project.GetMemberList()
     milestones = Milestone.objects.filter(project = project).order_by('finished_at')
     
-    daynotes = DayNote.objects.filter(project = project)
-  
     filter_type = ''
     filter = None
     base_tasks = project.Get_Tasks()
@@ -189,13 +188,12 @@ def get_project_view(request, project_id, arg_task_filter = TASK_FILTER_OPEN ):
                      'tasks' : tasks,
                      'filter': tasks,
                      'filter_type' : filter_type,
-                     'daynotes' : daynotes,
                      'user_can_work' : user_can_work,
                      'user_can_admin' : user_can_admin,
                          }
 
     # Рендерить ответ
-    return render_to_response('project/project.html', context_dict, context)
+    return render( request, 'project/project.html', context_dict )
     
 class MilestoneCreateView(LoginRequiredMixin, CreateView):
 

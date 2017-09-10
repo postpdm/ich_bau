@@ -3,6 +3,7 @@ from django.conf.urls import url
 from project import views
 
 urlpatterns = [
+
     url(r'^$', views.index, name='index'),
     url(r'^all_public/$', views.index_public, name='all_public'),
     url(r'^search_public/$', views.index_search_public, name='search_public'),
