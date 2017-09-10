@@ -50,7 +50,7 @@ def get_index( request, arg_page = PROJECT_FILTER_MINE ):
                 raise Http404()
 
     # Сформировать ответ, отправить пользователю
-    return render_to_response('project/index.html', context_dict, context)
+    return render( request, 'project/index.html', context_dict, context)
     
 def index( request ):
     return get_index( request )
