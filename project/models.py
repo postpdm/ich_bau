@@ -53,7 +53,7 @@ class Project(BaseStampedModel):
         return q
         
     def GetFullMemberUsers( self ):
-        q = User.objects.filter( profile__botflag = False, member_user__project = self, member_user__team_accept__isnull = False, member_user__member_accept__isnull = False )
+        q = User.objects.filter( member_user__project = self, member_user__team_accept__isnull = False, member_user__member_accept__isnull = False )
         return q        
     
     def is_member( self, arg_user ):

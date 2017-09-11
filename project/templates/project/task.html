@@ -1,6 +1,5 @@
-{% extends 'form_with_thumbnail.html' %}
+{% extends 'site_base.html' %}
 
-{% load url from future %}
 {% load bootstrap %}
 {% load thumbnail %}
 
@@ -50,7 +49,7 @@
   <a class="btn btn-default" href="{{ task.get_absolute_url }}edit_target_date"><i class="fa fa-clock-o"></i> Edit target date</a>
 
   {% endif %}  
-{% if task.created_at = task.modified_at %}
+{% if task.created_at == task.modified_at %}
 no history to view
 
 {% else %}
@@ -136,7 +135,7 @@ no history to view
  {% ifequal c.created_user request.user %}  
  <a class="btn btn-default" href="{{ c.get_absolute_url }}edit"><i class="fa fa-pencil-square-o"></i> Edit comment</a>
  
-{% if c.created_at = c.modified_at %}
+{% if c.created_at == c.modified_at %}
 {% else %}
 <a href="{{c.get_absolute_url}}history">History</a>
 {% endif %}
