@@ -467,7 +467,7 @@ def task_view(request, task_id):
         pass
 
     # Рендерить ответ
-    return render_to_response('project/task.html', context_dict, context)    
+    return render( request,  'project/task.html', context_dict )
   
 @login_required   
 def task_checklist(request, task_id):
