@@ -138,7 +138,7 @@ def project_history(request, project_id):
                      'versions': versions }
              
     # Рендерить ответ
-    return render_to_response('project/project_history.html', context_dict, context)
+    return render( request, 'project/project_history.html', context_dict )
     
 def get_project_view(request, project_id, arg_task_filter = TASK_FILTER_OPEN ):
     # Получить контекст запроса
@@ -512,7 +512,7 @@ def task_checklist(request, task_id):
                         }
 
     # Рендерить ответ
-    return render_to_response('project/task_checklist.html', context_dict, context )
+    return render( request, 'project/task_checklist.html', context_dict )
         
 @login_required
 def edit_task_target_date(request, pk):
