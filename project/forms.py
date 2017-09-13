@@ -27,9 +27,7 @@ class MilestoneForm(forms.ModelForm):
         model = Milestone
         fields = ['fullname', 'planned_at', 'finished_at' ]
 
-#from ytask.profiles.models import GetHumans
-
-#from django.contrib.auth.models import User
+from django.contrib.auth.models import User
 
 class MemberForm(forms.ModelForm):
     class Meta:
@@ -42,8 +40,8 @@ class MemberForm(forms.ModelForm):
         p = kwargs.pop('initial', None)['project']
             
         # отображать только свободных людей
-#        if not ( p is None):
-#            self.fields['member_user'].queryset = GetHumans().exclude( member_user__project_id = p.id )
+        if not ( p is None):
+            self.fields['member_user'].queryset = User.objects.exclude( member_user__project_id = p.id )
           
 class TaskForm(forms.ModelForm):
     #description = HTML_Field( required = False )
