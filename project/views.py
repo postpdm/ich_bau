@@ -537,9 +537,8 @@ def edit_task_target_date(request, pk):
     else:        
         form = TaskEditTargetDateForm( instance=task )
 
-    return render_to_response( 'project/task_edit_targed_date_form.html',
-            {'form': form, 'task':task},
-             context)
+    return render( request, 'project/task_edit_targed_date_form.html',
+            {'form': form, 'task':task} )
     
 @login_required
 def edit_task_comment(request, task_comment_id):
