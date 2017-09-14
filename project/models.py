@@ -129,8 +129,6 @@ class Project(BaseStampedModel):
     def get_absolute_url(self):
         return "/project/project/%i/" % self.id
 
-#reversion.register(Project)
-        
 class Member(BaseStampedModel):
     project = models.ForeignKey(Project, blank=False, null=False )
     member_user = models.ForeignKey(User, blank=False, null=False, related_name = "member_user" )
@@ -187,6 +185,7 @@ def GetMemberedProjectList( arg_user ):
     else:
         return Project.objects.filter( member__member_user = arg_user ).order_by('-active_flag')
         
+@reversion.register()
 class Milestone(BaseStampedModel):
     project = models.ForeignKey(Project, blank=False, null=False )
     fullname = models.CharField(max_length=255, verbose_name = 'Full name!', blank=False, null=False )
@@ -199,8 +198,6 @@ class Milestone(BaseStampedModel):
     def get_absolute_url(self):
         return "/project/milestone/%i/" % self.id
         
-#reversion.register(Milestone)
-
 @receiver(post_save, sender=Milestone)
 def milestone_post_save_Notifier_Composer(sender, instance, **kwargs):
     # веха изменилась - разослать уведомление всем участникам проекта - кроме автора изменений
@@ -249,6 +246,7 @@ TASK_STATE_LIST_CHOICES = (
     ( TASK_STATE_CLOSED, 'Closed' ),
     )
             
+@reversion.register()
 class Task(BaseStampedModel):
     project = models.ForeignKey(Project, blank=False, null=False )
     fullname = models.CharField(max_length=255, verbose_name = 'Full name!' )
@@ -312,8 +310,6 @@ class Task(BaseStampedModel):
     
     def get_absolute_url(self):
         return "/project/task/%i/" % self.id
-        
-#reversion.register(Task)
 
 # связи между задачами
 class TaskLink(models.Model):
@@ -325,6 +321,7 @@ class TaskLink(models.Model):
     def get_absolute_url(self):
         return "/project/task_link/%i/" % self.id
         
+@reversion.register()
 class TaskComment(BaseStampedModel):
     parenttask = models.ForeignKey( Task, null = False )
     comment = models.TextField(blank=False, null=False)
@@ -335,9 +332,8 @@ class TaskComment(BaseStampedModel):
     def __str__(self):
         # у коментария есть только длинный текст, поэтому выводить можно только реквизиты
         return str( self.created_user ) + " " + self.created_at.strftime("%Y-%m-%d %H:%M:%S")
-        
-#reversion.register(TaskComment)
 
+@reversion.register()
 class TaskCheckList(BaseStampedModel):
     parenttask = models.ForeignKey( Task, null = False, related_name = 'parenttask'  )
     checkname = models.CharField( max_length=255, blank=False, null=False )
@@ -349,8 +345,6 @@ class TaskCheckList(BaseStampedModel):
         
     def __str__(self):        
         return self.checkname
-
-#reversion.register(TaskCheckList)
 
 def GetTaskUsers( arg_task, arg_exclude_user ):
     return User.objects.filter( id = TaskComment.objects.values_list('created_user', flat = True).filter(parenttask = arg_task ).exclude( created_user = arg_exclude_user ).distinct() )
@@ -385,4 +379,3 @@ def taskcomment_post_save_Notifier_Composer(sender, instance, **kwargs):
     message_str = s + ' comment in the task ' + instance.parenttask.fullname + ' of ' + instance.parenttask.project.fullname + ' project'
     
     Send_Notifications_For_Task( instance.modified_user, message_str, task_users, instance.parenttask.get_absolute_url(), instance.parenttask.assigned_user )
-

@@ -1,7 +1,6 @@
 {% extends 'site_base.html' %}
 
 {% load i18n %}
-{% load url from future %}
 {% load bootstrap %}
 
 {% block head_title %}{{task}} history{% endblock %}
@@ -43,7 +42,7 @@
         <td>{{v.field_dict.milestone}}</td>
         <td>{{v.field_dict.target_date_at|date}}</td>
         <td>{{v.field_dict.finished_fact_at|date}}</td>
-        <td>{{v.field_dict.important}}</td>
+        <td>{% if v.field_dict.important %}<i class="fa fa-exclamation-triangle" style="color:red"></i>{%endif%}</td>
         <td><a href="{% url 'profiles_detail' username=v.revision.user.username %}">{{v.revision.user}}</a></td>
         </tr>
         {% endfor %}

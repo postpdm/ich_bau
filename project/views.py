@@ -238,14 +238,15 @@ def milestone_history(request, milestone_id):
     context = RequestContext(request)
         
     milestone = get_object_or_404( Milestone, pk=milestone_id)
-    versions = reversion.get_for_object(milestone)
+    
+    versions = Version.objects.get_for_object( milestone )
       
     # Записать список в словарь
     context_dict = { 'milestone': milestone,
                      'versions': versions }
         
     # Рендерить ответ
-    return render_to_response('project/milestone_history.html', context_dict, context)
+    return render( request, 'project/milestone_history.html', context_dict )
     
 def milestone_view(request, milestone_id):
     # Получить контекст запроса
@@ -263,7 +264,7 @@ def milestone_view(request, milestone_id):
                          }
         
     # Рендерить ответ
-    return render_to_response('project/milestone.html', context_dict, context)
+    return render( request, 'project/milestone.html', context_dict )
 
 class AddMemberCreateView(LoginRequiredMixin, CreateView):
     form_class = MemberForm
@@ -374,13 +375,14 @@ def task_history(request, task_id):
     ual = task.project.user_access_level( request.user )
     if ual == PROJECT_ACCESS_NONE:
         raise Http404()
-    versions = reversion.get_for_object(task)
+    
+    versions = Version.objects.get_for_object( task )
     
     context_dict = { 'task': task, 
                      'versions': versions }
              
     # Рендерить ответ
-    return render_to_response('project/task_history.html', context_dict, context)
+    return render( request, 'project/task_history.html', context_dict )
         
 def task_view(request, task_id):
     # Получить контекст запроса
@@ -565,21 +567,20 @@ def edit_task_comment(request, task_comment_id):
     else:        
         form = TaskCommentForm( instance=tc )
 
-    return render_to_response( 'project/task_comment_edit_form.html',
-            {'form': form, 'task_comment':tc},
-             context)
+    return render( request, 'project/task_comment_edit_form.html',
+            {'form': form, 'task_comment':tc} )
              
 def task_comment_history(request, task_comment_id):
     context = RequestContext(request)
     tc = get_object_or_404( TaskComment, pk=task_comment_id )
      
-    versions = reversion.get_for_object(tc)
+    versions = Version.objects.get_for_object( tc )
     
     context_dict = { 'tc': tc, 
                      'versions': versions }
              
     # Рендерить ответ
-    return render_to_response('project/task_comment_history.html', context_dict, context)    
+    return render( request, 'project/task_comment_history.html', context_dict )
     
 @login_required
 def add_linked(request, task_id):

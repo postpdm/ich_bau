@@ -1,7 +1,6 @@
 {% extends 'site_base.html' %}
 
 {% load i18n %}
-{% load url from future %}
 {% load bootstrap %}
 
 {% block head_title %}{{milestone}}{% endblock %}
@@ -23,7 +22,7 @@
 {% if user_can_admin %}
 <a class="btn btn-default" href="{{milestone.get_absolute_url}}edit"><i class="fa fa-pencil-square-o"></i> Edit milestone</a>
 
-{% if milestone.created_at = milestone.modified_at %}
+{% if milestone.created_at == milestone.modified_at %}
 no history to view
 
 {% else %}
