@@ -599,10 +599,9 @@ def add_linked(request, task_id):
     else:
         form = TaskLinkedForm( argmaintaskid = task_id )
 
-    return render_to_response( 'project/add_link.html',
+    return render( request, 'project/add_link.html',
             {'task_id': task_id,
-             'form': form},
-             context)
+             'form': form} )
              
 @login_required
 def task_unlink(request, tasklink_id):
