@@ -45,8 +45,10 @@
   
   {% if user_can_work and task.get_opened %}
   <a class="btn btn-default" href="{{ task.get_absolute_url }}edit"><i class="fa fa-pencil-square-o"></i> Edit task</a>
- 
+  
+ {%comment%}
   <a class="btn btn-default" href="{{ task.get_absolute_url }}edit_target_date"><i class="fa fa-clock-o"></i> Edit target date</a>
+ {%endcomment%}
 
   {% endif %}  
 {% if task.created_at == task.modified_at %}

@@ -136,6 +136,8 @@ INSTALLED_APPS = [
     "django_filters",
     "easy_thumbnails",
     "reversion",
+    #"bootstrap3_datetime",
+
     
     # project
     "commons",
