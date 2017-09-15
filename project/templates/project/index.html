@@ -28,7 +28,7 @@
     </div>
     </div>
     <br>
-    {% for obj in filter %}
+    {% for obj in filter.qs %}
         <a href="{{ obj.get_absolute_url }}">{{ obj.fullname }}</a><br />
     {% endfor %}
     
