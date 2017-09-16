@@ -205,12 +205,10 @@ def milestone_post_save_Notifier_Composer(sender, instance, **kwargs):
     for m in members:
         Send_Notification( instance.modified_user, m.member_user, message_str, instance.get_absolute_url() )     
 
-from mptt.models import MPTTModel, TreeForeignKey
-
-class Resource(MPTTModel):
+class Resource(models.Model):
     shortname = models.CharField(max_length=255, verbose_name = 'Short name!' )
     fullname = models.CharField(max_length=255, verbose_name = 'Full name', null = True, blank = True )
-    parent = TreeForeignKey('self', null=True, blank=True, related_name='children', verbose_name = 'Parent resource' )
+    parent = models.ForeignKey('self', null=True, blank=True, related_name='children', verbose_name = 'Parent resource' )
     
     def Get_Tasks( self, arg_opened = None ):
         q = Task.objects.filter( resource = self )
@@ -251,7 +249,7 @@ class Task(BaseStampedModel):
     fullname = models.CharField(max_length=255, verbose_name = 'Full name!' )
     description = models.TextField(blank=True, null=True)
     assigned_user = models.ForeignKey(User, blank=True, null=True, related_name = "Assignee" )
-    resource = TreeForeignKey( Resource, null = True, blank = True, verbose_name = 'Resource' )
+    resource = models.ForeignKey( Resource, null = True, blank = True, verbose_name = 'Resource' )
     holder_user = models.ForeignKey(User, blank=True, null=True, related_name = "Holder" )
     
     state = models.PositiveSmallIntegerField( blank=False, null=False, default = TASK_STATE_NEW )
