@@ -88,25 +88,3 @@ class ProfileDetailView(DetailView):
     slug_url_kwarg = "username"
     slug_field = "user__username"
     context_object_name = "profile"
-    def get_context_data(self, **kwargs):
-        
-        import datetime        
-        context = super(ProfileDetailView, self).get_context_data(**kwargs)
-        
-        contribution_list = Version.objects.filter( revision__user = context['profile'].user, content_type__in = Contribution_Models ).order_by('-id').prefetch_related('object')
-        
-        paginator = Paginator(contribution_list, PAGINATOR_OBJECTS_PER_PAGE )
-        page = self.request.GET.get('page')
-        
-        try:
-            contributions = paginator.page(page)
-        except PageNotAnInteger:
-            # If page is not an integer, deliver first page.
-            contributions = paginator.page(1)
-        except EmptyPage:
-            # If page is out of range (e.g. 9999), deliver last page of results.
-            contributions = paginator.page(paginator.num_pages)        
-        
-        context['contributions'] = contributions
-        # https://github.com/etianen/django-reversion/issues/353#issuecomment-56173067 посоветовал использовать prefetch_related
-        return context
