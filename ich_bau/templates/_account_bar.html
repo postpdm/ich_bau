@@ -1,9 +1,12 @@
 {% load i18n %}
 {% load account_tags %}
-
+{% load ynotification %}
 
 <ul class="nav navbar-nav pull-right">
     {% if request.user.is_authenticated %}
+        <li>
+            <a href="{% url 'unread_notifications_view' %}"> {% unread_notification_count %} </a>
+        </li>
         <li>
             <a href="{% url 'profiles_edit' %}"><i class="fa fa-user"></i> {% user_display request.user %}</a>
         </li>

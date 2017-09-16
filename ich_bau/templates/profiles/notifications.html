@@ -1,0 +1,28 @@
+{% extends "site_base.html" %}
+
+{% block head_title %}Notifications{% endblock %}
+
+{% load thumbnail %}
+
+{% block body %}
+    <div class="row">
+<div class="col-md-12">        
+
+<h1>Notifications</h1>
+
+<ul class="nav nav-tabs">
+  <li role="presentation" {% if filter_new %} class="active" {% endif %}><a href="{% url 'unread_notifications_view' %}">New</a></li>
+  <li role="presentation" {% if not filter_new %} class="active" {% endif %}><a href="{% url 'read_notifications_view' %}">Old</a></li>
+</ul>
+
+<p></p>
+<ul>
+{% for n in notifications %}
+<li><a href="{{n.get_absolute_url}}">{{n.msg_txt}}</a> {{n.created_at}} by {{n.sender_user}}</li>
+{% endfor %}
+</ul>
+    </div>
+    </div>
+    
+    
+{% endblock %}

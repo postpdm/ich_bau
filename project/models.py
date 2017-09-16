@@ -11,7 +11,7 @@ import reversion
 
 import uuid
 
-#from ytask.profiles.notification_helper import Send_Notification
+from ich_bau.profiles.notification_helper import Send_Notification
 
 def make_uuid():
     return uuid.uuid4() # https://docs.python.org/2/library/uuid.html
@@ -145,9 +145,8 @@ class Member(BaseStampedModel):
         super(Member, self).save(*args, **kwargs)
         # послать уведомление. самому себе посылать не надо. 
         if ( self.member_user != self.modified_user ) and ( self.member_accept is None ):
-            # 
             message_str = 'You are asked to accept the membership of ' + self.project.fullname + ' project team!'
-            #Send_Notification( self.modified_user, self.member_user, message_str, self.project.get_absolute_url() )        
+            Send_Notification( self.modified_user, self.member_user, message_str, self.project.get_absolute_url() )        
     
     def set_team_accept( self ):
         self.team_accept = timezone.now()
@@ -172,8 +171,8 @@ def project_post_save_Notifier_Composer(sender, instance, **kwargs):
     # проект изменился - разослать уведомление всем участникам проекта - кроме автора изменений
     members = instance.GetFullMemberList().exclude( member_user = instance.modified_user )
     message_str = 'Changes in the ' + instance.fullname + ' project'
-    #for m in members:
-        #Send_Notification( instance.modified_user, m.member_user, message_str, instance.get_absolute_url() )
+    for m in members:
+        Send_Notification( instance.modified_user, m.member_user, message_str, instance.get_absolute_url() )
        
 def GetAllPublicProjectList( ):
     return Project.objects.filter( private_flag = False )
@@ -203,8 +202,8 @@ def milestone_post_save_Notifier_Composer(sender, instance, **kwargs):
     # веха изменилась - разослать уведомление всем участникам проекта - кроме автора изменений
     members = instance.project.GetFullMemberList().exclude( member_user = instance.modified_user )
     message_str = 'Changes in the milestone ' + instance.fullname + ' of ' + instance.project.fullname + ' project'
-    #for m in members:
-        #Send_Notification( instance.modified_user, m.member_user, message_str, instance.get_absolute_url() )     
+    for m in members:
+        Send_Notification( instance.modified_user, m.member_user, message_str, instance.get_absolute_url() )     
 
 from mptt.models import MPTTModel, TreeForeignKey
 
@@ -350,12 +349,11 @@ def GetTaskUsers( arg_task, arg_exclude_user ):
     return User.objects.filter( id = TaskComment.objects.values_list('created_user', flat = True).filter(parenttask = arg_task ).exclude( created_user = arg_exclude_user ).distinct() )
        
 def Send_Notifications_For_Task( arg_sender_user, arg_msg, arg_list, arg_url, arg_task_assignee ):
-    pass
-    #for m in arg_list:
-    #    Send_Notification( arg_sender_user, m, arg_msg, arg_url )
+    for m in arg_list:
+        Send_Notification( arg_sender_user, m, arg_msg, arg_url )
     
-    #if not ( arg_task_assignee is None ) and ( arg_task_assignee != arg_sender_user ) and not ( arg_task_assignee in arg_list ):        
-    #    Send_Notification( arg_sender_user, arg_task_assignee, arg_msg, arg_url )
+    if not ( arg_task_assignee is None ) and ( arg_task_assignee != arg_sender_user ) and not ( arg_task_assignee in arg_list ):        
+        Send_Notification( arg_sender_user, arg_task_assignee, arg_msg, arg_url )
 
 @receiver(post_save, sender=Task)
 def task_post_save_Notifier_Composer(sender, instance, **kwargs):
