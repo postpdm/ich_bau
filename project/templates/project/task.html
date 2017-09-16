@@ -82,7 +82,7 @@ no history to view
   <li>{% if not st.subtask.get_opened %}<strike>{% endif %}
   <a href="{{st.subtask.get_absolute_url}}">{{st.subtask}}</a>
   {% if not st.subtask.get_opened %}</strike>{% endif %}
-{% if user_can_work %}
+{% if user_can_work and task.get_opened %}
  &nbsp;&nbsp;&nbsp; <a class="btn btn-default btn-xs" href="{{st.get_absolute_url}}unlink"  data-confirm="Unlink {{st.subtask}}?" >Unlink</a>
 {% endif %}
   </li>
@@ -102,7 +102,7 @@ no history to view
 
 
 
-              {% if user_can_work %}
+              {% if user_can_work and task.get_opened %}
 <a class="btn btn-default" href="{{task.get_absolute_url}}checklist">Edit check list</a>                
               {% endif %}  
 
@@ -114,7 +114,7 @@ no history to view
 {{check}}
 {% if check.check_flag %}</strike>{%endif%}
 
-{% if user_can_work %}
+{% if user_can_work and task.get_opened %}
  &nbsp;&nbsp;&nbsp; <a href="{{check.get_absolute_url}}switch"  data-confirm="Switch {{check}}?"> {% if check.check_flag %}Mark undone{% else %}Mark done{%endif%}</a>
 {% endif %}
 
