@@ -163,7 +163,7 @@ def get_project_view(request, project_id, arg_task_filter = TASK_FILTER_OPEN ):
     milestones = Milestone.objects.filter(project = project).order_by('finished_at')
     
     filter_type = ''
-    filter = None
+    task_filter = None
     base_tasks = project.Get_Tasks()
     
     if arg_task_filter == TASK_FILTER_OPEN:
@@ -175,9 +175,9 @@ def get_project_view(request, project_id, arg_task_filter = TASK_FILTER_OPEN ):
         else:
             if arg_task_filter == TASK_FILTER_SEARCH:
                 filter_type = 'filter_task_search'
-                # тут хитрость. tasks в других случаях это готовый датасет. а здесь - это фильтр, способный генерировать как форму с параметрами так и датасет
-                tasks = TaskFilter( request.GET, queryset=base_tasks )                
-                tasks.filters['milestone'].extra['queryset'] = milestones
+                task_filter = TaskFilter( request.GET, queryset=base_tasks )                
+                task_filter.filters['milestone'].queryset = milestones
+                tasks = task_filter.qs
             else:
                 raise Http404    
  
@@ -186,7 +186,7 @@ def get_project_view(request, project_id, arg_task_filter = TASK_FILTER_OPEN ):
                      'members':members,
                      'milestones' : milestones,
                      'tasks' : tasks,
-                     'filter': tasks,
+                     'filter': task_filter,
                      'filter_type' : filter_type,
                      'user_can_work' : user_can_work,
                      'user_can_admin' : user_can_admin,
