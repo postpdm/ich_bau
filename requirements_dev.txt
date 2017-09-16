@@ -1,1 +1,4 @@
 django
+django-bootstrap-form
+pinax-theme-bootstrap
+django-user-accounts
