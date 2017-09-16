@@ -18,7 +18,7 @@
                 <div class="profile">
                     {% if profile.bio %}
                         <div class="bio">
-                            {{ profile.bio|linebreaks }}
+                            {{ profile.bio_html|safe}}
                         </div>
                     {% endif %}
                     {% if profile.affiliation %}

@@ -34,6 +34,7 @@ def avatar_upload(instance, filename):
     filename = "%s.%s" % (uuid.uuid4(), ext)
     return os.path.join("avatars", filename)
 
+import markdown
 
 class Profile(models.Model):
 
@@ -59,3 +60,6 @@ class Profile(models.Model):
             return self.name
         else:
             return self.user.username
+            
+    def bio_html(self):
+        return markdown.markdown(self.bio)            
