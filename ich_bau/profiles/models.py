@@ -62,4 +62,4 @@ class Profile(models.Model):
             return self.user.username
             
     def bio_html(self):
-        return markdown.markdown(self.bio)            
+        return markdown.markdown(self.bio)

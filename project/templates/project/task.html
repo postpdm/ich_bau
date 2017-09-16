@@ -34,7 +34,7 @@
   
   <div class="panel-body">
   {% if task.description %}
-  <p>{{ task.description|safe }}</p>  
+  <p>{{ task.description_html|safe }}</p>  
   {% endif %}
 
   <td>{% if task.holder_user %}<p>Holder: {{task.holder_user}}</p>{% endif %}</td>
@@ -131,7 +131,7 @@ no history to view
 <li class="list-group-item"><strong>Comments:</strong></li>
 {% for c in comments %}
 <li class="list-group-item">
-<p>{{c.comment|safe}}</p>
+<p>{{c.comment_html|safe}}</p>
 
 <p class="text-right">
  {% ifequal c.created_user request.user %}  

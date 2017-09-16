@@ -13,6 +13,8 @@ import uuid
 
 from ich_bau.profiles.notification_helper import Send_Notification
 
+import markdown
+
 def make_uuid():
     return uuid.uuid4() # https://docs.python.org/2/library/uuid.html
 
@@ -128,6 +130,9 @@ class Project(BaseStampedModel):
 
     def get_absolute_url(self):
         return "/project/project/%i/" % self.id
+        
+    def description_html(self):
+        return markdown.markdown(self.description)
 
 class Member(BaseStampedModel):
     project = models.ForeignKey(Project, blank=False, null=False )
@@ -307,6 +312,9 @@ class Task(BaseStampedModel):
     
     def get_absolute_url(self):
         return "/project/task/%i/" % self.id
+        
+    def description_html(self):
+        return markdown.markdown(self.description)
 
 # связи между задачами
 class TaskLink(models.Model):
@@ -329,6 +337,9 @@ class TaskComment(BaseStampedModel):
     def __str__(self):
         # у коментария есть только длинный текст, поэтому выводить можно только реквизиты
         return str( self.created_user ) + " " + self.created_at.strftime("%Y-%m-%d %H:%M:%S")
+        
+    def comment_html(self):
+        return markdown.markdown(self.comment)
 
 @reversion.register()
 class TaskCheckList(BaseStampedModel):
