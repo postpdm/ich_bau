@@ -669,7 +669,6 @@ class ResourceCreateView(LoginRequiredMixin, CreateView):
         else:
             return { }
 
-from mptt.exceptions import InvalidMove 
 @login_required
 def resource_edit(request, resource_id):
     context = RequestContext(request)
