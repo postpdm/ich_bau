@@ -11,6 +11,7 @@ from account.mixins import LoginRequiredMixin
 from .forms import ProfileForm
 from .models import Profile
 from account.decorators import login_required
+from reversion.models import Version
 
 class ProfileEditView(LoginRequiredMixin, UpdateView):
 
@@ -66,15 +67,10 @@ def notifications_view_read(request):
     
 @login_required
 def notification_read( request, notification_id ):
-    print('111111111111')
-    
     from django.http import HttpResponse
     # у самого уведомления отдельной страницы нет
     n = get_object_or_404( Notification, pk=notification_id )
     # убедимся, что юзер - адресат уведомления
-    print('222')
-    
-    
     if n.reciever_user == request.user:
         if n.get_unreaded:
             n.mark_readed()
