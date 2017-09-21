@@ -14,6 +14,8 @@ import uuid
 from ich_bau.profiles.notification_helper import Send_Notification
 from ich_bau.profiles.models import Profile
 
+from django.shortcuts import get_object_or_404
+
 import markdown
 
 def make_uuid():
@@ -151,9 +153,9 @@ class Member(BaseStampedModel):
     def save(self, *args, **kwargs):
         super(Member, self).save(*args, **kwargs)
         # послать уведомление. самому себе посылать не надо. 
-        if ( self.member_user != self.modified_user ) and ( self.member_accept is None ):
+        if ( self.member_profile.user != self.modified_user ) and ( self.member_accept is None ):
             message_str = 'You are asked to accept the membership of ' + self.project.fullname + ' project team!'
-            Send_Notification( self.modified_user, self.member_user, message_str, self.project.get_absolute_url() )        
+            Send_Notification( self.modified_user, self.member_profile.user, message_str, self.project.get_absolute_url() )        
     
     def set_team_accept( self ):
         self.team_accept = timezone.now()
@@ -165,7 +167,7 @@ class Member(BaseStampedModel):
     def make_admin_after_project_create(cls, sender, instance, created, **kwargs):
         if created:
             project_created = instance
-            pm = cls( member_user = project_created.created_user, project=project_created, admin_flag = True, created_user = project_created.created_user, modified_user = project_created.created_user )
+            pm = cls( member_profile = get_object_or_404( Profile, user=project_created.created_user), project=project_created, admin_flag = True, created_user = project_created.created_user, modified_user = project_created.created_user )
             pm.set_team_accept()
             pm.set_member_accept()            
             pm.save()
@@ -176,10 +178,10 @@ post_save.connect(Member.make_admin_after_project_create, sender=Project)
 @receiver(post_save, sender=Project)
 def project_post_save_Notifier_Composer(sender, instance, **kwargs):
     # проект изменился - разослать уведомление всем участникам проекта - кроме автора изменений
-    members = instance.GetFullMemberList().exclude( member_user = instance.modified_user )
+    members = instance.GetFullMemberList().exclude( member_profile__user = instance.modified_user )
     message_str = 'Changes in the ' + instance.fullname + ' project'
     for m in members:
-        Send_Notification( instance.modified_user, m.member_user, message_str, instance.get_absolute_url() )
+        Send_Notification( instance.modified_user, m.member_profile.user, message_str, instance.get_absolute_url() )
        
 def GetAllPublicProjectList( ):
     return Project.objects.filter( private_flag = False )
