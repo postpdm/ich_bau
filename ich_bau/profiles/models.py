@@ -6,6 +6,8 @@ from django.utils import timezone
 
 from django.contrib.auth.models import User
 
+from django.shortcuts import get_object_or_404
+
 class Notification(models.Model):
     sender_user = models.ForeignKey(User, related_name = 'sender_user' )
     created_at = models.DateTimeField(default=timezone.now)
@@ -79,3 +81,6 @@ class Profile(models.Model):
             
     def description_html(self):
         return markdown.markdown(self.description)
+        
+def GetProfileByUser( arg_user ):
+    return get_object_or_404( Profile, user=arg_user )

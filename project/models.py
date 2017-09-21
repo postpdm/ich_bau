@@ -14,8 +14,6 @@ import uuid
 from ich_bau.profiles.notification_helper import Send_Notification
 from ich_bau.profiles.models import Profile
 
-from django.shortcuts import get_object_or_404
-
 import markdown
 
 def make_uuid():
@@ -98,7 +96,7 @@ class Project(BaseStampedModel):
         else:
             # предполагается 1 или ни единого. 
             try:
-                m = self.GetMemberList().get( member_user = arg_user )
+                m = self.GetMemberList().get( member_profile__user = arg_user )
                 if ( not m ) or ( m is None ):
                     member_level = None
                 else:
@@ -167,7 +165,7 @@ class Member(BaseStampedModel):
     def make_admin_after_project_create(cls, sender, instance, created, **kwargs):
         if created:
             project_created = instance
-            pm = cls( member_profile = get_object_or_404( Profile, user=project_created.created_user), project=project_created, admin_flag = True, created_user = project_created.created_user, modified_user = project_created.created_user )
+            pm = cls( member_profile = GetProfileByUser( project_created.created_user), project=project_created, admin_flag = True, created_user = project_created.created_user, modified_user = project_created.created_user )
             pm.set_team_accept()
             pm.set_member_accept()            
             pm.save()
