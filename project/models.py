@@ -189,7 +189,7 @@ def GetMemberedProjectList( arg_user ):
     if ( arg_user is None ) or ( not arg_user.is_authenticated() ):
         return { }
     else:
-        return Project.objects.filter( member__member_user = arg_user ).order_by('-active_flag')
+        return Project.objects.filter( member__member_profile__user = arg_user ).order_by('-active_flag')
         
 @reversion.register()
 class Milestone(BaseStampedModel):
