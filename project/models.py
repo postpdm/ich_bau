@@ -12,6 +12,7 @@ import reversion
 import uuid
 
 from ich_bau.profiles.notification_helper import Send_Notification
+from ich_bau.profiles.models import Profile
 
 import markdown
 
@@ -55,7 +56,8 @@ class Project(BaseStampedModel):
         return q
         
     def GetFullMemberUsers( self ):
-        q = User.objects.filter( member_user__project = self, member_user__team_accept__isnull = False, member_user__member_accept__isnull = False )
+        q = None
+        #User.objects.filter( member_user__project = self, member_user__team_accept__isnull = False, member_user__member_accept__isnull = False )
         return q        
     
     def is_member( self, arg_user ):
@@ -136,7 +138,7 @@ class Project(BaseStampedModel):
 
 class Member(BaseStampedModel):
     project = models.ForeignKey(Project, blank=False, null=False )
-    member_user = models.ForeignKey(User, blank=False, null=False, related_name = "member_user" )
+    member_profile = models.ForeignKey( Profile, blank=False, null=False, related_name = "member_profile" )
     admin_flag=models.BooleanField(blank=True, default=False, verbose_name = 'Admin')
     # флаг подтверждения со стороны админа проекта
     team_accept = models.DateTimeField( blank=True, null=True )
@@ -144,7 +146,7 @@ class Member(BaseStampedModel):
     member_accept = models.DateTimeField( blank=True, null=True )
     
     class Meta:
-        unique_together = ("project", "member_user")
+        unique_together = ("project", "member_profile")
             
     def save(self, *args, **kwargs):
         super(Member, self).save(*args, **kwargs)
@@ -209,30 +211,6 @@ def milestone_post_save_Notifier_Composer(sender, instance, **kwargs):
     message_str = 'Changes in the milestone ' + instance.fullname + ' of ' + instance.project.fullname + ' project'
     for m in members:
         Send_Notification( instance.modified_user, m.member_user, message_str, instance.get_absolute_url() )     
-
-class Resource(models.Model):
-    shortname = models.CharField(max_length=255, verbose_name = 'Short name!' )
-    fullname = models.CharField(max_length=255, verbose_name = 'Full name', null = True, blank = True )
-    parent = models.ForeignKey('self', null=True, blank=True, related_name='children', verbose_name = 'Parent resource' )
-    
-    def Get_Tasks( self, arg_opened = None ):
-        q = Task.objects.filter( resource = self )
-        if arg_opened is None:
-            return q
-        else:
-            return q.filter(finished_fact_at__isnull = arg_opened )
-    
-    class Meta:
-        ordering = ['shortname']
-        
-    class MPTTMeta:
-        order_insertion_by = ['shortname']   
-    
-    def get_absolute_url(self):
-        return "/project/resource/%i/" % self.id
-        
-    def __str__(self):
-        return self.shortname
         
 # состояния задач
 
@@ -253,9 +231,10 @@ class Task(BaseStampedModel):
     project = models.ForeignKey(Project, blank=False, null=False )
     fullname = models.CharField(max_length=255, verbose_name = 'Full name!' )
     description = models.TextField(blank=True, null=True)
-    assigned_user = models.ForeignKey(User, blank=True, null=True, related_name = "Assignee" )
-    resource = models.ForeignKey( Resource, null = True, blank = True, verbose_name = 'Resource' )
-    holder_user = models.ForeignKey(User, blank=True, null=True, related_name = "Holder" )
+    applicant = models.ForeignKey( Profile, blank=True, null=True, related_name = "Applicant" )
+    assignee = models.ForeignKey( Profile, blank=True, null=True, related_name = "Assignee" )
+    #resource = models.ForeignKey( Resource, null = True, blank = True, verbose_name = 'Resource' )
+    holder = models.ForeignKey(Profile, blank=True, null=True, related_name = "Holder" )
     
     state = models.PositiveSmallIntegerField( blank=False, null=False, default = TASK_STATE_NEW )
     # 0 - новая задача

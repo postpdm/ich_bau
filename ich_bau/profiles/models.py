@@ -57,7 +57,7 @@ class Profile(models.Model):
     user = models.OneToOneField(User, related_name="profile")
     name = models.CharField(max_length=75, blank=True)
     avatar = models.ImageField(upload_to=avatar_upload, blank=True)
-    bio = models.TextField(blank=True)
+    description = models.TextField(blank=True)
     affiliation = models.CharField(max_length=100, blank=True)
     location = models.CharField(max_length=100, blank=True)
     website = models.CharField(max_length=250, blank=True)
@@ -77,5 +77,5 @@ class Profile(models.Model):
         else:
             return self.user.username
             
-    def bio_html(self):
-        return markdown.markdown(self.bio)
+    def description_html(self):
+        return markdown.markdown(self.description)

@@ -1,5 +1,5 @@
 ﻿from project.models import *
-from project.forms import ProjectForm, TaskForm, TaskCommentForm, MilestoneForm, MemberForm, TaskLinkedForm, TaskEditTargetDateForm, TaskCheckListForm, ResourceForm
+from project.forms import ProjectForm, TaskForm, TaskCommentForm, MilestoneForm, MemberForm, TaskLinkedForm, TaskEditTargetDateForm, TaskCheckListForm
 
 from django.forms.models import modelformset_factory
 
@@ -628,68 +628,3 @@ def task_check_switch(request, task_check_id):
     
     # перебросить пользователя на задание
     return HttpResponseRedirect('/project/task/%i' % check.parenttask_id )
-    
-def resource_list( request ):
-    # Получить контекст из HTTP запроса.
-    context = RequestContext(request)
-
-    context_dict = { 'resource_list' : Resource.objects.all() }
-
-    # Сформировать ответ, отправить пользователю
-    return render_to_response('project/resource_list.html', context_dict, context)
-    
-def resource_view(request, resource_id ):
-    # Получить контекст запроса
-    context = RequestContext(request)
-    resource = get_object_or_404( Resource, pk=resource_id )   
-
-    tasks = resource.Get_Tasks( True )
-    subresources = Resource.objects.filter(parent=resource)
-    
-    # Записать список в словарь
-    context_dict = { 'resource': resource, 'subresources' : subresources, 'tasks' : tasks }
-
-    # Рендерить ответ
-    return render_to_response('project/resource.html', context_dict, context)
-    
-class ResourceCreateView(LoginRequiredMixin, CreateView):
-
-    form_class = ResourceForm
-    model = Resource
-    
-    def get_initial(self):
-        try:
-            parent_resource_id = self.kwargs['parent_resource_id']
-        except:
-            parent_resource_id = None
-        
-        if not parent_resource_id is None:
-            parent = Resource.objects.get(id=parent_resource_id)
-            return { 'parent':parent, }
-        else:
-            return { }
-
-@login_required
-def resource_edit(request, resource_id):
-    context = RequestContext(request)
-    
-    resource = get_object_or_404( Resource, pk=resource_id )
-    
-    if request.method == 'POST':        
-        form = ResourceForm(request.POST, instance=resource)
-        
-        if form.is_valid():
-            try:
-                form.save()
-                messages.success(request, "You successfully updated this resource!")
-                return HttpResponseRedirect( resource.get_absolute_url() )
-            except InvalidMove as e: 
-                messages.warning(request, "Can't move resource here! Change parent!")
-        else:
-            print( form.errors )
-    else:        
-        form = ResourceForm( instance=resource )
-
-    return render_to_response( 'project/resource_form.html',
-            {'form': form, 'resource':resource},
-             context)    

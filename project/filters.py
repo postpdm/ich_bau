@@ -22,5 +22,5 @@ class TaskFilter(django_filters.FilterSet):
     
     class Meta:
         model = Task
-        fields = ['fullname', 'description', 'state', 'milestone', 'resource' ]
+        fields = ['fullname', 'description', 'state', 'milestone' ]
       

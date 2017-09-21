@@ -1,7 +1,7 @@
 ﻿# project forms
 
 from django import forms
-from project.models import Project, Task, TaskComment, Milestone, Member, TaskLink, TaskCheckList, Resource
+from project.models import Project, Task, TaskComment, Milestone, Member, TaskLink, TaskCheckList
 
 from django.forms.widgets import HiddenInput
 
@@ -33,7 +33,7 @@ from django.contrib.auth.models import User
 class MemberForm(forms.ModelForm):
     class Meta:
         model = Member
-        fields = ['member_user', 'admin_flag' ]
+        fields = ['member_profile', 'admin_flag' ]
         
     def __init__(self, *args, **kwargs):
         super(MemberForm, self).__init__(*args, **kwargs)
@@ -49,7 +49,7 @@ class TaskForm(forms.ModelForm):
     
     class Meta:
         model = Task
-        fields = ['fullname', 'milestone', 'holder_user', 'assigned_user', 'resource', 'important', 'description', ]
+        fields = ['fullname', 'milestone', 'applicant', 'assignee', 'holder', 'important', 'description', ]
         
     def __init__(self, *args, **kwargs):
         super(TaskForm, self).__init__(*args, **kwargs)
@@ -103,11 +103,4 @@ class TaskCommentForm(forms.ModelForm):
 class TaskCheckListForm(forms.ModelForm):
     class Meta:
         model = TaskCheckList
-        fields = ['checkname', 'check_flag' ]        
-
-        
-class ResourceForm(forms.ModelForm):
-
-    class Meta:
-        model = Resource
-        fields = ['shortname', 'fullname', 'parent' ]
+        fields = ['checkname', 'check_flag' ]

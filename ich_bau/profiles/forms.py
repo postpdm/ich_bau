@@ -12,7 +12,7 @@ class ProfileForm(forms.ModelForm):
         fields = [
             "name",
             "avatar",
-            "bio",
+            "description",
             "affiliation",
             "location",
             "website",
