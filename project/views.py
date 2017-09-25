@@ -23,6 +23,7 @@ import reversion
 from reversion.models import Version
 
 from project.filters import ProjectFilter, TaskFilter
+from ich_bau.profiles.models import GetProfileByUser
 
 # константы фильров по проектам
 PROJECT_FILTER_MINE = 0
@@ -317,16 +318,16 @@ class TaskCreateView(LoginRequiredMixin, CreateView):
     
     def get_initial(self):        
         # если задана веха
-        holder = self.request.user
+        holder = GetProfileByUser( self.request.user )
         try:
             milestone_id = self.kwargs['milestone_id']
             self.m = get_object_or_404( Milestone, pk = milestone_id )
             self.p = self.m.project
-            return { 'project': self.p, 'holder_user' : holder, 'milestone' : self.m }
+            return { 'project': self.p, 'holder' : holder, 'milestone' : self.m }
         except:
             milestone_id = None
             self.p = get_object_or_404( Project, pk = self.kwargs['project_id'])
-            return { 'project': self.p, 'holder_user' : holder, }
+            return { 'project': self.p, 'holder' : holder, }
         
     def form_valid(self, form):        
         project_id = None

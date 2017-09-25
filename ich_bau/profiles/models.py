@@ -40,15 +40,17 @@ import markdown
 
 PROFILE_TYPE_BOT = 0
 PROFILE_TYPE_USER = 1
-PROFILE_TYPE_DEPARTAMENT = 2
-PROFILE_TYPE_ORG = 3
-PROFILE_TYPE_RESOURCE = 4
+PROFILE_TYPE_PEOPLE = 2 # without accunt
+PROFILE_TYPE_DEPARTAMENT = 3
+PROFILE_TYPE_ORG = 4
+PROFILE_TYPE_RESOURCE = 5
 
-PROFILE_TYPE_LIST = ( PROFILE_TYPE_BOT, PROFILE_TYPE_USER, PROFILE_TYPE_DEPARTAMENT, PROFILE_TYPE_ORG, PROFILE_TYPE_RESOURCE )
+PROFILE_TYPE_LIST = ( PROFILE_TYPE_BOT, PROFILE_TYPE_USER, PROFILE_TYPE_PEOPLE, PROFILE_TYPE_DEPARTAMENT, PROFILE_TYPE_ORG, PROFILE_TYPE_RESOURCE )
 
 PROFILE_TYPE_CHOICES = (
   ( PROFILE_TYPE_BOT, 'Bot' ), 
   ( PROFILE_TYPE_USER, 'User' ),
+  ( PROFILE_TYPE_PEOPLE, 'People' ),
   ( PROFILE_TYPE_DEPARTAMENT, 'Departament' ),
   ( PROFILE_TYPE_ORG, 'Organization' ),
   ( PROFILE_TYPE_RESOURCE, 'Resource' ),
@@ -56,7 +58,7 @@ PROFILE_TYPE_CHOICES = (
 
 class Profile(models.Model):
     profile_type = models.PositiveSmallIntegerField( blank=False, null=False, default = PROFILE_TYPE_USER )
-    user = models.OneToOneField(User, related_name="profile")
+    user = models.OneToOneField(User, blank=True, null=True, related_name="profile")
     name = models.CharField(max_length=75, blank=True)
     avatar = models.ImageField(upload_to=avatar_upload, blank=True)
     description = models.TextField(blank=True)
@@ -82,5 +84,5 @@ class Profile(models.Model):
     def description_html(self):
         return markdown.markdown(self.description)
         
-def GetProfileByUser( arg_user ):
+def GetProfileByUser( arg_user ): # это лишнее
     return get_object_or_404( Profile, user=arg_user )

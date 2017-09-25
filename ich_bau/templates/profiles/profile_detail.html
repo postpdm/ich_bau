@@ -16,9 +16,9 @@
                 <h2>{{ profile.display_name }}</h2>
 
                 <div class="profile">
-                    {% if profile.bio %}
+                    {% if profile.description %}
                         <div class="bio">
-                            {{ profile.bio_html|safe}}
+                            {{ profile.description_html|safe}}
                         </div>
                     {% endif %}
                     {% if profile.affiliation %}

@@ -23,7 +23,7 @@
                     {% endif %}
 
                     <div class="media-body">
-                        <h4 class="media-heading"><a href="{% url 'profiles_detail' username=profile.user.username %}">{{ profile.display_name }}</a></h4>
+                        <h4 class="media-heading"><a href="{% url 'profiles_detail' pk=profile.id %}">{{ profile.display_name }}</a></h4>
                     {% if profile.affiliation %}
                         <div>
                             <span class="dim">

@@ -15,7 +15,7 @@ urlpatterns = [
     url(r"^profile/edit/", ProfileEditView.as_view(), name="profiles_edit"),
     url(r"^u/$", ProfileListView.as_view(), name="profiles_list"),
 
-    url(r"^u/(?P<username>[\w\._-]+)/$", ProfileDetailView.as_view(), name="profiles_detail"),
+    url(r"^u/(?P<pk>\w+)/$", ProfileDetailView.as_view(), name="profiles_detail"),
     
     url(r"^notifications/$", notifications_view_unread, name="unread_notifications_view"),
     url(r"^notifications/read/$", notifications_view_read, name="read_notifications_view"),

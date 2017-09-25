@@ -29,12 +29,11 @@ class ProfileEditView(LoginRequiredMixin, UpdateView):
         messages.success(self.request, "You successfully updated your profile.")
         return response
 
-
 class ProfileDetailView(DetailView):
 
     model = Profile
-    slug_url_kwarg = "username"
-    slug_field = "user__username"
+    slug_url_kwarg = "profile_id"
+    slug_field = "id"
     context_object_name = "profile"
 
 
@@ -81,10 +80,3 @@ def notification_read( request, notification_id ):
             return redirect( n.msg_url )            
     else:
         Http404    
-
-class ProfileDetailView(DetailView):
-
-    model = Profile
-    slug_url_kwarg = "username"
-    slug_field = "user__username"
-    context_object_name = "profile"
