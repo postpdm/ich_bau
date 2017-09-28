@@ -12,9 +12,6 @@
 <th>Target milestone</th>
 <th>Holder</th>
 <th>Assignee</th>
-{% if table_mode != 'resource' %}
-<th>Resource</th>
-{% endif %}
 <th>State</th>
 </tr>
 </thead>
@@ -22,7 +19,7 @@
     {% for t in tasks %}
     <tr>
     
-{% if table_mode == 'resource' or table_mode == 'index' %}
+{% if table_mode == 'index' %}
 <td><a href="{{t.project.get_absolute_url}}">{{t.project}}</a></td>
 {% endif %}
     
@@ -38,11 +35,8 @@
     </td>
     <td>{% if t.milestone %} Milestone - <a href="{{t.milestone.get_absolute_url}}">{{t.milestone}} {% if t.milestone.planned_at %} {{ t.milestone.planned_at|date }} {% endif %} </a>{% endif %}
     <div {% if t.target_date_at > t.milestone.planned_at %} class="bg-danger" {% endif %} > {% if t.target_date_at %}Target date - {{t.target_date_at|date}} {% endif %}</div></td>
-    <td>{% if t.holder_user %} {{t.holder_user}}{% endif %}</td>
-    <td>{% if t.assigned_user %} {{t.assigned_user}} {% endif %}</td>
-{% if table_mode != 'resource' %}
-    <td>{% if t.resource %} {{t.resource}} {% endif %}</td>
-{% endif %}    
+    <td>{% if t.holder %} {{t.holder}}{% endif %}</td>
+    <td>{% if t.assignee %} {{t.assignee}} {% endif %}</td>
     <td>{{t.get_state_name}}</td>
     </tr>
     {% endfor %}
