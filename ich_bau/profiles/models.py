@@ -76,11 +76,13 @@ class Profile(models.Model):
 
     @property
     def display_name(self):
+        s = ''
         if self.name:
-            return self.name
+            s = self.name
         else:
-            return self.user.username
-            
+            s = self.user.username
+        return s + " (" + PROFILE_TYPE_CHOICES[self.profile_type][1] + ")"
+        
     def description_html(self):
         return markdown.markdown(self.description)
         

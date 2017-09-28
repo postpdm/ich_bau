@@ -36,12 +36,11 @@ class ProfileDetailView(DetailView):
     slug_field = "id"
     context_object_name = "profile"
 
-
 class ProfileListView(ListView):
 
     model = Profile
     context_object_name = "profiles"
-
+    
 from .models import Notification, GetUserNoticationsQ
 
 @login_required
