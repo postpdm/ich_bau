@@ -18,7 +18,6 @@ class MilestoneForm(forms.ModelForm):
     # planned_at = forms.DateField(
         # widget=DateTimePicker(options={"format": "YYYY-MM-DD",
                                        # "pickTime": False}))
-                                       
     # finished_at = forms.DateField( required = False,
         # widget=DateTimePicker( options={"format": "YYYY-MM-DD", "pickTime": False} ))
 
@@ -28,7 +27,7 @@ class MilestoneForm(forms.ModelForm):
         #, 'planned_at', 'finished_at' 
         ]
 
-from django.contrib.auth.models import User
+from ich_bau.profiles.models import Profile, Get_Users_Profiles
 
 class MemberForm(forms.ModelForm):
     class Meta:
@@ -42,14 +41,14 @@ class MemberForm(forms.ModelForm):
             
         # отображать только свободных людей
         if not ( p is None):
-            self.fields['member_user'].queryset = User.objects.exclude( member_user__project_id = p.id )
+            self.fields['member_profile'].queryset = Get_Users_Profiles().exclude( member_profile__project_id = p.id )
           
 class TaskForm(forms.ModelForm):
     #description = HTML_Field( required = False )
     
     class Meta:
         model = Task
-        fields = ['fullname', 'milestone', 'applicant', 'assignee', 'holder', 'important', 'description', ]
+        fields = ['fullname', 'milestone', 'assignee', 'holder', 'important', 'description', ]
         
     def __init__(self, *args, **kwargs):
         super(TaskForm, self).__init__(*args, **kwargs)

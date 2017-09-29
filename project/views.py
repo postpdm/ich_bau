@@ -300,7 +300,7 @@ def member_accept(request, member_id):
     member = get_object_or_404( Member, pk = member_id )
     
     # проверить - а тот ли юзер?
-    if ( member.member_user == request.user ):
+    if ( member.member_profile.user == request.user ):
         member.set_member_accept()
         member.save()
         return HttpResponseRedirect( member.project.get_absolute_url() )

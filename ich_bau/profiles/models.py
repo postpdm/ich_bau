@@ -73,7 +73,10 @@ class Profile(models.Model):
     def save(self, *args, **kwargs):
         self.modified_at = timezone.now()
         return super(Profile, self).save(*args, **kwargs)
-
+        
+    def __str__(self):
+        return self.display_name
+        
     @property
     def display_name(self):
         s = ''
@@ -85,6 +88,10 @@ class Profile(models.Model):
         
     def description_html(self):
         return markdown.markdown(self.description)
+
+# датасет профилей, принадлежащих юзерам
+def Get_Users_Profiles():
+    return Profile.objects.filter( profile_type = PROFILE_TYPE_USER )
         
 def GetProfileByUser( arg_user ): # это лишнее
     return get_object_or_404( Profile, user=arg_user )

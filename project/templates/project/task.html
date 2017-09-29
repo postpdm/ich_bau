@@ -58,7 +58,7 @@ no history to view
 <a href="{{task.get_absolute_url}}history">History</a>
 {% endif %}  
   <br>  
-  <small>{{task.created_at}} by <a href="{% url 'profiles_detail' username=task.created_user.username %}">{{task.created_user}}</a></small></p>
+  <small>{{task.created_at}} by <a href="{% url 'profiles_detail' pk=task.created_user.profile.id %}">{{task.created_user}}</a></small></p>
   </div>
   
 <ul class="list-group">
@@ -144,7 +144,7 @@ no history to view
  
   <br>  
  {% endifequal %}
-<small>{{c.created_at}} by <a href="{% url 'profiles_detail' username=c.created_user.username %}">{{c.created_user}}</a></small></p>
+<small>{{c.created_at}} by <a href="{% url 'profiles_detail' pk=c.created_user.profile.pk %}">{{c.created_user}}</a></small></p>
 
 </li>
 {% endfor %}
