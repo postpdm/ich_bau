@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import Profile
+from .models import Profile, Profile_Affiliation
 
 
 admin.site.register(
@@ -25,4 +25,12 @@ admin.site.register(
         "website",
         "twitter_username",
     ]
+)
+
+admin.site.register(
+    Profile_Affiliation,
+    list_display=[
+        "main_profile",
+        "sub_profile",
+    ],
 )

@@ -98,3 +98,6 @@ def GetProfileByUser( arg_user ): # это лишнее
 class Profile_Affiliation(models.Model):
     main_profile = models.ForeignKey(Profile, related_name = 'main_profile' )
     sub_profile = models.ForeignKey(Profile, related_name = 'sub_profile' )
+
+    class Meta:
+        unique_together = ( "main_profile", "sub_profile")
