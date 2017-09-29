@@ -9,7 +9,6 @@ admin.site.register(
         "user",
         "name",
         "avatar",
-        "affiliation",
         "location",
         "website",
         "twitter_username",

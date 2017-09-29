@@ -62,7 +62,6 @@ class Profile(models.Model):
     name = models.CharField(max_length=75, blank=True)
     avatar = models.ImageField(upload_to=avatar_upload, blank=True)
     description = models.TextField(blank=True)
-    affiliation = models.CharField(max_length=100, blank=True)
     location = models.CharField(max_length=100, blank=True)
     website = models.CharField(max_length=250, blank=True)
     twitter_username = models.CharField("Twitter Username", max_length=100, blank=True)
@@ -95,3 +94,7 @@ def Get_Users_Profiles():
         
 def GetProfileByUser( arg_user ): # это лишнее
     return get_object_or_404( Profile, user=arg_user )
+    
+class Profile_Affiliation(models.Model):
+    main_profile = models.ForeignKey(Profile, related_name = 'main_profile' )
+    sub_profile = models.ForeignKey(Profile, related_name = 'sub_profile' )

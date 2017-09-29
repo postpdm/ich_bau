@@ -12,7 +12,6 @@ class ProfileForm(forms.ModelForm):
             "name",
             "avatar",
             "description",
-            "affiliation",
             "location",
             "website",
             "twitter_username",
