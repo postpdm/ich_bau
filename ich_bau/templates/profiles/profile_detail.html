@@ -16,17 +16,9 @@
                 <h2>{{ profile.display_name }}</h2>
 
                 <div class="profile">
-                    {% if profile.bio %}
+                    {% if profile.description %}
                         <div class="bio">
-                            {{ profile.bio_html|safe}}
-                        </div>
-                    {% endif %}
-                    {% if profile.affiliation %}
-                        <div class="item">
-                            <span class="dim">
-                                <i class="fa fa-institution"></i>
-                            </span>
-                            {{ profile.affiliation }}
+                            {{ profile.description_html|safe}}
                         </div>
                     {% endif %}
                     {% if profile.location %}
@@ -66,5 +58,35 @@
                 </div>
             </div>
         </div>
+        <div class="col-md-4">
+        <h2>Main profiles</h2>
+        {% if main_profiles %}
+        <ul>
+        {% for mp in main_profiles %}
+        <li><a href="{% url 'profiles_detail' pk=mp.main_profile.id %}">{{ mp.main_profile.display_name }}</a></li>
+        {% endfor %}
+        </ul>
+        {% endif %}
+        <h2>Sub profiles</h2>
+        {% if sub_profiles %}
+        <ul>
+        {% for sp in sub_profiles %}
+        <li><a href="{% url 'profiles_detail' pk=sp.sub_profile.id %}">{{ sp.sub_profile.display_name }}</a></li>
+        {% endfor %}
+        </ul>
+        {% endif %}
+        </div>
+        <h2>Controlled profiles</h2>
+        {% if controlled_profiles %}
+        {% for cp in controlled_profiles %}
+        <li><a href="{% url 'profiles_detail' pk=cp.controlled_profile.id %}">{{ cp.controlled_profile.display_name }}</a></li>
+        {% endfor %}
+        {% endif %}
+        <h2>Controlled by users</h2>
+        {% if controlled_by_user %}
+        {% for cu in controlled_by_user %}
+        <li><a href="{% url 'profiles_detail' pk=cu.control_user.profile.id %}">{{ cu.control_user.profile.display_name }}</a></li>
+        {% endfor %}
+        {% endif %}
     </div>
 {% endblock %}

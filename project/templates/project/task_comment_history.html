@@ -25,7 +25,7 @@
         <tr>
         <td>{{v.revision.date_created}}</td>
         <td>{{v.field_dict.comment|safe}}</td>
-        <td><a href="{% url 'profiles_detail' username=v.revision.user.username %}">{{v.revision.user}}</a></td>
+        <td><a href="{% url 'profiles_detail' pk=v.revision.user.profile.pk %}">{{v.revision.user}}</a></td>
         </tr>
         {% endfor %}
 

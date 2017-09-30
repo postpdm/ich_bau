@@ -12,6 +12,7 @@ import reversion
 import uuid
 
 from ich_bau.profiles.notification_helper import Send_Notification
+from ich_bau.profiles.models import Profile, GetProfileByUser
 
 import markdown
 
@@ -55,20 +56,20 @@ class Project(BaseStampedModel):
         return q
         
     def GetFullMemberUsers( self ):
-        q = User.objects.filter( member_user__project = self, member_user__team_accept__isnull = False, member_user__member_accept__isnull = False )
+        q = Profile.objects.filter( member_profile__project = self, member_profile__team_accept__isnull = False, member_profile__member_accept__isnull = False )
         return q        
     
     def is_member( self, arg_user ):
         if ( arg_user is None ) or ( not arg_user.is_authenticated() ):
             return False # аноним никогда не участник
         else:
-            return self.GetFullMemberList().filter( member_user = arg_user ).exists()
+            return self.GetFullMemberUsers().filter( user = arg_user ).exists()
             
     def is_admin( self, arg_user ):
         if ( arg_user is None ) or ( not arg_user.is_authenticated() ):
             return False # аноним никогда не админ
         else:
-            return self.GetFullMemberList().filter( member_user = arg_user, admin_flag = True ).exists()
+            return self.GetFullMemberList().filter( member_profile__user = arg_user, admin_flag = True ).exists()
     
     def can_admin( self, arg_user ):
         # админить могут только админы, и для открытых, и для закрытых проектов
@@ -94,7 +95,7 @@ class Project(BaseStampedModel):
         else:
             # предполагается 1 или ни единого. 
             try:
-                m = self.GetMemberList().get( member_user = arg_user )
+                m = self.GetMemberList().get( member_profile__user = arg_user )
                 if ( not m ) or ( m is None ):
                     member_level = None
                 else:
@@ -136,7 +137,7 @@ class Project(BaseStampedModel):
 
 class Member(BaseStampedModel):
     project = models.ForeignKey(Project, blank=False, null=False )
-    member_user = models.ForeignKey(User, blank=False, null=False, related_name = "member_user" )
+    member_profile = models.ForeignKey( Profile, blank=False, null=False, related_name = "member_profile" )
     admin_flag=models.BooleanField(blank=True, default=False, verbose_name = 'Admin')
     # флаг подтверждения со стороны админа проекта
     team_accept = models.DateTimeField( blank=True, null=True )
@@ -144,14 +145,14 @@ class Member(BaseStampedModel):
     member_accept = models.DateTimeField( blank=True, null=True )
     
     class Meta:
-        unique_together = ("project", "member_user")
+        unique_together = ("project", "member_profile")
             
     def save(self, *args, **kwargs):
         super(Member, self).save(*args, **kwargs)
         # послать уведомление. самому себе посылать не надо. 
-        if ( self.member_user != self.modified_user ) and ( self.member_accept is None ):
+        if ( self.member_profile.user != self.modified_user ) and ( self.member_accept is None ):
             message_str = 'You are asked to accept the membership of ' + self.project.fullname + ' project team!'
-            Send_Notification( self.modified_user, self.member_user, message_str, self.project.get_absolute_url() )        
+            Send_Notification( self.modified_user, self.member_profile.user, message_str, self.project.get_absolute_url() )        
     
     def set_team_accept( self ):
         self.team_accept = timezone.now()
@@ -163,7 +164,7 @@ class Member(BaseStampedModel):
     def make_admin_after_project_create(cls, sender, instance, created, **kwargs):
         if created:
             project_created = instance
-            pm = cls( member_user = project_created.created_user, project=project_created, admin_flag = True, created_user = project_created.created_user, modified_user = project_created.created_user )
+            pm = cls( member_profile = GetProfileByUser( project_created.created_user), project=project_created, admin_flag = True, created_user = project_created.created_user, modified_user = project_created.created_user )
             pm.set_team_accept()
             pm.set_member_accept()            
             pm.save()
@@ -174,10 +175,10 @@ post_save.connect(Member.make_admin_after_project_create, sender=Project)
 @receiver(post_save, sender=Project)
 def project_post_save_Notifier_Composer(sender, instance, **kwargs):
     # проект изменился - разослать уведомление всем участникам проекта - кроме автора изменений
-    members = instance.GetFullMemberList().exclude( member_user = instance.modified_user )
+    members = instance.GetFullMemberList().exclude( member_profile__user = instance.modified_user )
     message_str = 'Changes in the ' + instance.fullname + ' project'
     for m in members:
-        Send_Notification( instance.modified_user, m.member_user, message_str, instance.get_absolute_url() )
+        Send_Notification( instance.modified_user, m.member_profile.user, message_str, instance.get_absolute_url() )
        
 def GetAllPublicProjectList( ):
     return Project.objects.filter( private_flag = False )
@@ -187,7 +188,7 @@ def GetMemberedProjectList( arg_user ):
     if ( arg_user is None ) or ( not arg_user.is_authenticated() ):
         return { }
     else:
-        return Project.objects.filter( member__member_user = arg_user ).order_by('-active_flag')
+        return Project.objects.filter( member__member_profile__user = arg_user ).order_by('-active_flag')
         
 @reversion.register()
 class Milestone(BaseStampedModel):
@@ -205,34 +206,10 @@ class Milestone(BaseStampedModel):
 @receiver(post_save, sender=Milestone)
 def milestone_post_save_Notifier_Composer(sender, instance, **kwargs):
     # веха изменилась - разослать уведомление всем участникам проекта - кроме автора изменений
-    members = instance.project.GetFullMemberList().exclude( member_user = instance.modified_user )
+    member_users = instance.project.GetFullMemberUsers().exclude( user = instance.modified_user )
     message_str = 'Changes in the milestone ' + instance.fullname + ' of ' + instance.project.fullname + ' project'
-    for m in members:
-        Send_Notification( instance.modified_user, m.member_user, message_str, instance.get_absolute_url() )     
-
-class Resource(models.Model):
-    shortname = models.CharField(max_length=255, verbose_name = 'Short name!' )
-    fullname = models.CharField(max_length=255, verbose_name = 'Full name', null = True, blank = True )
-    parent = models.ForeignKey('self', null=True, blank=True, related_name='children', verbose_name = 'Parent resource' )
-    
-    def Get_Tasks( self, arg_opened = None ):
-        q = Task.objects.filter( resource = self )
-        if arg_opened is None:
-            return q
-        else:
-            return q.filter(finished_fact_at__isnull = arg_opened )
-    
-    class Meta:
-        ordering = ['shortname']
-        
-    class MPTTMeta:
-        order_insertion_by = ['shortname']   
-    
-    def get_absolute_url(self):
-        return "/project/resource/%i/" % self.id
-        
-    def __str__(self):
-        return self.shortname
+    for m in member_users:
+        Send_Notification( instance.modified_user, m.user, message_str, instance.get_absolute_url() )     
         
 # состояния задач
 
@@ -253,9 +230,10 @@ class Task(BaseStampedModel):
     project = models.ForeignKey(Project, blank=False, null=False )
     fullname = models.CharField(max_length=255, verbose_name = 'Full name!' )
     description = models.TextField(blank=True, null=True)
-    assigned_user = models.ForeignKey(User, blank=True, null=True, related_name = "Assignee" )
-    resource = models.ForeignKey( Resource, null = True, blank = True, verbose_name = 'Resource' )
-    holder_user = models.ForeignKey(User, blank=True, null=True, related_name = "Holder" )
+    # была мысль, что applicant - это тикет в Servicedesk от определенного клиента. Но если тикеты в SD будут отдельно, то достаточно и holder
+    # applicant = models.ForeignKey( Profile, blank=True, null=True, related_name = "Applicant" )
+    assignee = models.ForeignKey( Profile, blank=True, null=True, related_name = "Assignee" )
+    holder = models.ForeignKey(Profile, blank=True, null=True, related_name = "Holder" )
     
     state = models.PositiveSmallIntegerField( blank=False, null=False, default = TASK_STATE_NEW )
     # 0 - новая задача
@@ -299,7 +277,7 @@ class Task(BaseStampedModel):
         # проверить - есть ли данная веха у проекта?
         if ( self.milestone is None ) or ( self.milestone.project == self.project ):
             # проверить - назначение на участника?
-            if ( self.assigned_user is None ) or ( self.project.is_member( self.assigned_user ) ):
+            if ( self.assignee is None ) or ( self.assignee.user is None ) or ( self.project.is_member( self.assignee.user ) ):
                 # проверить состояние
                 if not ( self.state in TASK_STATE_LIST ):
                     raise Exception("Wrong task state!")
@@ -357,12 +335,15 @@ class TaskCheckList(BaseStampedModel):
 def GetTaskUsers( arg_task, arg_exclude_user ):
     return User.objects.filter( id = TaskComment.objects.values_list('created_user', flat = True).filter(parenttask = arg_task ).exclude( created_user = arg_exclude_user ).distinct() )
        
-def Send_Notifications_For_Task( arg_sender_user, arg_msg, arg_list, arg_url, arg_task_assignee ):
+def Send_Notifications_For_Task( arg_sender_user, arg_msg, arg_list, arg_url, arg_task_assignee, arg_task_holder ):
     for m in arg_list:
         Send_Notification( arg_sender_user, m, arg_msg, arg_url )
     
     if not ( arg_task_assignee is None ) and ( arg_task_assignee != arg_sender_user ) and not ( arg_task_assignee in arg_list ):        
         Send_Notification( arg_sender_user, arg_task_assignee, arg_msg, arg_url )
+    
+    if not ( arg_task_holder is None ) and ( arg_task_holder != arg_sender_user ) and not ( arg_task_holder in arg_list ):        
+        Send_Notification( arg_sender_user, arg_task_holder, arg_msg, arg_url )        
 
 @receiver(post_save, sender=Task)
 def task_post_save_Notifier_Composer(sender, instance, **kwargs):
@@ -371,7 +352,14 @@ def task_post_save_Notifier_Composer(sender, instance, **kwargs):
     task_users = GetTaskUsers( instance, instance.modified_user )
     
     message_str = 'Changes in the task ' + instance.fullname + ' of ' + instance.project.fullname + ' project'
-    Send_Notifications_For_Task( instance.modified_user, message_str, task_users, instance.get_absolute_url(), instance.assigned_user )
+    
+    assignee_user = None
+    if ( not ( instance.assignee is None ) ) and ( not ( instance.assignee.user is None ) ):
+        assignee_user = instance.assignee.user
+    holder_user = None
+    if ( not ( instance.holder is None ) ) and ( not ( instance.holder.user is None ) ):
+        holder_user = instance.holder.user        
+    Send_Notifications_For_Task( instance.modified_user, message_str, task_users, instance.get_absolute_url(), assignee_user, holder_user )
 
 @receiver(post_save, sender=TaskComment)
 def taskcomment_post_save_Notifier_Composer(sender, instance, **kwargs):
@@ -381,8 +369,17 @@ def taskcomment_post_save_Notifier_Composer(sender, instance, **kwargs):
         s = 'New'
     else:
         s = 'Changed'
-    task_users = GetTaskUsers( instance.parenttask, instance.modified_user )
+    parent_task = instance.parenttask
+    task_users = GetTaskUsers( parent_task, instance.modified_user )
     
     message_str = s + ' comment in the task ' + instance.parenttask.fullname + ' of ' + instance.parenttask.project.fullname + ' project'
     
-    Send_Notifications_For_Task( instance.modified_user, message_str, task_users, instance.parenttask.get_absolute_url(), instance.parenttask.assigned_user )
+    parenttask_assignee_user = None
+    if ( not ( parent_task.assignee is None ) ) and ( not ( parent_task.assignee.user is None ) ):
+        parenttask_assignee_user = parent_task.assignee.user
+    
+    parenttask_holder_user = None
+    if ( not ( parent_task.holder is None ) ) and ( not ( parent_task.holder.user is None ) ):
+        parenttask_holder_user = parent_task.holder.user
+    
+    Send_Notifications_For_Task( instance.modified_user, message_str, task_users, parent_task.get_absolute_url(), parenttask_assignee_user, parenttask_holder_user )

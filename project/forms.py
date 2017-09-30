@@ -1,7 +1,7 @@
 ﻿# project forms
 
 from django import forms
-from project.models import Project, Task, TaskComment, Milestone, Member, TaskLink, TaskCheckList, Resource
+from project.models import Project, Task, TaskComment, Milestone, Member, TaskLink, TaskCheckList
 
 from django.forms.widgets import HiddenInput
 
@@ -18,7 +18,6 @@ class MilestoneForm(forms.ModelForm):
     # planned_at = forms.DateField(
         # widget=DateTimePicker(options={"format": "YYYY-MM-DD",
                                        # "pickTime": False}))
-                                       
     # finished_at = forms.DateField( required = False,
         # widget=DateTimePicker( options={"format": "YYYY-MM-DD", "pickTime": False} ))
 
@@ -28,12 +27,12 @@ class MilestoneForm(forms.ModelForm):
         #, 'planned_at', 'finished_at' 
         ]
 
-from django.contrib.auth.models import User
+from ich_bau.profiles.models import Profile, Get_Users_Profiles
 
 class MemberForm(forms.ModelForm):
     class Meta:
         model = Member
-        fields = ['member_user', 'admin_flag' ]
+        fields = ['member_profile', 'admin_flag' ]
         
     def __init__(self, *args, **kwargs):
         super(MemberForm, self).__init__(*args, **kwargs)
@@ -42,14 +41,14 @@ class MemberForm(forms.ModelForm):
             
         # отображать только свободных людей
         if not ( p is None):
-            self.fields['member_user'].queryset = User.objects.exclude( member_user__project_id = p.id )
+            self.fields['member_profile'].queryset = Get_Users_Profiles().exclude( member_profile__project_id = p.id )
           
 class TaskForm(forms.ModelForm):
     #description = HTML_Field( required = False )
     
     class Meta:
         model = Task
-        fields = ['fullname', 'milestone', 'holder_user', 'assigned_user', 'resource', 'important', 'description', ]
+        fields = ['fullname', 'milestone', 'assignee', 'holder', 'important', 'description', ]
         
     def __init__(self, *args, **kwargs):
         super(TaskForm, self).__init__(*args, **kwargs)
@@ -64,8 +63,8 @@ class TaskForm(forms.ModelForm):
         # отображать вехи и пользователей только этого проекта
         if not ( p is None):
             self.fields['milestone'].queryset = Milestone.objects.filter( project = p, finished_at__isnull = True )
-            self.fields['holder_user'].queryset = p.GetFullMemberUsers()
-            self.fields['assigned_user'].queryset = p.GetFullMemberUsers()# GetHumans().filter( member_user__project_id = p.id )
+            self.fields['holder'].queryset = p.GetFullMemberUsers()
+            self.fields['assignee'].queryset = p.GetFullMemberUsers()
                         
 class TaskEditTargetDateForm(forms.ModelForm):
     #target_date_at = forms.DateField( required = False,
@@ -103,11 +102,4 @@ class TaskCommentForm(forms.ModelForm):
 class TaskCheckListForm(forms.ModelForm):
     class Meta:
         model = TaskCheckList
-        fields = ['checkname', 'check_flag' ]        
-
-        
-class ResourceForm(forms.ModelForm):
-
-    class Meta:
-        model = Resource
-        fields = ['shortname', 'fullname', 'parent' ]
+        fields = ['checkname', 'check_flag' ]

@@ -44,6 +44,8 @@ Please, log in to see your projects.
 
 {% endif %}
 
+<h3>Tasks assigned to you</h3>
+
 {% if filter_type == '' and request.user.is_authenticated %}
 {% include "project/task_list.html" with table_mode='index' %}
 {% endif %}

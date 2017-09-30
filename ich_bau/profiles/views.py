@@ -9,7 +9,7 @@ from django.template import RequestContext
 from account.mixins import LoginRequiredMixin
 
 from .forms import ProfileForm
-from .models import Profile
+from .models import *
 from account.decorators import login_required
 from reversion.models import Version
 
@@ -29,20 +29,29 @@ class ProfileEditView(LoginRequiredMixin, UpdateView):
         messages.success(self.request, "You successfully updated your profile.")
         return response
 
-
 class ProfileDetailView(DetailView):
 
     model = Profile
-    slug_url_kwarg = "username"
-    slug_field = "user__username"
+    slug_url_kwarg = "profile_id"
+    slug_field = "id"
     context_object_name = "profile"
-
-
+    
+    def get_context_data(self, **kwargs):
+        context = super(ProfileDetailView, self).get_context_data(**kwargs)
+        current_profile = self.get_object()
+        context['main_profiles'] = Profile_Affiliation.objects.filter( sub_profile = current_profile )
+        context['sub_profiles'] =  Profile_Affiliation.objects.filter( main_profile = current_profile )
+        if ( current_profile.profile_type == PROFILE_TYPE_USER ) and ( not( current_profile.user is None ) ):
+            context['controlled_profiles'] = Profile_Control_User.objects.filter( control_user = current_profile.user )
+        context['controlled_by_user'] = Profile_Control_User.objects.filter( controlled_profile = current_profile )
+        
+        return context
+        
 class ProfileListView(ListView):
 
     model = Profile
     context_object_name = "profiles"
-
+    
 from .models import Notification, GetUserNoticationsQ
 
 @login_required
@@ -81,10 +90,3 @@ def notification_read( request, notification_id ):
             return redirect( n.msg_url )            
     else:
         Http404    
-
-class ProfileDetailView(DetailView):
-
-    model = Profile
-    slug_url_kwarg = "username"
-    slug_field = "user__username"
-    context_object_name = "profile"

@@ -1,5 +1,5 @@
 ﻿from project.models import *
-from project.forms import ProjectForm, TaskForm, TaskCommentForm, MilestoneForm, MemberForm, TaskLinkedForm, TaskEditTargetDateForm, TaskCheckListForm, ResourceForm
+from project.forms import ProjectForm, TaskForm, TaskCommentForm, MilestoneForm, MemberForm, TaskLinkedForm, TaskEditTargetDateForm, TaskCheckListForm
 
 from django.forms.models import modelformset_factory
 
@@ -23,6 +23,7 @@ import reversion
 from reversion.models import Version
 
 from project.filters import ProjectFilter, TaskFilter
+from ich_bau.profiles.models import GetProfileByUser
 
 # константы фильров по проектам
 PROJECT_FILTER_MINE = 0
@@ -35,7 +36,7 @@ def get_index( request, arg_page = PROJECT_FILTER_MINE ):
     if arg_page == PROJECT_FILTER_MINE:
         my_task = None
         if request.user.is_authenticated():
-            my_task = Task.objects.filter( state = TASK_STATE_NEW, assigned_user = request.user )
+            my_task = Task.objects.filter( state = TASK_STATE_NEW, assignee__user = request.user )
         context_dict = { 'projects': GetMemberedProjectList(request.user), 
                          'filter_type' : '',
                          'tasks' : my_task,
@@ -175,8 +176,10 @@ def get_project_view(request, project_id, arg_task_filter = TASK_FILTER_OPEN ):
         else:
             if arg_task_filter == TASK_FILTER_SEARCH:
                 filter_type = 'filter_task_search'
-                task_filter = TaskFilter( request.GET, queryset=base_tasks )                
+                task_filter = TaskFilter( request.GET, queryset=base_tasks )
                 task_filter.filters['milestone'].queryset = milestones
+                task_filter.filters['assignee'].queryset = project.GetFullMemberUsers()
+                task_filter.filters['holder'].queryset = project.GetFullMemberUsers()
                 tasks = task_filter.qs
             else:
                 raise Http404    
@@ -299,7 +302,7 @@ def member_accept(request, member_id):
     member = get_object_or_404( Member, pk = member_id )
     
     # проверить - а тот ли юзер?
-    if ( member.member_user == request.user ):
+    if ( member.member_profile.user == request.user ):
         member.set_member_accept()
         member.save()
         return HttpResponseRedirect( member.project.get_absolute_url() )
@@ -317,16 +320,16 @@ class TaskCreateView(LoginRequiredMixin, CreateView):
     
     def get_initial(self):        
         # если задана веха
-        holder = self.request.user
+        holder = GetProfileByUser( self.request.user )
         try:
             milestone_id = self.kwargs['milestone_id']
             self.m = get_object_or_404( Milestone, pk = milestone_id )
             self.p = self.m.project
-            return { 'project': self.p, 'holder_user' : holder, 'milestone' : self.m }
+            return { 'project': self.p, 'holder' : holder, 'milestone' : self.m }
         except:
             milestone_id = None
             self.p = get_object_or_404( Project, pk = self.kwargs['project_id'])
-            return { 'project': self.p, 'holder_user' : holder, }
+            return { 'project': self.p, 'holder' : holder, }
         
     def form_valid(self, form):        
         project_id = None
@@ -628,68 +631,3 @@ def task_check_switch(request, task_check_id):
     
     # перебросить пользователя на задание
     return HttpResponseRedirect('/project/task/%i' % check.parenttask_id )
-    
-def resource_list( request ):
-    # Получить контекст из HTTP запроса.
-    context = RequestContext(request)
-
-    context_dict = { 'resource_list' : Resource.objects.all() }
-
-    # Сформировать ответ, отправить пользователю
-    return render_to_response('project/resource_list.html', context_dict, context)
-    
-def resource_view(request, resource_id ):
-    # Получить контекст запроса
-    context = RequestContext(request)
-    resource = get_object_or_404( Resource, pk=resource_id )   
-
-    tasks = resource.Get_Tasks( True )
-    subresources = Resource.objects.filter(parent=resource)
-    
-    # Записать список в словарь
-    context_dict = { 'resource': resource, 'subresources' : subresources, 'tasks' : tasks }
-
-    # Рендерить ответ
-    return render_to_response('project/resource.html', context_dict, context)
-    
-class ResourceCreateView(LoginRequiredMixin, CreateView):
-
-    form_class = ResourceForm
-    model = Resource
-    
-    def get_initial(self):
-        try:
-            parent_resource_id = self.kwargs['parent_resource_id']
-        except:
-            parent_resource_id = None
-        
-        if not parent_resource_id is None:
-            parent = Resource.objects.get(id=parent_resource_id)
-            return { 'parent':parent, }
-        else:
-            return { }
-
-@login_required
-def resource_edit(request, resource_id):
-    context = RequestContext(request)
-    
-    resource = get_object_or_404( Resource, pk=resource_id )
-    
-    if request.method == 'POST':        
-        form = ResourceForm(request.POST, instance=resource)
-        
-        if form.is_valid():
-            try:
-                form.save()
-                messages.success(request, "You successfully updated this resource!")
-                return HttpResponseRedirect( resource.get_absolute_url() )
-            except InvalidMove as e: 
-                messages.warning(request, "Can't move resource here! Change parent!")
-        else:
-            print( form.errors )
-    else:        
-        form = ResourceForm( instance=resource )
-
-    return render_to_response( 'project/resource_form.html',
-            {'form': form, 'resource':resource},
-             context)    

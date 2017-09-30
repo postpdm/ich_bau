@@ -4,6 +4,8 @@
 
 {% load thumbnail %}
 
+{% load profile_tag %}
+
 {% block body %}
     <div class="row">
         <div class="col-md-12">
@@ -18,20 +20,12 @@
                         <img width="72" height="72" class="media-object pull-left" src="{% thumbnail profile.avatar 72x72 crop %}" alt="{{ profile.name|default:user.username }}">
                     {% else %}
                         <div class="default-avatar media-object pull-left">
-                            <i class="fa fa-user fa-4x"></i>
+                            {% fa_profile_icon profile.profile_type %}                            
                         </div>
                     {% endif %}
 
                     <div class="media-body">
-                        <h4 class="media-heading"><a href="{% url 'profiles_detail' username=profile.user.username %}">{{ profile.display_name }}</a></h4>
-                    {% if profile.affiliation %}
-                        <div>
-                            <span class="dim">
-                                <i class="fa fa-institution"></i>
-                            </span>
-                            {{ profile.affiliation }}
-                        </div>
-                    {% endif %}
+                        <h4 class="media-heading"><a href="{% url 'profiles_detail' pk=profile.id %}">{{ profile.display_name }}</a></h4>
                     {% if profile.location %}
                         <div>
                             <span class="dim">

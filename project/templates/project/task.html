@@ -37,9 +37,8 @@
   <p>{{ task.description_html|safe }}</p>  
   {% endif %}
 
-  <td>{% if task.holder_user %}<p>Holder: {{task.holder_user}}</p>{% endif %}</td>
-  {% if task.assigned_user %}<p>Assignee: {{task.assigned_user}} </p>{% endif %}
-  {% if task.resource %}<p>Resource: <a href="{{task.resource.get_absolute_url}}">{{task.resource}}</a></p>{% endif %}
+  <td>{% if task.holder %}<p>Holder: {{task.holder}}</p>{% endif %}</td>
+  {% if task.assignee %}<p>Assignee: {{task.assignee}} </p>{% endif %}
   
   <p class="text-right">
   
@@ -58,7 +57,7 @@ no history to view
 <a href="{{task.get_absolute_url}}history">History</a>
 {% endif %}  
   <br>  
-  <small>{{task.created_at}} by <a href="{% url 'profiles_detail' username=task.created_user.username %}">{{task.created_user}}</a></small></p>
+  <small>{{task.created_at}} by <a href="{% url 'profiles_detail' pk=task.created_user.profile.id %}">{{task.created_user}}</a></small></p>
   </div>
   
 <ul class="list-group">
@@ -144,7 +143,7 @@ no history to view
  
   <br>  
  {% endifequal %}
-<small>{{c.created_at}} by <a href="{% url 'profiles_detail' username=c.created_user.username %}">{{c.created_user}}</a></small></p>
+<small>{{c.created_at}} by <a href="{% url 'profiles_detail' pk=c.created_user.profile.pk %}">{{c.created_user}}</a></small></p>
 
 </li>
 {% endfor %}

@@ -63,7 +63,7 @@ no history to view
 
 <ul>
 {% for m in members %}
-<li>{{m.member_user}}
+<li>{{m.member_profile.user}}
 
 {% if m.admin_flag %}
 {% trans "(admin)" %}
@@ -76,7 +76,7 @@ no history to view
 {% if not m.member_accept %}
 {% trans "(member not accept)" %}
 
-{% if request.user.is_authenticated and request.user == m.member_user %}
+{% if request.user.is_authenticated and request.user == m.member_profile.user %}
 <a class="btn btn-primary" href="/project/member/{{m.pk}}/member_accept/"><i class="fa fa-chevron-down"></i> {% trans "Accept membership" %}</a>
 {% endif %}
 {% endif %}

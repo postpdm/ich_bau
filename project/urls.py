@@ -40,11 +40,5 @@ urlpatterns = [
     url(r'^milestone/(?P<pk>\w+)/edit/$', views.MilestoneUpdateView.as_view(), name='milestone_edit'),
     url(r'^milestone/(?P<milestone_id>\w+)/$', views.milestone_view, name='milestone_view'),
     url(r'^milestone/(?P<milestone_id>\w+)/history/$', views.milestone_history, name='milestone_history'),
-    
-    url(r'^resource/$', views.resource_list, name='resource_list'),
-    url(r'^resource/(?P<resource_id>\w+)/$', views.resource_view, name='resource_view'),
-    url(r'^resource_add/$', views.ResourceCreateView.as_view(), name='project_resource_add'),
-    url(r'^resource/(?P<parent_resource_id>\w+)/resource_add/$', views.ResourceCreateView.as_view(), name='project_resource_add'),
-    url(r'^resource/(?P<resource_id>\w+)/resource_edit/$', views.resource_edit, name='resource_edit'),
-    
+  
     ]

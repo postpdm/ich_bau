@@ -4,7 +4,6 @@ from django import forms
 
 from .models import Profile
 
-
 class ProfileForm(forms.ModelForm):
 
     class Meta:
@@ -12,8 +11,7 @@ class ProfileForm(forms.ModelForm):
         fields = [
             "name",
             "avatar",
-            "bio",
-            "affiliation",
+            "description",
             "location",
             "website",
             "twitter_username",
