@@ -19,11 +19,20 @@
 {% endif %}
 
 </h1>
+{{show_page}}
+<ul class="nav nav-tabs">
+  <li role="presentation" {% if show_page == 'title' %} class="active" {% endif %}><a href="{{project.get_absolute_url}}">{% trans "Project" %}</a></li>
+  <li role="presentation" {% if show_page == 'files' %} class="active" {% endif %}><a href="{{project.get_absolute_url}}files/">{% trans "Files" %}</a></li>
+  <li role="presentation" {% if show_page == 'milestones' %} class="active" {% endif %}><a href="{{project.get_absolute_url}}milestones/">{% trans "Milestones" %}</a></li>
+</ul>
+
+{% if show_page == 'title' %}
+
+<p>Project description</p>
 
 {% if project.description %}
 {{ project.description_html|safe }}
 {% endif %}
-
 
 {% if user_can_admin %}
 <a class="btn btn-default" href="{{project.get_absolute_url}}project_edit"><i class="fa fa-pencil-square-o"></i> {% trans "Edit projects" %}</a>
@@ -85,6 +94,15 @@ no history to view
 {% endfor %}
 </ul>
 
+{% comment %} end if TITLE {% endcomment %}
+{% endif %}
+
+{% if show_page == 'files' %}
+<h2>Files</h2>
+{% comment %} end if FILES {% endcomment %}
+{% endif %}
+
+{% if show_page == 'milestones' %}
 <h2>{% trans "Milestones" %}{% if user_can_admin %} <a class="btn btn-default" href="/project/milestone_add/{{project.id}}/"><i class="fa fa-plus"></i> {% trans "Create milestone" %}</a>{% endif %}</h2>
 
 
@@ -110,6 +128,8 @@ no history to view
 
 </tbody>
 </table>
+{% comment %} end if MILESTONES {% endcomment %}
+{% endif %}
 
 </div>
 </div>

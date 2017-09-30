@@ -15,6 +15,8 @@ urlpatterns = [
     url(r'^project/(?P<project_id>\w+)/history/$', views.project_history, name='project_history'),
     url(r'^project/(?P<project_id>\w+)/closed_task/$', views.project_view_closed_tasks, name='project_view_closed_tasks'),
     url(r'^project/(?P<project_id>\w+)/search_task/$', views.project_view_search_tasks, name='project_view_search_tasks'),
+    url(r'^project/(?P<project_id>\w+)/milestones/$', views.project_view_milestones, name='project_view_milestones'),
+    url(r'^project/(?P<project_id>\w+)/files/$', views.project_view_files, name='project_view_files'),
     
     url(r'^member_add/(?P<project_id>\w+)/$', views.AddMemberCreateView.as_view(), name='member_add'),
     url(r'^member/(?P<member_id>\w+)/member_accept/$', views.member_accept, name='member_accept'),

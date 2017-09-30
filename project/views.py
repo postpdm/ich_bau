@@ -115,14 +115,32 @@ TASK_FILTER_OPEN = 0
 TASK_FILTER_CLOSED = 1
 TASK_FILTER_SEARCH = 2
 
+# Закладки страницы Проекта
+PROJECT_PAGE_TITLE = 0
+PROJECT_PAGE_FILES = 10
+PROJECT_PAGE_MILESTONES = 15
+
+# Для передачи в шаблон
+PROJECT_PAGE_FILTER = {
+  PROJECT_PAGE_TITLE : 'title',
+  PROJECT_PAGE_FILES : 'files',
+  PROJECT_PAGE_MILESTONES : 'milestones' ,
+}
+
 def project_view(request, project_id):
     return get_project_view(request, project_id )
 
 def project_view_closed_tasks(request, project_id):
-    return get_project_view(request, project_id, TASK_FILTER_CLOSED)
+    return get_project_view(request, project_id, arg_task_filter = TASK_FILTER_CLOSED)
     
 def project_view_search_tasks(request, project_id):
-    return get_project_view(request, project_id, TASK_FILTER_SEARCH )
+    return get_project_view(request, project_id, arg_task_filter = TASK_FILTER_SEARCH )
+    
+def project_view_milestones(request, project_id):
+    return get_project_view(request, project_id, arg_page = PROJECT_PAGE_MILESTONES )
+    
+def project_view_files(request, project_id):
+    return get_project_view(request, project_id, arg_page = PROJECT_PAGE_FILES )
 
 def project_history(request, project_id):
     context = RequestContext(request)
@@ -140,7 +158,7 @@ def project_history(request, project_id):
     # Рендерить ответ
     return render( request, 'project/project_history.html', context_dict )
     
-def get_project_view(request, project_id, arg_task_filter = TASK_FILTER_OPEN ):
+def get_project_view(request, project_id, arg_task_filter = TASK_FILTER_OPEN, arg_page = PROJECT_PAGE_TITLE ):
     # Получить контекст запроса
     context = RequestContext(request)
     project = get_object_or_404( Project, pk=project_id)
@@ -159,8 +177,14 @@ def get_project_view(request, project_id, arg_task_filter = TASK_FILTER_OPEN ):
                 user_can_work = True
                 user_can_admin = True
 
+    milestones = None    
     members = project.GetMemberList()
-    milestones = Milestone.objects.filter(project = project).order_by('finished_at')
+    
+    if arg_page == PROJECT_PAGE_MILESTONES:
+        milestones = Milestone.objects.filter(project = project).order_by('finished_at')
+    
+    if arg_page == PROJECT_PAGE_FILES:
+        pass
     
     filter_type = ''
     task_filter = None
@@ -192,6 +216,7 @@ def get_project_view(request, project_id, arg_task_filter = TASK_FILTER_OPEN ):
                      'filter_type' : filter_type,
                      'user_can_work' : user_can_work,
                      'user_can_admin' : user_can_admin,
+                     'show_page' : PROJECT_PAGE_FILTER[arg_page],
                          }
 
     # Рендерить ответ
