@@ -101,3 +101,10 @@ class Profile_Affiliation(models.Model):
 
     class Meta:
         unique_together = ( "main_profile", "sub_profile")
+
+class Profile_Control_User(models.Model):
+    controlled_profile = models.ForeignKey(Profile, related_name = 'controlled_profile' )
+    control_user = models.ForeignKey(User, related_name="control_user")
+
+    class Meta:
+        unique_together = ( "controlled_profile", "control_user" )

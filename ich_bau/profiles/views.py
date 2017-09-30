@@ -9,7 +9,7 @@ from django.template import RequestContext
 from account.mixins import LoginRequiredMixin
 
 from .forms import ProfileForm
-from .models import Profile, Profile_Affiliation
+from .models import *
 from account.decorators import login_required
 from reversion.models import Version
 
@@ -38,8 +38,13 @@ class ProfileDetailView(DetailView):
     
     def get_context_data(self, **kwargs):
         context = super(ProfileDetailView, self).get_context_data(**kwargs)
-        context['main_profiles'] = Profile_Affiliation.objects.filter( sub_profile = self.get_object() )
-        context['sub_profiles'] =  Profile_Affiliation.objects.filter( main_profile = self.get_object() )
+        current_profile = self.get_object()
+        context['main_profiles'] = Profile_Affiliation.objects.filter( sub_profile = current_profile )
+        context['sub_profiles'] =  Profile_Affiliation.objects.filter( main_profile = current_profile )
+        if ( current_profile.profile_type == PROFILE_TYPE_USER ) and ( not( current_profile.user is None ) ):
+            context['controlled_profiles'] = Profile_Control_User.objects.filter( control_user = current_profile.user )
+        context['controlled_by_user'] = Profile_Control_User.objects.filter( controlled_profile = current_profile )
+        
         return context
         
 class ProfileListView(ListView):
