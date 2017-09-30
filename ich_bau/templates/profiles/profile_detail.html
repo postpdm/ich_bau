@@ -61,15 +61,19 @@
         <div class="col-md-4">
         <h2>Main profiles</h2>
         {% if main_profiles %}
+        <ul>
         {% for mp in main_profiles %}
-        <a href="{% url 'profiles_detail' pk=mp.main_profile.id %}">{{ mp.main_profile.display_name }}</a>
+        <li><a href="{% url 'profiles_detail' pk=mp.main_profile.id %}">{{ mp.main_profile.display_name }}</a></li>
         {% endfor %}
+        </ul>
         {% endif %}
         <h2>Sub profiles</h2>
         {% if sub_profiles %}
+        <ul>
         {% for sp in sub_profiles %}
-        <a href="{% url 'profiles_detail' pk=sp.sub_profile.id %}">{{ sp.sub_profile.display_name }}</a>
+        <li><a href="{% url 'profiles_detail' pk=sp.sub_profile.id %}">{{ sp.sub_profile.display_name }}</a></li>
         {% endfor %}
+        </ul>
         {% endif %}
         </div>
     </div>
