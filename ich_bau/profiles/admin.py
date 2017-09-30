@@ -6,6 +6,7 @@ from .models import Profile, Profile_Affiliation
 admin.site.register(
     Profile,
     list_display=[
+        "profile_type",
         "user",
         "name",
         "avatar",

@@ -9,7 +9,7 @@ from django.template import RequestContext
 from account.mixins import LoginRequiredMixin
 
 from .forms import ProfileForm
-from .models import Profile
+from .models import Profile, Profile_Affiliation
 from account.decorators import login_required
 from reversion.models import Version
 
@@ -35,7 +35,13 @@ class ProfileDetailView(DetailView):
     slug_url_kwarg = "profile_id"
     slug_field = "id"
     context_object_name = "profile"
-
+    
+    def get_context_data(self, **kwargs):
+        context = super(ProfileDetailView, self).get_context_data(**kwargs)
+        context['main_profiles'] = Profile_Affiliation.objects.filter( sub_profile = self.get_object() )
+        context['sub_profiles'] =  Profile_Affiliation.objects.filter( main_profile = self.get_object() )
+        return context
+        
 class ProfileListView(ListView):
 
     model = Profile
