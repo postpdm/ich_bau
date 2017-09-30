@@ -177,14 +177,18 @@ def get_project_view(request, project_id, arg_task_filter = TASK_FILTER_OPEN, ar
                 user_can_work = True
                 user_can_admin = True
 
-    milestones = None    
+    milestones = None
+    file_info = None
+    
     members = project.GetMemberList()
     
     if arg_page == PROJECT_PAGE_MILESTONES:
         milestones = Milestone.objects.filter(project = project).order_by('finished_at')
     
     if arg_page == PROJECT_PAGE_FILES:
-        pass
+        import svn.remote
+        r = svn.remote.RemoteClient('file:///d:/test/repo')
+        file_info = r.info()
     
     filter_type = ''
     task_filter = None
@@ -216,6 +220,7 @@ def get_project_view(request, project_id, arg_task_filter = TASK_FILTER_OPEN, ar
                      'filter_type' : filter_type,
                      'user_can_work' : user_can_work,
                      'user_can_admin' : user_can_admin,
+                     'file_info' : file_info,
                      'show_page' : PROJECT_PAGE_FILTER[arg_page],
                          }
 

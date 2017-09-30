@@ -19,7 +19,7 @@
 {% endif %}
 
 </h1>
-{{show_page}}
+
 <ul class="nav nav-tabs">
   <li role="presentation" {% if show_page == 'title' %} class="active" {% endif %}><a href="{{project.get_absolute_url}}">{% trans "Project" %}</a></li>
   <li role="presentation" {% if show_page == 'files' %} class="active" {% endif %}><a href="{{project.get_absolute_url}}files/">{% trans "Files" %}</a></li>
@@ -99,12 +99,14 @@ no history to view
 
 {% if show_page == 'files' %}
 <h2>Files</h2>
+
+{{file_info}}
+
 {% comment %} end if FILES {% endcomment %}
 {% endif %}
 
 {% if show_page == 'milestones' %}
 <h2>{% trans "Milestones" %}{% if user_can_admin %} <a class="btn btn-default" href="/project/milestone_add/{{project.id}}/"><i class="fa fa-plus"></i> {% trans "Create milestone" %}</a>{% endif %}</h2>
-
 
 <table class="table table-striped">
 <thead>
