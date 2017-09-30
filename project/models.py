@@ -335,12 +335,15 @@ class TaskCheckList(BaseStampedModel):
 def GetTaskUsers( arg_task, arg_exclude_user ):
     return User.objects.filter( id = TaskComment.objects.values_list('created_user', flat = True).filter(parenttask = arg_task ).exclude( created_user = arg_exclude_user ).distinct() )
        
-def Send_Notifications_For_Task( arg_sender_user, arg_msg, arg_list, arg_url, arg_task_assignee ):
+def Send_Notifications_For_Task( arg_sender_user, arg_msg, arg_list, arg_url, arg_task_assignee, arg_task_holder ):
     for m in arg_list:
         Send_Notification( arg_sender_user, m, arg_msg, arg_url )
     
     if not ( arg_task_assignee is None ) and ( arg_task_assignee != arg_sender_user ) and not ( arg_task_assignee in arg_list ):        
         Send_Notification( arg_sender_user, arg_task_assignee, arg_msg, arg_url )
+    
+    if not ( arg_task_holder is None ) and ( arg_task_holder != arg_sender_user ) and not ( arg_task_holder in arg_list ):        
+        Send_Notification( arg_sender_user, arg_task_holder, arg_msg, arg_url )        
 
 @receiver(post_save, sender=Task)
 def task_post_save_Notifier_Composer(sender, instance, **kwargs):
@@ -353,7 +356,10 @@ def task_post_save_Notifier_Composer(sender, instance, **kwargs):
     assignee_user = None
     if ( not ( instance.assignee is None ) ) and ( not ( instance.assignee.user is None ) ):
         assignee_user = instance.assignee.user
-    Send_Notifications_For_Task( instance.modified_user, message_str, task_users, instance.get_absolute_url(), assignee_user )
+    holder_user = None
+    if ( not ( instance.holder is None ) ) and ( not ( instance.holder.user is None ) ):
+        holder_user = instance.holder.user        
+    Send_Notifications_For_Task( instance.modified_user, message_str, task_users, instance.get_absolute_url(), assignee_user, holder_user )
 
 @receiver(post_save, sender=TaskComment)
 def taskcomment_post_save_Notifier_Composer(sender, instance, **kwargs):
@@ -363,12 +369,17 @@ def taskcomment_post_save_Notifier_Composer(sender, instance, **kwargs):
         s = 'New'
     else:
         s = 'Changed'
-    task_users = GetTaskUsers( instance.parenttask, instance.modified_user )
+    parent_task = instance.parenttask
+    task_users = GetTaskUsers( parent_task, instance.modified_user )
     
     message_str = s + ' comment in the task ' + instance.parenttask.fullname + ' of ' + instance.parenttask.project.fullname + ' project'
     
     parenttask_assignee_user = None
-    if ( not ( instance.parenttask.assignee is None ) ) and ( not ( instance.parenttask.assignee.user is None ) ):
-        parenttask_assignee_user = instance.parenttask.assignee.user
+    if ( not ( parent_task.assignee is None ) ) and ( not ( parent_task.assignee.user is None ) ):
+        parenttask_assignee_user = parent_task.assignee.user
     
-    Send_Notifications_For_Task( instance.modified_user, message_str, task_users, instance.parenttask.get_absolute_url(), parenttask_assignee_user )
+    parenttask_holder_user = None
+    if ( not ( parent_task.holder is None ) ) and ( not ( parent_task.holder.user is None ) ):
+        parenttask_holder_user = parent_task.holder.user
+    
+    Send_Notifications_For_Task( instance.modified_user, message_str, task_users, parent_task.get_absolute_url(), parenttask_assignee_user, parenttask_holder_user )
