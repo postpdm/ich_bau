@@ -22,7 +22,7 @@ class ProfileEditView(LoginRequiredMixin, UpdateView):
         return self.request.user.profile
 
     def get_success_url(self):
-        return reverse("profiles_list")
+        return reverse( my_profile_view )
 
     def form_valid(self, form):
         response = super(ProfileEditView, self).form_valid(form)
@@ -46,6 +46,10 @@ class ProfileDetailView(DetailView):
         context['controlled_by_user'] = Profile_Control_User.objects.filter( controlled_profile = current_profile )
         
         return context
+        
+@login_required
+def my_profile_view(request):
+    return redirect( 'profiles_detail', pk = request.user.profile.id )
         
 class ProfileListView(ListView):
 

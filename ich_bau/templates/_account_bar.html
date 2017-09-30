@@ -8,7 +8,7 @@
             <a href="{% url 'unread_notifications_view' %}"> {% unread_notification_count %} </a>
         </li>
         <li>
-            <a href="{% url 'profiles_edit' %}"><i class="fa fa-user"></i> {% user_display request.user %}</a>
+            <a href="{% url 'my_profile_view' %}"><i class="fa fa-user"></i> {% user_display request.user %}</a>
         </li>
         <li>
             <a href="{% url 'account_settings' %}"><i class="fa fa-cog"></i> {% trans "Settings" %}</a>
