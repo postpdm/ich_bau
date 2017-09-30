@@ -91,10 +91,7 @@ class Profile(models.Model):
 # датасет профилей, принадлежащих юзерам
 def Get_Users_Profiles():
     return Profile.objects.filter( profile_type = PROFILE_TYPE_USER )
-        
-def GetProfileByUser( arg_user ): # это лишнее
-    return get_object_or_404( Profile, user=arg_user )
-    
+   
 class Profile_Affiliation(models.Model):
     main_profile = models.ForeignKey(Profile, related_name = 'main_profile' )
     sub_profile = models.ForeignKey(Profile, related_name = 'sub_profile' )

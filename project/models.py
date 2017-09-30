@@ -12,7 +12,7 @@ import reversion
 import uuid
 
 from ich_bau.profiles.notification_helper import Send_Notification
-from ich_bau.profiles.models import Profile, GetProfileByUser
+from ich_bau.profiles.models import Profile
 
 import markdown
 
@@ -164,7 +164,9 @@ class Member(BaseStampedModel):
     def make_admin_after_project_create(cls, sender, instance, created, **kwargs):
         if created:
             project_created = instance
-            pm = cls( member_profile = GetProfileByUser( project_created.created_user), project=project_created, admin_flag = True, created_user = project_created.created_user, modified_user = project_created.created_user )
+            project_created_user = project_created.created_user
+            
+            pm = cls( member_profile = project_created_user.profile, project=project_created, admin_flag = True, created_user = project_created.created_user, modified_user = project_created_user )
             pm.set_team_accept()
             pm.set_member_accept()            
             pm.save()
