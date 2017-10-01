@@ -205,7 +205,8 @@ def get_project_view(request, project_id, arg_task_filter = TASK_FILTER_OPEN, ar
                 user_can_admin = True
 
     milestones = None
-    file_info = None
+    repo_info = None
+    repo_list = None
     members = None
     filter_type = ''
     task_filter = None
@@ -217,7 +218,8 @@ def get_project_view(request, project_id, arg_task_filter = TASK_FILTER_OPEN, ar
     if arg_page == PROJECT_PAGE_FILES:
         s = project.repo_url
         if s != '':
-            file_info = Get_Info_For_Repo_URL( s )
+            repo_info = Get_Info_For_Repo_URL( s )
+            repo_list = Get_List_For_Repo_URL( s )
     
     # prepare tasks only for title page
     if arg_page == PROJECT_PAGE_TITLE:
@@ -251,7 +253,8 @@ def get_project_view(request, project_id, arg_task_filter = TASK_FILTER_OPEN, ar
                      'user_can_work' : user_can_work,
                      'user_can_admin' : user_can_admin,
                      'show_page' : PROJECT_PAGE_FILTER[arg_page],
-                     'file_info' : file_info,
+                     'repo_info' : repo_info,
+                     'repo_list' : repo_list,
                          }
 
     # Рендерить ответ

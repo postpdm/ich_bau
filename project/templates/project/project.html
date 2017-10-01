@@ -100,17 +100,24 @@ no history to view
 <h2>Files</h2>
 
 {% if project.repo_url %}
-{{file_info}}
+{{repo_info}}
 <br>
 <br>
 <table border=1>
-{%for k,v in file_info.items %}
+{%for k,v in repo_info.items %}
 <tr>
 <td>{{k}}</td>
 <td>{{v}}</td>
 </tr>
 {%endfor%}
 </table>
+
+{{repo_list}}
+<ul>
+{% for rl in repo_list %}
+<li>{{rl}}</li>
+{% endfor %}
+</ul>
 
 {% else %}
 <p class="bg-warning">File repo is not created for this project.</p>
