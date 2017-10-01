@@ -176,7 +176,7 @@ def project_create_repo(request, project_id):
                 # create the repo
                 res = Create_New_Repo()
                 if res[0] == VCS_CREATE_REPO_SUCCESS:
-                    project.repo_url = res[1]
+                    project.repo_name = res[1]
                     project.save()
                     messages.success( request, "You successfully create the repo for this project!")
                 else:
@@ -216,10 +216,10 @@ def get_project_view(request, project_id, arg_task_filter = TASK_FILTER_OPEN, ar
         milestones = Milestone.objects.filter(project = project).order_by('finished_at')
 
     if arg_page == PROJECT_PAGE_FILES:
-        s = project.repo_url
-        if s != '':
-            repo_info = Get_Info_For_Repo_URL( s )
-            repo_list = Get_List_For_Repo_URL( s )
+        s = project.repo_name
+        if ( not ( s is None ) ) and ( s != '' ):
+            repo_info = Get_Info_For_Repo_Name( s )
+            repo_list = Get_List_For_Repo_Name( s )
     
     # prepare tasks only for title page
     if arg_page == PROJECT_PAGE_TITLE:

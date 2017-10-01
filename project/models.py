@@ -42,7 +42,7 @@ class Project(BaseStampedModel):
     active_flag=models.BooleanField(blank=True, default=True)
     private_flag=models.BooleanField(blank=True, default=False, verbose_name = 'Private project')
     description = models.TextField(blank=True, null=True)
-    repo_url = models.URLField( max_length=255, blank=True, null = True )
+    repo_name = models.CharField( max_length=255, blank=True, null = True )
 
     class Meta:
         ordering = ['fullname']
