@@ -157,6 +157,24 @@ def project_history(request, project_id):
              
     # Рендерить ответ
     return render( request, 'project/project_history.html', context_dict )
+
+def project_create_repo(request, project_id):
+    context = RequestContext(request)
+    project = get_object_or_404( Project, pk=project_id)
+    
+    ual = project.user_access_level( request.user )
+    if ual == PROJECT_ACCESS_NONE:
+        raise Http404()
+    else:
+        if ( ual == PROJECT_ACCESS_WORK ) or ( ual == PROJECT_ACCESS_VIEW ):
+            messages.error( request, "You have no admin rights for this project!")
+            return HttpResponseRedirect( project.get_absolute_url() + 'files' )
+        else:
+            if ual == PROJECT_ACCESS_ADMIN:
+                messages.success( request, "You successfully create the repo for this project!")
+                return HttpResponseRedirect( project.get_absolute_url() + 'files' )
+            else:
+                raise Http404() # хотя такого быть не должно
     
 def get_project_view(request, project_id, arg_task_filter = TASK_FILTER_OPEN, arg_page = PROJECT_PAGE_TITLE ):
     # Получить контекст запроса
@@ -188,7 +206,7 @@ def get_project_view(request, project_id, arg_task_filter = TASK_FILTER_OPEN, ar
         milestones = Milestone.objects.filter(project = project).order_by('finished_at')
 
     if arg_page == PROJECT_PAGE_FILES:
-        s = project.repo_url
+        s = project.repo_url #file:///d:/test/repo
         if s != '':
             import svn.remote
             r = svn.remote.RemoteClient( s )
@@ -225,8 +243,8 @@ def get_project_view(request, project_id, arg_task_filter = TASK_FILTER_OPEN, ar
                      'filter_type' : filter_type,
                      'user_can_work' : user_can_work,
                      'user_can_admin' : user_can_admin,
-                     'file_info' : file_info,
                      'show_page' : PROJECT_PAGE_FILTER[arg_page],
+                     'file_info' : file_info,
                          }
 
     # Рендерить ответ

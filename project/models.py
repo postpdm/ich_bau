@@ -92,7 +92,7 @@ class Project(BaseStampedModel):
             if self.private_flag:
                 return PROJECT_ACCESS_NONE
             else:
-                return PROJECT_ACCESS_VIEW            
+                return PROJECT_ACCESS_VIEW
         else:
             # предполагается 1 или ни единого. 
             try:

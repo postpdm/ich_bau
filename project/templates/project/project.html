@@ -36,7 +36,6 @@
 
 {% if user_can_admin %}
 <a class="btn btn-default" href="{{project.get_absolute_url}}project_edit"><i class="fa fa-pencil-square-o"></i> {% trans "Edit projects" %}</a>
-
 {% endif %}
 
 {% if project.created_at == project.modified_at %}
@@ -100,7 +99,29 @@ no history to view
 {% if show_page == 'files' %}
 <h2>Files</h2>
 
+{% if project.repo_url %}
 {{file_info}}
+<br>
+<br>
+<table border=1>
+{%for k,v in file_info.items %}
+<tr>
+<td>{{k}}</td>
+<td>{{v}}</td>
+</tr>
+{%endfor%}
+</table>
+
+{% else %}
+<p class="bg-warning">File repo is not created for this project.</p>
+
+{% if user_can_admin %}
+<a class="btn btn-default" href="{{project.get_absolute_url}}create_repo"><i class="fa fa-file-o"></i> {% trans "Create repo" %}</a>
+{%else%}
+<p>Project admin can create the repo.</p>
+{% endif %}
+{% endif %}
+
 
 {% comment %} end if FILES {% endcomment %}
 {% endif %}
