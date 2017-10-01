@@ -179,37 +179,42 @@ def get_project_view(request, project_id, arg_task_filter = TASK_FILTER_OPEN, ar
 
     milestones = None
     file_info = None
-    
-    members = project.GetMemberList()
-    
-    if arg_page == PROJECT_PAGE_MILESTONES:
-        milestones = Milestone.objects.filter(project = project).order_by('finished_at')
-    
-    if arg_page == PROJECT_PAGE_FILES:
-        import svn.remote
-        r = svn.remote.RemoteClient('file:///d:/test/repo')
-        file_info = r.info()
-    
+    members = None
     filter_type = ''
     task_filter = None
-    base_tasks = project.Get_Tasks()
+    tasks = None
+
+    if arg_page == PROJECT_PAGE_MILESTONES:
+        milestones = Milestone.objects.filter(project = project).order_by('finished_at')
+
+    if arg_page == PROJECT_PAGE_FILES:
+        s = project.repo_url
+        if s != '':
+            import svn.remote
+            r = svn.remote.RemoteClient( s )
+            file_info = r.info()
     
-    if arg_task_filter == TASK_FILTER_OPEN:
-        tasks = base_tasks.filter( state = TASK_STATE_NEW )
-    else:
-        if arg_task_filter == TASK_FILTER_CLOSED:
-            filter_type = 'filter_task_closed'
-            tasks = base_tasks.filter( state = TASK_STATE_CLOSED )
+    # prepare tasks only for title page
+    if arg_page == PROJECT_PAGE_TITLE:
+        members = project.GetMemberList()
+        base_tasks = project.Get_Tasks()
+        
+        if arg_task_filter == TASK_FILTER_OPEN:
+            tasks = base_tasks.filter( state = TASK_STATE_NEW )
         else:
-            if arg_task_filter == TASK_FILTER_SEARCH:
-                filter_type = 'filter_task_search'
-                task_filter = TaskFilter( request.GET, queryset=base_tasks )
-                task_filter.filters['milestone'].queryset = milestones
-                task_filter.filters['assignee'].queryset = project.GetFullMemberUsers()
-                task_filter.filters['holder'].queryset = project.GetFullMemberUsers()
-                tasks = task_filter.qs
+            if arg_task_filter == TASK_FILTER_CLOSED:
+                filter_type = 'filter_task_closed'
+                tasks = base_tasks.filter( state = TASK_STATE_CLOSED )
             else:
-                raise Http404    
+                if arg_task_filter == TASK_FILTER_SEARCH:
+                    filter_type = 'filter_task_search'
+                    task_filter = TaskFilter( request.GET, queryset=base_tasks )
+                    task_filter.filters['milestone'].queryset = milestones
+                    task_filter.filters['assignee'].queryset = project.GetFullMemberUsers()
+                    task_filter.filters['holder'].queryset = project.GetFullMemberUsers()
+                    tasks = task_filter.qs
+                else:
+                    raise Http404
  
     # Записать список в словарь
     context_dict = { 'project': project, 
