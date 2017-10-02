@@ -2,11 +2,19 @@ language: python
 python:
   - "3.6"
 # command to install dependencies
+env:
+  - DJANGO_VERSION=1.11.5
 install:
+  - pip install -q Django==$DJANGO_VERSION
   - pip install -r requirements_dev.txt
   - pip install coverage
-script: python project/test_svn_wrapper.py
-after_success: coverage report
+  
+before_install:
+  - export DJANGO_SETTINGS_MODULE=ich_bau.settings
+
+script: python manage.py test
+after_success: 
+  - coverage report
 branches:
   only:
     - SVN_basic
