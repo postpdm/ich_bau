@@ -17,7 +17,7 @@ VCS_REPO_FAIL_NOT_CONFIGURED = 1
 VCS_REPO_FAIL_CALL = 2
 
 #return (code,dict)
-def Get_Info_For_Repo_Name( arg_repo_name ):
+def Get_Info_For_Repo_Name( arg_repo_name, arg_echo = False ):
     if ( REPO_BASE_URL is None ) or ( REPO_BASE_URL == '' ):
         return ( VCS_REPO_FAIL_NOT_CONFIGURED, None )
     else:    
@@ -25,7 +25,8 @@ def Get_Info_For_Repo_Name( arg_repo_name ):
             r = svn.remote.RemoteClient( REPO_BASE_URL + arg_repo_name )
             return ( VCS_REPO_SUCCESS, r.info() )
         except Exception as e:
-            print( e )
+            if arg_echo:
+                print( e )
             return ( VCS_REPO_FAIL_CALL, None )
 
 # return (code, str)
