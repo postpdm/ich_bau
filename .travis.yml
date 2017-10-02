@@ -5,7 +5,7 @@ python:
 install:
   - pip install -r requirements_dev.txt
   - pip install coverage
-script: python tests/svn_wrapper_tests.py
+script: python project/test_svn_wrapper.py
 after_success: coverage report
 branches:
   only:
