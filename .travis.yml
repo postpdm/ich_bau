@@ -2,6 +2,8 @@ language: python
 python:
   - "3.6"
 # command to install dependencies
+install:
+  - pip install -r requirements_dev.txt
 script: python tests/svn_wrapper_tests.py
 branches:
   only:
