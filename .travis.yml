@@ -8,13 +8,18 @@ install:
   - pip install -q Django==$DJANGO_VERSION
   - pip install -r requirements_dev.txt
   - pip install coverage
-  
+  - pip install coveralls
+ 
 before_install:
   - export DJANGO_SETTINGS_MODULE=ich_bau.settings
 
-script: python manage.py test
+script: 
+  - coverage run --source=ich_bau manage.py test
+
 after_success: 
   - coverage report
+  - coveralls
+
 branches:
   only:
     - SVN_basic
