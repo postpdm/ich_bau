@@ -100,19 +100,11 @@ no history to view
 <h2>Files</h2>
 
 {% if project.repo_name %}
-{{repo_info}}
-<br>
-<br>
-<table border=1>
-{%for k,v in repo_info.items %}
-<tr>
-<td>{{k}}</td>
-<td>{{v}}</td>
-</tr>
-{%endfor%}
-</table>
 
-{{repo_list}}
+<p>Repo url: <code>{{repo_info.url}}</code></p>
+<p>Last commit # {{repo_info.commit_revision}} from <strong>{{repo_info.commit_author}}</strong> at {{repo_info.commit_date}}</p>
+
+<p>File list:</p>
 <ul>
 {% for rl in repo_list %}
 <li>{{rl}}</li>
@@ -164,6 +156,4 @@ no history to view
 </div>
 </div>
 
-<small>This page was last modified on {{ project.modified_at }}</small>
-    
 {% endblock %}
