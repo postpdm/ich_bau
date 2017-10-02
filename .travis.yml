@@ -1,0 +1,8 @@
+language: python
+python:
+  - "3.6"
+# command to install dependencies
+script: python tests/svn_wrapper_tests.py
+branches:
+  only:
+    - SVN_basic
