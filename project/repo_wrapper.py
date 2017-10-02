@@ -43,7 +43,7 @@ def Create_New_Repo( ):
             return ( VCS_REPO_FAIL_CALL, '' )
     
 # return (code, str)
-def Get_List_For_Repo_Name( arg_repo_name ):
+def Get_List_For_Repo_Name( arg_repo_name, arg_echo = False  ):
     if ( REPO_BASE_URL is None ) or ( REPO_BASE_URL == '' ):
         return ( VCS_REPO_FAIL_NOT_CONFIGURED, None )
     else:    
@@ -52,5 +52,6 @@ def Get_List_For_Repo_Name( arg_repo_name ):
             # list() is a lazy generator, it doesn't fetch data immediately. We need to convert it to real list to gain the connection error if exist
             return ( VCS_REPO_SUCCESS, list( r.list() ) )
         except Exception as e:
-            print( e )
+            if arg_echo:
+                print( e )
             return ( VCS_REPO_FAIL_CALL, None )
