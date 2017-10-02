@@ -1,4 +1,4 @@
-from project.repo_wrapper import *
+from .repo_wrapper import *
   
 from unittest import TestCase
 
