@@ -175,7 +175,7 @@ def project_create_repo(request, project_id):
             if ual == PROJECT_ACCESS_ADMIN:
                 # create the repo
                 res = Create_New_Repo()
-                if res[0] == VCS_CREATE_REPO_SUCCESS:
+                if res[0] == VCS_REPO_SUCCESS:
                     project.repo_name = res[1]
                     project.save()
                     messages.success( request, "You successfully create the repo for this project!")
@@ -218,8 +218,14 @@ def get_project_view(request, project_id, arg_task_filter = TASK_FILTER_OPEN, ar
     if arg_page == PROJECT_PAGE_FILES:
         s = project.repo_name
         if ( not ( s is None ) ) and ( s != '' ):
-            repo_info = Get_Info_For_Repo_Name( s )
-            repo_list = Get_List_For_Repo_Name( s )
+            res_info = Get_Info_For_Repo_Name( s )
+            if res_info[0] == VCS_REPO_SUCCESS:
+                repo_info = res_info[1]
+                res_list = Get_List_For_Repo_Name(s)
+                if res_list[0] == VCS_REPO_SUCCESS:
+                    repo_list = res_list[1]
+            else:
+                messages.error( request, "Can't connect to repo!")
     
     # prepare tasks only for title page
     if arg_page == PROJECT_PAGE_TITLE:
