@@ -4,6 +4,8 @@ Creation of simple task and project management system for Computer Aided Design 
 
 [![Django Support](https://img.shields.io/badge/Django-1.11-blue.svg)](https://github.com/postpdm/ich_bau)
 
+[![Build Status](https://travis-ci.org/postpdm/ich_bau.svg?branch=SVN_basic)](https://travis-ci.org/postpdm/ich_bau)
+
 ## Main goals
 
 * Simple but usefull planning and task flow
