@@ -5,7 +5,8 @@ import svn.admin
 
 import uuid
 
-REPO_BASE_URL = 'file:///d:/test/repos/'
+#REPO_BASE_URL = 'file:///d:/test/repos/'
+REPO_BASE_URL = 'svn://localhost/'
 REPO_LOCAL_ROOT = "d:\\test\\repos\\"
 
 SVN_ADMIN_FULL_PATH = 'd:\\test\\svn\\VisualSVN Server\\bin\\svnadmin.exe'
@@ -17,12 +18,12 @@ VCS_REPO_FAIL_NOT_CONFIGURED = 1
 VCS_REPO_FAIL_CALL = 2
 
 #return (code,dict)
-def Get_Info_For_Repo_Name( arg_repo_name, arg_echo = False ):
+def Get_Info_For_Repo_Name( arg_repo_name, arg_echo = False, username=None, password=None ):
     if ( REPO_BASE_URL is None ) or ( REPO_BASE_URL == '' ):
         return ( VCS_REPO_FAIL_NOT_CONFIGURED, None )
     else:    
         try:
-            r = svn.remote.RemoteClient( REPO_BASE_URL + arg_repo_name )
+            r = svn.remote.RemoteClient( REPO_BASE_URL + arg_repo_name, username, password )
             return ( VCS_REPO_SUCCESS, r.info() )
         except Exception as e:
             if arg_echo:
@@ -43,12 +44,12 @@ def Create_New_Repo( ):
             return ( VCS_REPO_FAIL_CALL, '' )
     
 # return (code, str)
-def Get_List_For_Repo_Name( arg_repo_name, arg_echo = False  ):
+def Get_List_For_Repo_Name( arg_repo_name, arg_echo = False, username=None, password=None ):
     if ( REPO_BASE_URL is None ) or ( REPO_BASE_URL == '' ):
         return ( VCS_REPO_FAIL_NOT_CONFIGURED, None )
     else:    
         try:
-            r = svn.remote.RemoteClient( REPO_BASE_URL + arg_repo_name )
+            r = svn.remote.RemoteClient( REPO_BASE_URL + arg_repo_name, username, password )
             # list() is a lazy generator, it doesn't fetch data immediately. We need to convert it to real list to gain the connection error if exist
             return ( VCS_REPO_SUCCESS, list( r.list() ) )
         except Exception as e:
