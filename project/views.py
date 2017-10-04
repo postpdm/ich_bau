@@ -218,10 +218,10 @@ def get_project_view(request, project_id, arg_task_filter = TASK_FILTER_OPEN, ar
     if arg_page == PROJECT_PAGE_FILES:
         s = project.repo_name
         if ( not ( s is None ) ) and ( s != '' ):
-            res_info = Get_Info_For_Repo_Name( s )
+            res_info = Get_Info_For_Repo_Name( s, SVN_ADMIN_USER, SVN_ADMIN_PASSWORD )
             if res_info[0] == VCS_REPO_SUCCESS:
                 repo_info = res_info[1]
-                res_list = Get_List_For_Repo_Name(s)
+                res_list = Get_List_For_Repo_Name( s, SVN_ADMIN_USER, SVN_ADMIN_PASSWORD )
                 if res_list[0] == VCS_REPO_SUCCESS:
                     repo_list = res_list[1]
             else:
