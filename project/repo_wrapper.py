@@ -51,16 +51,34 @@ def Write_Ini_for_CFG( arg_fn, arg_section_name, arg_dict ):
     with open(arg_fn, 'w') as configfile:
         config.write(configfile)
 
-def Write_Ini_For_New_Repo( arg_repo_root_path ):
-    authz_fn  = 'authz'
-    passwd_fn = 'passwd'
-    svnserve_conf_file_name = arg_repo_root_path + '\\svnserve.conf'
-    authz_file_name         = arg_repo_root_path + '\\' + authz_fn
-    passwd_file_name        = arg_repo_root_path + '\\' + passwd_fn
+# const names
+authz_fn  = 'authz'
+passwd_fn = 'passwd'
+svnserve_conf_fn = 'svnserve.conf'
+conf_folder = 'conf'
 
-    Write_Ini_for_CFG( svnserve_conf_file_name, 'general', { 'anon-access' : 'none', 'auth-access' : 'write', 'password-db' : passwd_fn, 'authz-db' : authz_fn, } )
-    Write_Ini_for_CFG( passwd_file_name, 'users', { SVN_ADMIN_USER : SVN_ADMIN_PASSWORD } )
-    Write_Ini_for_CFG( authz_file_name, '/', { SVN_ADMIN_USER : 'rw' } )
+class Repo_File_Paths():
+
+    _repo_root_path = ''
+
+    def __init__( self, arg_repo_root_path ):
+        self._repo_root_path = arg_repo_root_path
+
+    def auth_full_name( self ):
+        return self._repo_root_path + '\\' + conf_folder + '\\' + authz_fn
+
+    def pass_full_name( self ):
+        return self._repo_root_path + '\\' + conf_folder + '\\' + passwd_fn
+
+    def svnserve_conf_full_name( self ):
+        return self._repo_root_path + '\\' + conf_folder + '\\' + svnserve_conf_fn
+
+def Write_Ini_For_New_Repo( arg_repo_root_path ):
+    file_names = Repo_File_Paths( arg_repo_root_path )
+
+    Write_Ini_for_CFG( file_names.svnserve_conf_full_name(), 'general', { 'anon-access' : 'none', 'auth-access' : 'write', 'password-db' : passwd_fn, 'authz-db' : authz_fn, } )
+    Write_Ini_for_CFG( file_names.pass_full_name(), 'users', { SVN_ADMIN_USER : SVN_ADMIN_PASSWORD } )
+    Write_Ini_for_CFG( file_names.auth_full_name(), '/', { SVN_ADMIN_USER : 'rw' } )
 
 # return (code, str)
 def Create_New_Repo( ):
@@ -71,11 +89,20 @@ def Create_New_Repo( ):
             repo_guid_name = uuid.uuid4().hex
             a = svn.admin.Admin( svnadmin_filepath = SVN_ADMIN_FULL_PATH )
             a.create( REPO_LOCAL_ROOT + repo_guid_name, svnadmin_filepath = SVN_ADMIN_FULL_PATH )            
-            Write_Ini_For_New_Repo( REPO_LOCAL_ROOT + repo_guid_name + '\\conf' )
+            Write_Ini_For_New_Repo( REPO_LOCAL_ROOT + repo_guid_name )
             return ( VCS_REPO_SUCCESS, repo_guid_name )
         except:
             return ( VCS_REPO_FAIL_CALL, '' )
+
+def Add_User_to_Repo( arg_repo_name, username, password ):
+    file_names = Repo_File_Paths( REPO_LOCAL_ROOT + arg_repo_name )
+    Write_Ini_for_CFG( file_names.pass_full_name(), 'users', { username : password } )
+    Write_Ini_for_CFG( file_names.auth_full_name(), '/', { username : 'rw' } )
     
+    #Write_Ini_For_New_Repo( REPO_LOCAL_ROOT + repo_guid_name )
+    #Write_Ini_for_CFG( passwd_file_name, 'users', { SVN_ADMIN_USER : SVN_ADMIN_PASSWORD } )
+    #Write_Ini_for_CFG( authz_file_name, '/', { SVN_ADMIN_USER : 'rw' } )
+            
 # return (code, str)
 def Get_List_For_Repo_Name( arg_repo_name, username=None, password=None, arg_echo = False ):
     if ( REPO_BASE_URL is None ) or ( REPO_BASE_URL == '' ):
