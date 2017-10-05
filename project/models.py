@@ -43,15 +43,16 @@ class Project(BaseStampedModel):
     class Meta:
         ordering = ['fullname']
 
-    # полный список членов проекта, независимо от статуса подтверждения
+    # полный список членов проекта, независимо от статуса подтверждения. Возвращает объекты Member
     def GetMemberList( self ):
         return Member.objects.filter( project = self )
 
-    # список членов проекта
+    # список полных (полностью подтвержденных) членов проекта. Возвращает объекты Member
     def GetFullMemberList( self ):
         q = Member.objects.filter( project = self, team_accept__isnull = False, member_accept__isnull = False )
         return q
 
+    # список профилей полных (полностью подтвержденных) членов проекта. Возвращает объекты Profile
     def GetFullMemberUsers( self ):
         q = Profile.objects.filter( member_profile__project = self, member_profile__team_accept__isnull = False, member_profile__member_accept__isnull = False )
         return q
