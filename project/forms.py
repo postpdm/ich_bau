@@ -63,8 +63,9 @@ class TaskForm(forms.ModelForm):
         # отображать вехи и пользователей только этого проекта
         if not ( p is None):
             self.fields['milestone'].queryset = Milestone.objects.filter( project = p, finished_at__isnull = True )
-            self.fields['holder'].queryset = p.GetFullMemberUsers()
-            self.fields['assignee'].queryset = p.GetFullMemberUsers()
+            list = p.GetFullMemberProfiles()
+            self.fields['holder'].queryset = list
+            self.fields['assignee'].queryset = list
 
 class TaskEditTargetDateForm(forms.ModelForm):
     #target_date_at = forms.DateField( required = False,

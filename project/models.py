@@ -53,7 +53,7 @@ class Project(BaseStampedModel):
         return q
 
     # список профилей полных (полностью подтвержденных) членов проекта. Возвращает объекты Profile
-    def GetFullMemberUsers( self ):
+    def GetFullMemberProfiles( self ):
         q = Profile.objects.filter( member_profile__project = self, member_profile__team_accept__isnull = False, member_profile__member_accept__isnull = False )
         return q
 
@@ -61,7 +61,7 @@ class Project(BaseStampedModel):
         if ( arg_user is None ) or ( not arg_user.is_authenticated() ):
             return False # аноним никогда не участник
         else:
-            return self.GetFullMemberUsers().filter( user = arg_user ).exists()
+            return self.GetFullMemberProfiles().filter( user = arg_user ).exists()
 
     def is_admin( self, arg_user ):
         if ( arg_user is None ) or ( not arg_user.is_authenticated() ):
@@ -141,7 +141,7 @@ class Project(BaseStampedModel):
         # дать доступ к repo
         if self.have_repo():
             # дать доступ по всему списку членов проекта
-            profiles = self.GetFullMemberUsers()
+            profiles = self.GetFullMemberProfiles()
             user_dict = { SVN_ADMIN_USER : SVN_ADMIN_PASSWORD }
             for p in profiles:
                 user_dict[ p.user.username ] = p.user.username
@@ -224,7 +224,7 @@ class Milestone(BaseStampedModel):
 @receiver(post_save, sender=Milestone)
 def milestone_post_save_Notifier_Composer(sender, instance, **kwargs):
     # веха изменилась - разослать уведомление всем участникам проекта - кроме автора изменений
-    member_users = instance.project.GetFullMemberUsers().exclude( user = instance.modified_user )
+    member_users = instance.project.GetFullMemberProfiles().exclude( user = instance.modified_user )
     message_str = 'Changes in the milestone ' + instance.fullname + ' of ' + instance.project.fullname + ' project'
     for m in member_users:
         Send_Notification( instance.modified_user, m.user, message_str, instance.get_absolute_url() )

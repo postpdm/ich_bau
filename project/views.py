@@ -248,8 +248,9 @@ def get_project_view(request, project_id, arg_task_filter = TASK_FILTER_OPEN, ar
                     filter_type = 'filter_task_search'
                     task_filter = TaskFilter( request.GET, queryset=base_tasks )
                     task_filter.filters['milestone'].queryset = milestones
-                    task_filter.filters['assignee'].queryset = project.GetFullMemberUsers()
-                    task_filter.filters['holder'].queryset = project.GetFullMemberUsers()
+                    p_list = project.GetFullMemberProfiles()
+                    task_filter.filters['assignee'].queryset = p_list
+                    task_filter.filters['holder'].queryset = p_list
                     tasks = task_filter.qs
                 else:
                     raise Http404
