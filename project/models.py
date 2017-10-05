@@ -146,10 +146,10 @@ class Project(BaseStampedModel):
         # дать доступ к repo
         if self.have_repo():
             # дать доступ по всему списку членов проекта
-            profiles = self.GetFullMemberProfiles()
+            member_users = self.GetFullMemberUsers()
             user_dict = { SVN_ADMIN_USER : SVN_ADMIN_PASSWORD }
-            for p in profiles:
-                user_dict[ p.user.username ] = p.user.username
+            for mu in member_users:
+                user_dict[ mu.username ] = mu.username
 
             Add_User_to_Repo( self.repo_name, user_dict )
 
@@ -229,10 +229,10 @@ class Milestone(BaseStampedModel):
 @receiver(post_save, sender=Milestone)
 def milestone_post_save_Notifier_Composer(sender, instance, **kwargs):
     # веха изменилась - разослать уведомление всем участникам проекта - кроме автора изменений
-    member_users = instance.project.GetFullMemberProfiles().exclude( user = instance.modified_user )
+    member_users = instance.project.GetFullMemberUsers().exclude( id = instance.modified_user.id )
     message_str = 'Changes in the milestone ' + instance.fullname + ' of ' + instance.project.fullname + ' project'
-    for m in member_users:
-        Send_Notification( instance.modified_user, m.user, message_str, instance.get_absolute_url() )
+    for mu in member_users:
+        Send_Notification( instance.modified_user, mu, message_str, instance.get_absolute_url() )
 
 # состояния задач
 
