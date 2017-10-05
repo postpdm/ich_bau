@@ -164,6 +164,11 @@ def project_create_repo(request, project_id):
     context = RequestContext(request)
     project = get_object_or_404( Project, pk=project_id)
     
+    s = project.repo_name
+    if ( not ( s is None ) ) and ( s != '' ):
+        messages.error( request, "Project already have a repo!")
+        return HttpResponseRedirect( project.get_absolute_url() + 'files' )
+    
     ual = project.user_access_level( request.user )
     if ual == PROJECT_ACCESS_NONE:
         raise Http404()
