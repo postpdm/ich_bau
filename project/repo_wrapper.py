@@ -73,12 +73,15 @@ class Repo_File_Paths():
     def svnserve_conf_full_name( self ):
         return self._repo_root_path + '\\' + conf_folder + '\\' + svnserve_conf_fn
 
+def Add_User_Info_to_Repo_CFG( arg_repo_file_paths, arg_username, arg_pw ): # arg_repo_file_paths - ύκηεμολÿπ Repo_File_Paths
+    Write_Ini_for_CFG( arg_repo_file_paths.pass_full_name(), 'users', { arg_username : arg_pw } )
+    Write_Ini_for_CFG( arg_repo_file_paths.auth_full_name(), '/', { arg_username : 'rw' } )
+
 def Write_Ini_For_New_Repo( arg_repo_root_path ):
     file_names = Repo_File_Paths( arg_repo_root_path )
 
     Write_Ini_for_CFG( file_names.svnserve_conf_full_name(), 'general', { 'anon-access' : 'none', 'auth-access' : 'write', 'password-db' : passwd_fn, 'authz-db' : authz_fn, } )
-    Write_Ini_for_CFG( file_names.pass_full_name(), 'users', { SVN_ADMIN_USER : SVN_ADMIN_PASSWORD } )
-    Write_Ini_for_CFG( file_names.auth_full_name(), '/', { SVN_ADMIN_USER : 'rw' } )
+    Add_User_Info_to_Repo_CFG( file_names, SVN_ADMIN_USER, SVN_ADMIN_PASSWORD )
 
 # return (code, str)
 def Create_New_Repo( ):
@@ -96,13 +99,8 @@ def Create_New_Repo( ):
 
 def Add_User_to_Repo( arg_repo_name, username, password ):
     file_names = Repo_File_Paths( REPO_LOCAL_ROOT + arg_repo_name )
-    Write_Ini_for_CFG( file_names.pass_full_name(), 'users', { username : password } )
-    Write_Ini_for_CFG( file_names.auth_full_name(), '/', { username : 'rw' } )
-    
-    #Write_Ini_For_New_Repo( REPO_LOCAL_ROOT + repo_guid_name )
-    #Write_Ini_for_CFG( passwd_file_name, 'users', { SVN_ADMIN_USER : SVN_ADMIN_PASSWORD } )
-    #Write_Ini_for_CFG( authz_file_name, '/', { SVN_ADMIN_USER : 'rw' } )
-            
+    Add_User_Info_to_Repo_CFG( file_names, username, password )
+
 # return (code, str)
 def Get_List_For_Repo_Name( arg_repo_name, username=None, password=None, arg_echo = False ):
     if ( REPO_BASE_URL is None ) or ( REPO_BASE_URL == '' ):
