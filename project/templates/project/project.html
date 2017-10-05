@@ -69,29 +69,7 @@ no history to view
 
 <h2>{% trans "Members" %} {% if user_can_admin %}<a class="btn btn-default" href="/project/member_add/{{project.id}}/"><i class="fa fa-plus"></i> {% trans "Add member" %}</a>{% endif %}</h2>
 
-<ul>
-{% for m in members %}
-<li>{{m.member_profile.user}}
-
-{% if m.admin_flag %}
-{% trans "(admin)" %}
-{% endif %}
-
-{% if not m.team_accept %}
-{% trans "(team not accept)" %}
-{% endif %}
-
-{% if not m.member_accept %}
-{% trans "(member not accept)" %}
-
-{% if request.user.is_authenticated and request.user == m.member_profile.user %}
-<a class="btn btn-primary" href="/project/member/{{m.pk}}/member_accept/"><i class="fa fa-chevron-down"></i> {% trans "Accept membership" %}</a>
-{% endif %}
-{% endif %}
-
-</li>
-{% endfor %}
-</ul>
+{% include "project/project_members_list.html" %}
 
 {% comment %} end if TITLE {% endcomment %}
 {% endif %}
@@ -99,27 +77,7 @@ no history to view
 {% if show_page == 'files' %}
 <h2>Files</h2>
 
-{% if project.repo_name %}
-
-<p>Repo url: <code>{{repo_info.url}}</code></p>
-<p>Last commit # {{repo_info.commit_revision}} from <strong>{{repo_info.commit_author}}</strong> at {{repo_info.commit_date}}</p>
-
-<p>File list:</p>
-<ul>
-{% for rl in repo_list %}
-<li>{{rl}}</li>
-{% endfor %}
-</ul>
-
-{% else %}
-<p class="bg-warning">File repo is not created for this project.</p>
-
-{% if user_can_admin %}
-<a class="btn btn-default" href="{{project.get_absolute_url}}create_repo"><i class="fa fa-file-o"></i> {% trans "Create repo" %}</a>
-{%else%}
-<p>Project admin can create the repo.</p>
-{% endif %}
-{% endif %}
+{% include "project/project_repo.html" %}
 
 
 {% comment %} end if FILES {% endcomment %}
@@ -128,28 +86,8 @@ no history to view
 {% if show_page == 'milestones' %}
 <h2>{% trans "Milestones" %}{% if user_can_admin %} <a class="btn btn-default" href="/project/milestone_add/{{project.id}}/"><i class="fa fa-plus"></i> {% trans "Create milestone" %}</a>{% endif %}</h2>
 
-<table class="table table-striped">
-<thead>
-<tr>
-<th>{% trans "Milestone" %}</th>
-<th>{% trans "Plan date" %}</th>
-<th>{% trans "Fact finish date" %}</th>
-</tr>
-</thead>
-<tbody>
+{% include "project/project_milestones.html" %}
 
-{% for m in milestones %}
-<tr>
-<td><a href="{{m.get_absolute_url }}">{{m}}</a></td>
-<td>{% if m.planned_at %}{{m.planned_at|date}} {% endif %}</td>
-<td>{% if m.finished_at %}{{m.finished_at|date}} {% endif %}</td>
-
-</tr>
-{% endfor %}
-
-
-</tbody>
-</table>
 {% comment %} end if MILESTONES {% endcomment %}
 {% endif %}
 

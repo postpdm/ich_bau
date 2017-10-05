@@ -1,0 +1,22 @@
+{% load i18n %}
+{% if project.repo_name %}
+
+<p>Repo url: <code>{{repo_info.url}}</code></p>
+<p>Last commit # {{repo_info.commit_revision}} from <strong>{{repo_info.commit_author}}</strong> at {{repo_info.commit_date}}</p>
+
+<p>File list:</p>
+<ul>
+{% for rl in repo_list %}
+<li>{{rl}}</li>
+{% endfor %}
+</ul>
+
+{% else %}
+<p class="bg-warning">File repo is not created for this project.</p>
+
+{% if user_can_admin %}
+<a class="btn btn-default" href="{{project.get_absolute_url}}create_repo"><i class="fa fa-file-o"></i> {% trans "Create repo" %}</a>
+{%else%}
+<p>Project admin can create the repo.</p>
+{% endif %}
+{% endif %}
