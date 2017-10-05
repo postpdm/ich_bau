@@ -41,10 +41,10 @@ def Write_Ini_for_CFG( arg_fn, arg_section_name, arg_dict ):
         config.read_file(open( arg_fn ))
     except:
         pass
-    
+
     if not ( arg_section_name in config.sections() ):
         config[ arg_section_name ] = {}
-       
+
     for k,v in arg_dict.items():
         config[arg_section_name][k] = v
 
@@ -73,15 +73,15 @@ class Repo_File_Paths():
     def svnserve_conf_full_name( self ):
         return self._repo_root_path + '\\' + conf_folder + '\\' + svnserve_conf_fn
 
-def Add_User_Info_to_Repo_CFG( arg_repo_file_paths, arg_username, arg_pw ): # arg_repo_file_paths - ύκηεμολÿπ Repo_File_Paths
-    Write_Ini_for_CFG( arg_repo_file_paths.pass_full_name(), 'users', { arg_username : arg_pw } )
-    Write_Ini_for_CFG( arg_repo_file_paths.auth_full_name(), '/', { arg_username : 'rw' } )
+def Add_User_Info_to_Repo_CFG( arg_repo_file_paths, arg_user_and_pw_dict ): # arg_repo_file_paths - ύκηεμολÿπ Repo_File_Paths
+    Write_Ini_for_CFG( arg_repo_file_paths.pass_full_name(), 'users', arg_user_and_pw_dict )
+    Write_Ini_for_CFG( arg_repo_file_paths.auth_full_name(), '/', dict.fromkeys( arg_user_and_pw_dict.keys(), 'rw' ) )
 
 def Write_Ini_For_New_Repo( arg_repo_root_path ):
     file_names = Repo_File_Paths( arg_repo_root_path )
 
     Write_Ini_for_CFG( file_names.svnserve_conf_full_name(), 'general', { 'anon-access' : 'none', 'auth-access' : 'write', 'password-db' : passwd_fn, 'authz-db' : authz_fn, } )
-    Add_User_Info_to_Repo_CFG( file_names, SVN_ADMIN_USER, SVN_ADMIN_PASSWORD )
+    Add_User_Info_to_Repo_CFG( file_names, { SVN_ADMIN_USER : SVN_ADMIN_PASSWORD } )
 
 # return (code, str)
 def Create_New_Repo( ):
@@ -97,9 +97,9 @@ def Create_New_Repo( ):
         except:
             return ( VCS_REPO_FAIL_CALL, '' )
 
-def Add_User_to_Repo( arg_repo_name, username, password ):
+def Add_User_to_Repo( arg_repo_name, arg_user_and_pw_dict ):
     file_names = Repo_File_Paths( REPO_LOCAL_ROOT + arg_repo_name )
-    Add_User_Info_to_Repo_CFG( file_names, username, password )
+    Add_User_Info_to_Repo_CFG( file_names, arg_user_and_pw_dict )
 
 # return (code, str)
 def Get_List_For_Repo_Name( arg_repo_name, username=None, password=None, arg_echo = False ):

@@ -147,28 +147,26 @@ def project_view_files(request, project_id):
 def project_history(request, project_id):
     context = RequestContext(request)
     project = get_object_or_404( Project, pk=project_id)
-    
+
     ual = project.user_access_level( request.user )
     if ual == PROJECT_ACCESS_NONE:
         raise Http404()
-    
+
     versions = Version.objects.get_for_object( project )
-    
+
     context_dict = { 'project': project, 
                      'versions': versions }
-             
     # Рендерить ответ
     return render( request, 'project/project_history.html', context_dict )
 
 def project_create_repo(request, project_id):
     context = RequestContext(request)
     project = get_object_or_404( Project, pk=project_id)
-    
-    s = project.repo_name
-    if ( not ( s is None ) ) and ( s != '' ):
+
+    if project.have_repo():
         messages.error( request, "Project already have a repo!")
         return HttpResponseRedirect( project.get_absolute_url() + 'files' )
-    
+
     ual = project.user_access_level( request.user )
     if ual == PROJECT_ACCESS_NONE:
         raise Http404()
@@ -183,13 +181,15 @@ def project_create_repo(request, project_id):
                 if res[0] == VCS_REPO_SUCCESS:
                     project.repo_name = res[1]
                     project.save()
+                    # add access
+                    project.add_repo_access()
                     messages.success( request, "You successfully create the repo for this project!")
                 else:
                     messages.error( request, "Fail create the repo for this project!")
                 return HttpResponseRedirect( project.get_absolute_url() + 'files' )
             else:
                 raise Http404() # хотя такого быть не должно
-    
+
 def get_project_view(request, project_id, arg_task_filter = TASK_FILTER_OPEN, arg_page = PROJECT_PAGE_TITLE ):
     # Получить контекст запроса
     context = RequestContext(request)
@@ -221,8 +221,8 @@ def get_project_view(request, project_id, arg_task_filter = TASK_FILTER_OPEN, ar
         milestones = Milestone.objects.filter(project = project).order_by('finished_at')
 
     if arg_page == PROJECT_PAGE_FILES:
-        s = project.repo_name
-        if ( not ( s is None ) ) and ( s != '' ):
+        if project.have_repo():
+            s = project.repo_name        
             res_info = Get_Info_For_Repo_Name( s, SVN_ADMIN_USER, SVN_ADMIN_PASSWORD )
             if res_info[0] == VCS_REPO_SUCCESS:
                 repo_info = res_info[1]
@@ -377,7 +377,6 @@ def member_accept(request, member_id):
     # проверить - а тот ли юзер?
     if ( member.member_profile.user == request.user ):
         member.set_member_accept()
-        member.save()
         return HttpResponseRedirect( member.project.get_absolute_url() )
     else:
         # сбой - юзер не тот!!!

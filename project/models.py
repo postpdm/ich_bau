@@ -9,15 +9,12 @@ from django.utils import timezone
 from django.db import transaction
 import reversion
 
-import uuid
-
 from ich_bau.profiles.notification_helper import Send_Notification
 from ich_bau.profiles.models import Profile
 
 import markdown
 
-def make_uuid():
-    return uuid.uuid4() # https://docs.python.org/2/library/uuid.html
+from project.repo_wrapper import *
 
 # access level
 PROJECT_ACCESS_NONE  = 0 # нет доступа
@@ -37,7 +34,6 @@ PROJECT_ACCESS_ADMIN = 3 # админить проект - создавать и
 @reversion.register()
 class Project(BaseStampedModel):
     # shortname = models.CharField(max_length=255)
-    # slug = models.SlugField( unique = True, default=make_uuid ) # заготовка параноикам
     fullname = models.CharField(max_length=255, verbose_name = 'Full name!')
     active_flag=models.BooleanField(blank=True, default=True)
     private_flag=models.BooleanField(blank=True, default=False, verbose_name = 'Private project')
@@ -109,13 +105,13 @@ class Project(BaseStampedModel):
                         return PROJECT_ACCESS_VIEW
             except:
                 member_level = None
-                
+
         if member_level is None:
             if self.private_flag:
                 return PROJECT_ACCESS_NONE
             else:
                 return PROJECT_ACCESS_VIEW
-    
+
     # список задач проекта. 
     #   arg_opened = None значит все
     #   arg_opened = True значит открытые
@@ -132,9 +128,24 @@ class Project(BaseStampedModel):
 
     def get_absolute_url(self):
         return "/project/project/%i/" % self.id
-        
+
     def description_html(self):
         return markdown.markdown(self.description)
+
+    def have_repo( self ): # True - да, repo есть
+        s = self.repo_name
+        return ( not ( s is None ) ) and ( s != '' )
+
+    def add_repo_access( self ):
+        # дать доступ к repo
+        if self.have_repo():
+            # дать доступ по всему списку членов проекта
+            profiles = self.GetFullMemberUsers()
+            user_dict = { SVN_ADMIN_USER : SVN_ADMIN_PASSWORD }
+            for p in profiles:
+                user_dict[ p.user.username ] = p.user.username
+
+            Add_User_to_Repo( self.repo_name, user_dict )
 
 class Member(BaseStampedModel):
     project = models.ForeignKey(Project, blank=False, null=False )
@@ -144,34 +155,37 @@ class Member(BaseStampedModel):
     team_accept = models.DateTimeField( blank=True, null=True )
     # флаг подтверждения со стороны участника
     member_accept = models.DateTimeField( blank=True, null=True )
-    
+
     class Meta:
         unique_together = ("project", "member_profile")
-            
+
     def save(self, *args, **kwargs):
         super(Member, self).save(*args, **kwargs)
         # послать уведомление. самому себе посылать не надо. 
         if ( self.member_profile.user != self.modified_user ) and ( self.member_accept is None ):
             message_str = 'You are asked to accept the membership of ' + self.project.fullname + ' project team!'
             Send_Notification( self.modified_user, self.member_profile.user, message_str, self.project.get_absolute_url() )        
-    
+
     def set_team_accept( self ):
         self.team_accept = timezone.now()
-        
+
     def set_member_accept( self ):
         self.member_accept = timezone.now()
-        
+        self.save()
+        # дать доступ к repo
+
+        self.project.add_repo_access()
+
     @classmethod
     def make_admin_after_project_create(cls, sender, instance, created, **kwargs):
         if created:
             project_created = instance
             project_created_user = project_created.created_user
-            
+
             pm = cls( member_profile = project_created_user.profile, project=project_created, admin_flag = True, created_user = project_created.created_user, modified_user = project_created_user )
             pm.set_team_accept()
-            pm.set_member_accept()            
-            pm.save()
-            
+            pm.set_member_accept()
+
 # http://stackoverflow.com/questions/25929165/create-model-after-group-has-been-created-django
 post_save.connect(Member.make_admin_after_project_create, sender=Project)
 
