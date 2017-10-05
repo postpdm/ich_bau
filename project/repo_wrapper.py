@@ -33,6 +33,35 @@ def Get_Info_For_Repo_Name( arg_repo_name, username=None, password=None, arg_ech
                 print( e )
             return ( VCS_REPO_FAIL_CALL, None )
 
+import configparser
+
+def Write_Ini_for_CFG( arg_fn, arg_section_name, arg_dict ):
+    config = configparser.ConfigParser()
+    try:
+        config.read_file(open( arg_fn ))
+    except:
+        pass
+    
+    if not ( arg_section_name in config.sections() ):
+        config[ arg_section_name ] = {}
+       
+    for k,v in arg_dict.items():
+        config[arg_section_name][k] = v
+
+    with open(arg_fn, 'w') as configfile:
+        config.write(configfile)
+
+def Write_Ini_For_New_Repo( arg_repo_root_path ):
+    authz_fn  = 'authz'
+    passwd_fn = 'passwd'
+    svnserve_conf_file_name = arg_repo_root_path + '\\svnserve.conf'
+    authz_file_name         = arg_repo_root_path + '\\' + authz_fn
+    passwd_file_name        = arg_repo_root_path + '\\' + passwd_fn
+
+    Write_Ini_for_CFG( svnserve_conf_file_name, 'general', { 'anon-access' : 'none', 'auth-access' : 'write', 'password-db' : passwd_fn, 'authz-db' : authz_fn, } )
+    Write_Ini_for_CFG( passwd_file_name, 'users', { SVN_ADMIN_USER : SVN_ADMIN_PASSWORD } )
+    Write_Ini_for_CFG( authz_file_name, '/', { SVN_ADMIN_USER : 'rw' } )
+
 # return (code, str)
 def Create_New_Repo( ):
     if ( REPO_BASE_URL is None ) or ( REPO_BASE_URL == '' ):
@@ -41,7 +70,8 @@ def Create_New_Repo( ):
         try:
             repo_guid_name = uuid.uuid4().hex
             a = svn.admin.Admin( svnadmin_filepath = SVN_ADMIN_FULL_PATH )
-            a.create( REPO_LOCAL_ROOT + repo_guid_name, svnadmin_filepath = SVN_ADMIN_FULL_PATH )
+            a.create( REPO_LOCAL_ROOT + repo_guid_name, svnadmin_filepath = SVN_ADMIN_FULL_PATH )            
+            Write_Ini_For_New_Repo( REPO_LOCAL_ROOT + repo_guid_name + '\\conf' )
             return ( VCS_REPO_SUCCESS, repo_guid_name )
         except:
             return ( VCS_REPO_FAIL_CALL, '' )
