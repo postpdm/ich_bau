@@ -24,7 +24,7 @@ VCS_REPO_FAIL_CALL = 2
 def Get_Info_For_Repo_Name( arg_repo_name, username=None, password=None, arg_echo = False ):
     if ( REPO_BASE_URL is None ) or ( REPO_BASE_URL == '' ):
         return ( VCS_REPO_FAIL_NOT_CONFIGURED, None )
-    else:    
+    else:
         try:
             r = svn.remote.RemoteClient( REPO_BASE_URL + arg_repo_name, username, password )
             return ( VCS_REPO_SUCCESS, r.info() )
@@ -91,7 +91,7 @@ def Create_New_Repo( ):
         try:
             repo_guid_name = uuid.uuid4().hex
             a = svn.admin.Admin( svnadmin_filepath = SVN_ADMIN_FULL_PATH )
-            a.create( REPO_LOCAL_ROOT + repo_guid_name, svnadmin_filepath = SVN_ADMIN_FULL_PATH )            
+            a.create( REPO_LOCAL_ROOT + repo_guid_name, svnadmin_filepath = SVN_ADMIN_FULL_PATH )
             Write_Ini_For_New_Repo( REPO_LOCAL_ROOT + repo_guid_name )
             return ( VCS_REPO_SUCCESS, repo_guid_name )
         except:
@@ -105,7 +105,7 @@ def Add_User_to_Repo( arg_repo_name, arg_user_and_pw_dict ):
 def Get_List_For_Repo_Name( arg_repo_name, username=None, password=None, arg_echo = False ):
     if ( REPO_BASE_URL is None ) or ( REPO_BASE_URL == '' ):
         return ( VCS_REPO_FAIL_NOT_CONFIGURED, None )
-    else:    
+    else:
         try:
             r = svn.remote.RemoteClient( REPO_BASE_URL + arg_repo_name, username, password )
             # list() is a lazy generator, it doesn't fetch data immediately. We need to convert it to real list to gain the connection error if exist

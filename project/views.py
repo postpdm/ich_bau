@@ -38,7 +38,7 @@ def get_index( request, arg_page = PROJECT_FILTER_MINE ):
         my_task = None
         if request.user.is_authenticated():
             my_task = Task.objects.filter( state = TASK_STATE_NEW, assignee__user = request.user )
-        context_dict = { 'projects': GetMemberedProjectList(request.user), 
+        context_dict = { 'projects': GetMemberedProjectList(request.user),
                          'filter_type' : '',
                          'tasks' : my_task,
                          }
@@ -54,19 +54,19 @@ def get_index( request, arg_page = PROJECT_FILTER_MINE ):
 
     # Сформировать ответ, отправить пользователю
     return render( request, 'project/index.html', context_dict )
-    
+
 def index( request ):
     return get_index( request )
-    
+
 def index_search_public( request ):
     return get_index( request, PROJECT_FILTER_SEARCH_PUBLIC )
-    
+
 def index_public( request ):
     return get_index( request, PROJECT_FILTER_ALL_PUBLIC )
-    
+
 from account.mixins import LoginRequiredMixin
 from django.views.generic.edit import CreateView, UpdateView
-    
+
 class ProjectCreateView(LoginRequiredMixin, CreateView):
 
     form_class = ProjectForm
@@ -74,38 +74,38 @@ class ProjectCreateView(LoginRequiredMixin, CreateView):
     def form_valid(self, form):
         self.object = form.save(commit=False)
         self.object.set_change_user(self.request.user)
-        
+
         with transaction.atomic(), reversion.create_revision():
-            reversion.set_user(self.request.user)        
+            reversion.set_user(self.request.user)
             self.object.save()
-              
+
         messages.success(self.request, "You successfully create the project!")
         return HttpResponseRedirect(self.get_success_url())
 
 @login_required
 def project_edit(request, project_id):
     context = RequestContext(request)
-    
+
     project = get_object_or_404( Project, pk=project_id )
-    
+
     if not project.can_admin( request.user ):
         raise Http404()
 
-    if request.method == 'POST':        
+    if request.method == 'POST':
         form = ProjectForm(request.POST, instance=project)
-        
+
         if form.is_valid():
             project.set_change_user(request.user)
-            with transaction.atomic(), reversion.create_revision():                
+            with transaction.atomic(), reversion.create_revision():
                 reversion.set_user(request.user)
-                form.save()            
+                form.save()
 
             # перебросить пользователя на просмотр изделия
             messages.success(request, "You successfully updated this project!")
             return HttpResponseRedirect( project.get_absolute_url() )
         else:
             print( form.errors )
-    else:        
+    else:
         form = ProjectForm( instance=project )
 
     return render(  request, 'project/project_form.html',
@@ -134,13 +134,13 @@ def project_view(request, project_id):
 
 def project_view_closed_tasks(request, project_id):
     return get_project_view(request, project_id, arg_task_filter = TASK_FILTER_CLOSED)
-    
+
 def project_view_search_tasks(request, project_id):
     return get_project_view(request, project_id, arg_task_filter = TASK_FILTER_SEARCH )
-    
+
 def project_view_milestones(request, project_id):
     return get_project_view(request, project_id, arg_page = PROJECT_PAGE_MILESTONES )
-    
+
 def project_view_files(request, project_id):
     return get_project_view(request, project_id, arg_page = PROJECT_PAGE_FILES )
 
@@ -154,7 +154,7 @@ def project_history(request, project_id):
 
     versions = Version.objects.get_for_object( project )
 
-    context_dict = { 'project': project, 
+    context_dict = { 'project': project,
                      'versions': versions }
     # Рендерить ответ
     return render( request, 'project/project_history.html', context_dict )
@@ -194,10 +194,10 @@ def get_project_view(request, project_id, arg_task_filter = TASK_FILTER_OPEN, ar
     # Получить контекст запроса
     context = RequestContext(request)
     project = get_object_or_404( Project, pk=project_id)
-    
+
     user_can_work = False
     user_can_admin = False
-    
+
     ual = project.user_access_level( request.user )
     if ual == PROJECT_ACCESS_NONE:
         raise Http404()
@@ -222,7 +222,7 @@ def get_project_view(request, project_id, arg_task_filter = TASK_FILTER_OPEN, ar
 
     if arg_page == PROJECT_PAGE_FILES:
         if project.have_repo():
-            s = project.repo_name        
+            s = project.repo_name
             res_info = Get_Info_For_Repo_Name( s, SVN_ADMIN_USER, SVN_ADMIN_PASSWORD )
             if res_info[0] == VCS_REPO_SUCCESS:
                 repo_info = res_info[1]
@@ -231,12 +231,12 @@ def get_project_view(request, project_id, arg_task_filter = TASK_FILTER_OPEN, ar
                     repo_list = res_list[1]
             else:
                 messages.error( request, "Can't connect to repo!")
-    
+
     # prepare tasks only for title page
     if arg_page == PROJECT_PAGE_TITLE:
         members = project.GetMemberList()
         base_tasks = project.Get_Tasks()
-        
+
         if arg_task_filter == TASK_FILTER_OPEN:
             tasks = base_tasks.filter( state = TASK_STATE_NEW )
         else:
@@ -253,9 +253,9 @@ def get_project_view(request, project_id, arg_task_filter = TASK_FILTER_OPEN, ar
                     tasks = task_filter.qs
                 else:
                     raise Http404
- 
+
     # Записать список в словарь
-    context_dict = { 'project': project, 
+    context_dict = { 'project': project,
                      'members':members,
                      'milestones' : milestones,
                      'tasks' : tasks,
@@ -270,7 +270,7 @@ def get_project_view(request, project_id, arg_task_filter = TASK_FILTER_OPEN, ar
 
     # Рендерить ответ
     return render( request, 'project/project.html', context_dict )
-    
+
 class MilestoneCreateView(LoginRequiredMixin, CreateView):
 
     form_class = MilestoneForm
@@ -281,99 +281,99 @@ class MilestoneCreateView(LoginRequiredMixin, CreateView):
             project_id = self.kwargs['project_id']
         else:
             raise Http404()
-        
+
         self.object = form.save(commit=False)
         self.object.set_change_user(self.request.user)
         if not ( project_id is None ):
             p = get_object_or_404( Project, pk = project_id )
             self.object.project = p
-           
+
         with transaction.atomic(), reversion.create_revision():
-            reversion.set_user(self.request.user)        
+            reversion.set_user(self.request.user)
             self.object.save()
-        
+
         messages.success(self.request, "You successfully create the milestone!")
         return HttpResponseRedirect(self.get_success_url())
-        
+
 class MilestoneUpdateView(LoginRequiredMixin, UpdateView):
     form_class = MilestoneForm
     model = Milestone
-    
+
     def form_valid(self, form):
         self.object = form.save(commit=False)
         self.object.set_change_user(self.request.user)
         with transaction.atomic(), reversion.create_revision():
-            reversion.set_user(self.request.user)        
+            reversion.set_user(self.request.user)
             self.object.save()
 
         messages.success(self.request, "You successfully update the milestone!")
-        return HttpResponseRedirect(self.get_success_url())    
-    
+        return HttpResponseRedirect(self.get_success_url())
+
 def milestone_history(request, milestone_id):
     # Получить контекст запроса
     context = RequestContext(request)
-        
+
     milestone = get_object_or_404( Milestone, pk=milestone_id)
-    
+
     versions = Version.objects.get_for_object( milestone )
-      
+
     # Записать список в словарь
     context_dict = { 'milestone': milestone,
                      'versions': versions }
-        
+
     # Рендерить ответ
     return render( request, 'project/milestone_history.html', context_dict )
-    
+
 def milestone_view(request, milestone_id):
     # Получить контекст запроса
     context = RequestContext(request)
-        
+
     milestone = get_object_or_404( Milestone, pk=milestone_id)
     user_can_admin = milestone.project.can_admin( request.user )
 
     tasks = Task.objects.filter( milestone = milestone ).order_by('state')
-        
+
     # Записать список в словарь
     context_dict = { 'milestone': milestone,
                      'tasks' : tasks,
                      'user_can_admin' : user_can_admin,
                          }
-        
+
     # Рендерить ответ
     return render( request, 'project/milestone.html', context_dict )
 
 class AddMemberCreateView(LoginRequiredMixin, CreateView):
     form_class = MemberForm
     model = Member
-    
-    def get_initial(self):        
+
+    def get_initial(self):
         self.p = get_object_or_404( Project, pk = self.kwargs['project_id'])
         return { 'project': self.p, }
-        
+
     def form_valid(self, form):
         if 'project_id' in self.kwargs:
             project_id = self.kwargs['project_id']
         else:
             raise Http404()
-        
+
         self.object = form.save(commit=False)
         self.object.set_change_user(self.request.user)
         self.object.set_team_accept()
         if not ( project_id is None ):
             p = get_object_or_404( Project, pk = project_id )
             self.object.project = p
-           
+
         #with transaction.atomic(), reversion.create_revision():
         self.object.save()
-        #    reversion.set_user(self.request.user)        
-        
+        #    reversion.set_user(self.request.user)
+
         messages.success(self.request, "You successfully send an invite to member! User got an invite and could accept it.")
         return HttpResponseRedirect(self.object.project.get_absolute_url() )
 
 # пользователь принял приглашение в участники проекта
 def member_accept(request, member_id):
     member = get_object_or_404( Member, pk = member_id )
-    
+
     # проверить - а тот ли юзер?
     if ( member.member_profile.user == request.user ):
         member.set_member_accept()
@@ -381,16 +381,16 @@ def member_accept(request, member_id):
     else:
         # сбой - юзер не тот!!!
         return HttpResponseForbidden()
-        
+
 class TaskCreateView(LoginRequiredMixin, CreateView):
 
     form_class = TaskForm
     model = Task
-    
+
     p = None
     m = None
-    
-    def get_initial(self):        
+
+    def get_initial(self):
         # если задана веха
         holder = self.request.user.profile
         try:
@@ -402,8 +402,8 @@ class TaskCreateView(LoginRequiredMixin, CreateView):
             milestone_id = None
             self.p = get_object_or_404( Project, pk = self.kwargs['project_id'])
             return { 'project': self.p, 'holder' : holder, }
-        
-    def form_valid(self, form):        
+
+    def form_valid(self, form):
         project_id = None
         milestone_id = None
         if 'project_id' in self.kwargs:
@@ -413,7 +413,7 @@ class TaskCreateView(LoginRequiredMixin, CreateView):
                 milestone_id = self.kwargs['milestone_id']
             else:
                 raise Http404()
-        
+
         self.object = form.save(commit=False)
         self.object.set_change_user(self.request.user)
         if not ( project_id is None ):
@@ -423,11 +423,11 @@ class TaskCreateView(LoginRequiredMixin, CreateView):
             if not ( milestone_id is None ):
                 p = get_object_or_404( Milestone, pk = milestone_id ).project
                 self.object.project = p
-           
+
         with transaction.atomic(), reversion.create_revision():
-            reversion.set_user(self.request.user)        
+            reversion.set_user(self.request.user)
             self.object.save()
-        
+
         messages.success(self.request, "You successfully create the task!")
         return HttpResponseRedirect(self.get_success_url())
 
@@ -439,7 +439,7 @@ class TaskUpdateView(LoginRequiredMixin, UpdateView):
         self.object = form.save(commit=False)
         self.object.set_change_user(self.request.user)
         with transaction.atomic(), reversion.create_revision():
-            reversion.set_user(self.request.user)        
+            reversion.set_user(self.request.user)
             self.object.save()
 
         return HttpResponseRedirect(self.get_success_url())
@@ -450,26 +450,26 @@ def task_history(request, task_id):
     ual = task.project.user_access_level( request.user )
     if ual == PROJECT_ACCESS_NONE:
         raise Http404()
-    
+
     versions = Version.objects.get_for_object( task )
-    
-    context_dict = { 'task': task, 
+
+    context_dict = { 'task': task,
                      'versions': versions }
-             
+
     # Рендерить ответ
     return render( request, 'project/task_history.html', context_dict )
-        
+
 def task_view(request, task_id):
     # Получить контекст запроса
     context = RequestContext(request)
 
     try:
         task = get_object_or_404( Task, pk=task_id)
-        
+
         user_can_comment = False
         user_can_work = False
         user_can_admin = False
-        
+
         ual = task.project.user_access_level( request.user )
         if ual == PROJECT_ACCESS_NONE:
             raise Http404()
@@ -485,19 +485,19 @@ def task_view(request, task_id):
                 else:
                     if ual == PROJECT_ACCESS_VIEW and task.get_opened() and request.user.is_authenticated():
                         user_can_comment = True
-        
+
         comments = TaskComment.objects.filter( parenttask = task )
         subtasks = TaskLink.objects.filter(maintask=task)
         maintasks = TaskLink.objects.filter(subtask=task)
         task_checklist = TaskCheckList.objects.filter( parenttask = task )
-        
+
         # доступ списку коментов открыт, а форму показывать не надо
         if request.user.is_authenticated():
             if request.method == "POST":
-                
+
                 if 'submit' in request.POST:
                     # добавить коментарий
-                    wanted_task_state = TASK_STATE_NEW                    
+                    wanted_task_state = TASK_STATE_NEW
                 else:
                     if 'submit_and_close' in request.POST:
                         wanted_task_state = TASK_STATE_CLOSED
@@ -506,19 +506,19 @@ def task_view(request, task_id):
                             wanted_task_state = TASK_STATE_NEW
                         else:
                             raise Exception("Inknown task state!")
-                        
-                    
+
+
                 task_comment_form = TaskCommentForm(request.POST)
-                
+
                 if task_comment_form.is_valid():
                     c = task_comment_form.save(commit=False)
                     c.parenttask = task
-                    
+
                     with transaction.atomic(), reversion.create_revision():
                         reversion.set_user(request.user)
                         c.set_change_user(request.user)
                         c.save()
-                    
+
                     if wanted_task_state != task.state :
                         task.set_task_state(request.user, wanted_task_state )
                     return HttpResponseRedirect( task.get_absolute_url() )
@@ -526,7 +526,7 @@ def task_view(request, task_id):
                 task_comment_form = TaskCommentForm()
         else:
             task_comment_form = None
-            
+
         # Записать список в словарь
         context_dict = { 'task': task,
                          'comments': comments,
@@ -538,15 +538,15 @@ def task_view(request, task_id):
                          'user_can_admin' : user_can_admin,
                          'user_can_comment' : user_can_comment,
                          }
-        
+
     except Task.DoesNotExist:
         # На случай, если объекта нет - ничего не делаем, пусть об этом думает шаблон
         pass
 
     # Рендерить ответ
     return render( request,  'project/task.html', context_dict )
-  
-@login_required   
+
+@login_required
 def task_checklist(request, task_id):
     # Получить контекст запроса
     context = RequestContext(request)
@@ -555,7 +555,7 @@ def task_checklist(request, task_id):
 
     # взять контрольный список для задачи
     task_checklist = TaskCheckList.objects.filter( parenttask = task )
-    
+
     # заказать у фабрики формсет
 
     TaskCheckListFormSet = modelformset_factory( TaskCheckList, form=TaskCheckListForm, extra = 3 )
@@ -571,15 +571,15 @@ def task_checklist(request, task_id):
                 instance.set_change_user(request.user)
                 # указать для новых мастер-задачу
                 instance.parenttask = task
-                
+
                 # история
                 with transaction.atomic(), reversion.create_revision():
-                    reversion.set_user(request.user)        
-                    instance.save()                
-                    
+                    reversion.set_user(request.user)
+                    instance.save()
+
             messages.success(request, "You successfully edit the check list!")
             return HttpResponseRedirect( task.get_absolute_url() )
-                    
+
     else:
         formset = TaskCheckListFormSet(queryset=task_checklist)
 
@@ -590,72 +590,72 @@ def task_checklist(request, task_id):
 
     # Рендерить ответ
     return render( request, 'project/task_checklist.html', context_dict )
-        
+
 @login_required
 def edit_task_target_date(request, pk):
     context = RequestContext(request)
     task = get_object_or_404( Task, pk=pk )
-    if request.method == 'POST':        
+    if request.method == 'POST':
         form = TaskEditTargetDateForm(request.POST, instance=task)
-        
+
         if form.is_valid():
             task.set_change_user(request.user)
-            with transaction.atomic(), reversion.create_revision():                
+            with transaction.atomic(), reversion.create_revision():
                 reversion.set_user(request.user)
-                form.save()            
+                form.save()
 
             # перебросить пользователя на просмотр изделия
             messages.success(request, "You successfully updated this task target date!")
             return HttpResponseRedirect( task.get_absolute_url() )
         else:
             print( form.errors )
-    else:        
+    else:
         form = TaskEditTargetDateForm( instance=task )
 
     return render( request, 'project/task_edit_targed_date_form.html',
             {'form': form, 'task':task} )
-    
+
 @login_required
 def edit_task_comment(request, task_comment_id):
     context = RequestContext(request)
-    
+
     tc = get_object_or_404( TaskComment, pk=task_comment_id )
-    
+
     if ( request.user != tc.created_user ):
         raise Http404()
 
-    if request.method == 'POST':        
+    if request.method == 'POST':
         form = TaskCommentForm(request.POST, instance=tc)
-        
+
         if form.is_valid():
             tc.set_change_user(request.user)
-            with transaction.atomic(), reversion.create_revision():                
+            with transaction.atomic(), reversion.create_revision():
                 reversion.set_user(request.user)
-                form.save()            
+                form.save()
 
             # перебросить пользователя на просмотр изделия
             messages.success(request, "You successfully updated this comment!")
             return HttpResponseRedirect( tc.parenttask.get_absolute_url() )
         else:
             print( form.errors )
-    else:        
+    else:
         form = TaskCommentForm( instance=tc )
 
     return render( request, 'project/task_comment_edit_form.html',
             {'form': form, 'task_comment':tc} )
-             
+
 def task_comment_history(request, task_comment_id):
     context = RequestContext(request)
     tc = get_object_or_404( TaskComment, pk=task_comment_id )
-     
+
     versions = Version.objects.get_for_object( tc )
-    
-    context_dict = { 'tc': tc, 
+
+    context_dict = { 'tc': tc,
                      'versions': versions }
-             
+
     # Рендерить ответ
     return render( request, 'project/task_comment_history.html', context_dict )
-    
+
 @login_required
 def add_linked(request, task_id):
     context = RequestContext(request)
@@ -677,7 +677,7 @@ def add_linked(request, task_id):
     return render( request, 'project/add_link.html',
             {'task_id': task_id,
              'form': form} )
-             
+
 @login_required
 def task_unlink(request, tasklink_id):
     context = RequestContext(request)
@@ -690,16 +690,16 @@ def task_unlink(request, tasklink_id):
         return HttpResponseRedirect( maintask.get_absolute_url() )
     except:
         raise Http404()
-             
+
 @login_required
 def task_check_switch(request, task_check_id):
     #context = RequestContext(request)
     check = get_object_or_404( TaskCheckList, pk = task_check_id )
 
     with transaction.atomic(), reversion.create_revision():
-        reversion.set_user(request.user)        
+        reversion.set_user(request.user)
         check.check_flag = not check.check_flag
         check.save()
-    
+
     # перебросить пользователя на задание
     return HttpResponseRedirect('/project/task/%i' % check.parenttask_id )
