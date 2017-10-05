@@ -9,6 +9,9 @@ import uuid
 REPO_BASE_URL = 'svn://localhost/'
 REPO_LOCAL_ROOT = "d:\\test\\repos\\"
 
+SVN_ADMIN_USER = 'ich_bau_server'
+SVN_ADMIN_PASSWORD = 'key'
+
 SVN_ADMIN_FULL_PATH = 'd:\\test\\svn\\VisualSVN Server\\bin\\svnadmin.exe'
 
 # codes
@@ -18,7 +21,7 @@ VCS_REPO_FAIL_NOT_CONFIGURED = 1
 VCS_REPO_FAIL_CALL = 2
 
 #return (code,dict)
-def Get_Info_For_Repo_Name( arg_repo_name, arg_echo = False, username=None, password=None ):
+def Get_Info_For_Repo_Name( arg_repo_name, username=None, password=None, arg_echo = False ):
     if ( REPO_BASE_URL is None ) or ( REPO_BASE_URL == '' ):
         return ( VCS_REPO_FAIL_NOT_CONFIGURED, None )
     else:    
@@ -44,7 +47,7 @@ def Create_New_Repo( ):
             return ( VCS_REPO_FAIL_CALL, '' )
     
 # return (code, str)
-def Get_List_For_Repo_Name( arg_repo_name, arg_echo = False, username=None, password=None ):
+def Get_List_For_Repo_Name( arg_repo_name, username=None, password=None, arg_echo = False ):
     if ( REPO_BASE_URL is None ) or ( REPO_BASE_URL == '' ):
         return ( VCS_REPO_FAIL_NOT_CONFIGURED, None )
     else:    
