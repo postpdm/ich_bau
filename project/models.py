@@ -198,10 +198,10 @@ post_save.connect(Member.make_admin_after_project_create, sender=Project)
 @receiver(post_save, sender=Project)
 def project_post_save_Notifier_Composer(sender, instance, **kwargs):
     # проект изменился - разослать уведомление всем участникам проекта - кроме автора изменений
-    members = instance.GetFullMemberList().exclude( member_profile__user = instance.modified_user )
+    member_users = instance.GetFullMemberUsers().exclude( id = instance.modified_user.id )
     message_str = 'Changes in the ' + instance.fullname + ' project'
-    for m in members:
-        Send_Notification( instance.modified_user, m.member_profile.user, message_str, instance.get_absolute_url() )
+    for mu in member_users:
+        Send_Notification( instance.modified_user, mu, message_str, instance.get_absolute_url() )
 
 def GetAllPublicProjectList( ):
     return Project.objects.filter( private_flag = False )
