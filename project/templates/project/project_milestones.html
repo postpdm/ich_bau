@@ -2,6 +2,7 @@
 <table class="table table-striped">
 <thead>
 <tr>
+<th>{% trans "Progress" %}</th>
 <th>{% trans "Milestone" %}</th>
 <th>{% trans "Plan date" %}</th>
 <th>{% trans "Fact finish date" %}</th>
@@ -11,6 +12,16 @@
 
 {% for m in milestones %}
 <tr>
+<td>
+{% load template_arithmetic_tag %}
+<div class="progress">
+  <div class="progress-bar" role="progressbar" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100" style="width: {% percent m.count_closed_tasks m.count_tasks %}%;">
+    {% percent m.count_closed_tasks m.count_tasks %}%
+  </div>
+</div>
+closed {{m.count_closed_tasks}} tasks from {{m.count_tasks}}
+
+</td>
 <td><a href="{{m.get_absolute_url }}">{{m}}</a></td>
 <td>{% if m.planned_at %}{{m.planned_at|date}} {% endif %}</td>
 <td>{% if m.finished_at %}{{m.finished_at|date}} {% endif %}</td>
