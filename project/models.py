@@ -57,6 +57,11 @@ class Project(BaseStampedModel):
         q = Profile.objects.filter( member_profile__project = self, member_profile__team_accept__isnull = False, member_profile__member_accept__isnull = False )
         return q
 
+    # список юзеров полных (полностью подтвержденных) членов проекта. Возвращает объекты User
+    def GetFullMemberUsers( self ):
+        q = User.objects.filter( profile__in=self.GetFullMemberProfiles() )
+        return q
+
     def is_member( self, arg_user ):
         if ( arg_user is None ) or ( not arg_user.is_authenticated() ):
             return False # аноним никогда не участник
