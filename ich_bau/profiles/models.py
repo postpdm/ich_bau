@@ -73,7 +73,7 @@ class Profile(models.Model):
 
     def save(self, *args, **kwargs):
         self.modified_at = timezone.now()
-        if ( self.profile_type == PROFILE_TYPE_USER ) and ( ( self.repo_pw is None ) or ( self.repo_pw == '' ) ):
+        if ( self.profile_type in ( PROFILE_TYPE_USER, PROFILE_TYPE_BOT ) ) and ( ( self.repo_pw is None ) or ( self.repo_pw == '' ) ):
             from project.repo_wrapper import Gen_Repo_User_PW
             self.repo_pw = Gen_Repo_User_PW()
         return super(Profile, self).save(*args, **kwargs)
