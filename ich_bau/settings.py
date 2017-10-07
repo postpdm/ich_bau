@@ -14,6 +14,18 @@ DATABASES = {
     }
 }
 
+# SVN Repo settings
+REPO_SVN = {
+    "REPO_BASE_URL" : "svn://localhost/",
+    "REPO_LOCAL_ROOT" : "d:\\test\\repos\\",
+
+    "SVN_ADMIN_USER" : "ich_bau_server",
+    "SVN_ADMIN_PASSWORD" : "key",
+
+    "SVN_ADMIN_FULL_PATH" : "d:\\test\\svn\\VisualSVN Server\\bin\\svnadmin.exe",
+    "USERS_REPO_PW_KEY_SALT" : "123"
+}
+
 ALLOWED_HOSTS = []
 
 # Local time zone for this installation. Choices can be found here:

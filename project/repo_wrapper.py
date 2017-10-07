@@ -5,14 +5,15 @@ import svn.admin
 
 import uuid
 
-#REPO_BASE_URL = 'file:///d:/test/repos/'
-REPO_BASE_URL = 'svn://localhost/'
-REPO_LOCAL_ROOT = "d:\\test\\repos\\"
+from django.conf import settings
 
-SVN_ADMIN_USER = 'ich_bau_server'
-SVN_ADMIN_PASSWORD = 'key'
+REPO_BASE_URL       = settings.REPO_SVN["REPO_BASE_URL"]
+REPO_LOCAL_ROOT     = settings.REPO_SVN["REPO_LOCAL_ROOT"]
 
-SVN_ADMIN_FULL_PATH = 'd:\\test\\svn\\VisualSVN Server\\bin\\svnadmin.exe'
+SVN_ADMIN_USER      = settings.REPO_SVN["SVN_ADMIN_USER"]
+SVN_ADMIN_PASSWORD  = settings.REPO_SVN["SVN_ADMIN_PASSWORD"]
+
+SVN_ADMIN_FULL_PATH = settings.REPO_SVN["SVN_ADMIN_FULL_PATH"]
 
 # codes
 
