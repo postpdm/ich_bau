@@ -97,6 +97,9 @@ def Create_New_Repo( ):
         except:
             return ( VCS_REPO_FAIL_CALL, '' )
 
+def Gen_Repo_User_PW():
+    return uuid.uuid4().hex
+
 def Add_User_to_Repo( arg_repo_name, arg_user_and_pw_dict ):
     file_names = Repo_File_Paths( REPO_LOCAL_ROOT + arg_repo_name )
     Add_User_Info_to_Repo_CFG( file_names, arg_user_and_pw_dict )

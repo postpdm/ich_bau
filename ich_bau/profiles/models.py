@@ -15,16 +15,16 @@ class Notification(models.Model):
     readed_at = models.DateTimeField( blank=True, null = True )
     msg_txt = models.CharField(max_length=255, blank=False)
     msg_url = models.URLField(max_length=75, blank=True, null = True)
-    
+
     def get_unreaded( self ):
         return self.readed_at is None
-        
+
     def mark_readed(self):
         if self.readed_at is None:
             self.readed_at = timezone.now()
             self.save()
         # иначе - ничего не делать
-    
+
     def get_absolute_url(self):
         return "/notification/%i/" % self.id
 
@@ -48,7 +48,7 @@ PROFILE_TYPE_RESOURCE = 5
 PROFILE_TYPE_LIST = ( PROFILE_TYPE_BOT, PROFILE_TYPE_USER, PROFILE_TYPE_PEOPLE, PROFILE_TYPE_DEPARTAMENT, PROFILE_TYPE_ORG, PROFILE_TYPE_RESOURCE )
 
 PROFILE_TYPE_CHOICES = (
-  ( PROFILE_TYPE_BOT, 'Bot' ), 
+  ( PROFILE_TYPE_BOT, 'Bot' ),
   ( PROFILE_TYPE_USER, 'User' ),
   ( PROFILE_TYPE_PEOPLE, 'People' ),
   ( PROFILE_TYPE_DEPARTAMENT, 'Departament' ),
@@ -69,13 +69,18 @@ class Profile(models.Model):
     created_at = models.DateTimeField(default=timezone.now)
     modified_at = models.DateTimeField(default=timezone.now)
 
+    repo_pw = models.CharField(max_length=100, blank=True)
+
     def save(self, *args, **kwargs):
         self.modified_at = timezone.now()
+        if ( self.profile_type == PROFILE_TYPE_USER ) and ( ( self.repo_pw is None ) or ( self.repo_pw == '' ) ):
+            from project.repo_wrapper import Gen_Repo_User_PW
+            self.repo_pw = Gen_Repo_User_PW()
         return super(Profile, self).save(*args, **kwargs)
-        
+
     def __str__(self):
         return self.display_name
-        
+
     @property
     def display_name(self):
         s = ''
@@ -84,14 +89,14 @@ class Profile(models.Model):
         else:
             s = self.user.username
         return s + " (" + PROFILE_TYPE_CHOICES[self.profile_type][1] + ")"
-        
+
     def description_html(self):
         return markdown.markdown(self.description)
 
 # датасет профилей, принадлежащих юзерам
 def Get_Users_Profiles():
     return Profile.objects.filter( profile_type = PROFILE_TYPE_USER )
-   
+
 class Profile_Affiliation(models.Model):
     main_profile = models.ForeignKey(Profile, related_name = 'main_profile' )
     sub_profile = models.ForeignKey(Profile, related_name = 'sub_profile' )
