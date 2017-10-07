@@ -7,13 +7,15 @@ import uuid
 
 from django.conf import settings
 
-REPO_BASE_URL       = settings.REPO_SVN["REPO_BASE_URL"]
-REPO_LOCAL_ROOT     = settings.REPO_SVN["REPO_LOCAL_ROOT"]
+REPO_BASE_URL          = settings.REPO_SVN["REPO_BASE_URL"]
+REPO_LOCAL_ROOT        = settings.REPO_SVN["REPO_LOCAL_ROOT"]
 
-SVN_ADMIN_USER      = settings.REPO_SVN["SVN_ADMIN_USER"]
-SVN_ADMIN_PASSWORD  = settings.REPO_SVN["SVN_ADMIN_PASSWORD"]
+SVN_ADMIN_USER         = settings.REPO_SVN["SVN_ADMIN_USER"]
+SVN_ADMIN_PASSWORD     = settings.REPO_SVN["SVN_ADMIN_PASSWORD"]
 
-SVN_ADMIN_FULL_PATH = settings.REPO_SVN["SVN_ADMIN_FULL_PATH"]
+SVN_ADMIN_FULL_PATH    = settings.REPO_SVN["SVN_ADMIN_FULL_PATH"]
+
+USERS_REPO_PW_KEY_SALT = settings.REPO_SVN["USERS_REPO_PW_KEY_SALT"]
 
 # codes
 
@@ -98,8 +100,14 @@ def Create_New_Repo( ):
         except:
             return ( VCS_REPO_FAIL_CALL, '' )
 
+from commons.simple_crypt import *
 def Gen_Repo_User_PW():
-    return uuid.uuid4().hex
+    pw = uuid.uuid4().hex
+    pw = EnCrypt_Str(pw, USERS_REPO_PW_KEY_SALT )
+    return pw
+
+def Encrypt_Repo_User_PW( arg_encrypted_pw ):
+    return( DeCrypt_Str( arg_encrypted_pw, USERS_REPO_PW_KEY_SALT ) )
 
 def Add_User_to_Repo( arg_repo_name, arg_user_and_pw_dict ):
     file_names = Repo_File_Paths( REPO_LOCAL_ROOT + arg_repo_name )
