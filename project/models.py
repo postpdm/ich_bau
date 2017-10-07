@@ -146,10 +146,10 @@ class Project(BaseStampedModel):
         # дать доступ к repo
         if self.have_repo():
             # дать доступ по всему списку членов проекта
-            member_users = self.GetFullMemberUsers()
-            user_dict = { SVN_ADMIN_USER : SVN_ADMIN_PASSWORD }
-            for mu in member_users:
-                user_dict[ mu.username ] = mu.username
+            user_dict = { SVN_ADMIN_USER : SVN_ADMIN_PASSWORD }            
+            member_profiles = self.GetFullMemberProfiles()
+            for mp in member_profiles:
+                user_dict[ mp.user.username ] = mp.repo_pw
 
             Add_User_to_Repo( self.repo_name, user_dict )
 
