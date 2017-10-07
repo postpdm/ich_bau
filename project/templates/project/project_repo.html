@@ -2,15 +2,19 @@
 {% if project.repo_name %}
 
 <p>Repo url: <code>{{repo_info.url}}</code></p>
-<p>Last commit # {{repo_info.commit_revision}} from <strong>{{repo_info.commit_author}}</strong> at {{repo_info.commit_date}}</p>
+<p>To checkout - use any SVN client with:</p>
+<p><code>svn checkout {{repo_info.url}} LOCAL_PATH --username {% if user.is_authenticated and user_can_work %}{{user}}{% else %}YOUR_USER_NAME{%endif%} --password YOUR_REPO_PW</code></p>
+<p>Ask for <code>YOUR_REPO_PW</code> from system administrator.</p>
+<p>You need to be a project member to checkout the repo.</p>
 
-<p>File list:</p>
+<h3>File list:</h3>
 <ul>
 {% for rl in repo_list %}
 <li>{{rl}}</li>
 {% endfor %}
 </ul>
 
+<p>Last commit # {{repo_info.commit_revision}} from <strong>{{repo_info.commit_author}}</strong> at {{repo_info.commit_date}}</p>
 {% else %}
 <p class="bg-warning">File repo is not created for this project.</p>
 
