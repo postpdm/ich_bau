@@ -76,6 +76,7 @@ class Profile(models.Model):
         if ( self.profile_type in ( PROFILE_TYPE_USER, PROFILE_TYPE_BOT ) ) and ( ( self.repo_pw is None ) or ( self.repo_pw == '' ) ):
             from project.repo_wrapper import Gen_Repo_User_PW
             self.repo_pw = Gen_Repo_User_PW()
+
         return super(Profile, self).save(*args, **kwargs)
 
     def __str__(self):

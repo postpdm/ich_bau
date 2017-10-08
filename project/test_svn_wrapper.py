@@ -18,3 +18,8 @@ class SVN_Wrapper_Test(TestCase):
         self.assertEqual( t.svnserve_conf_full_name( ), s + '\\conf\\svnserve.conf' )
         self.assertEqual( t.pass_full_name( ),          s + '\\conf\\passwd' )
         self.assertEqual( t.auth_full_name( ),          s + '\\conf\\authz' )
+
+    def test_Repo_PW_Encoing(self):
+        test_pw = 'some test pass'
+        s = Gen_Repo_User_PW( test_pw )
+        self.assertEqual( Encrypt_Repo_User_PW(s), test_pw )
