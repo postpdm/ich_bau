@@ -23,11 +23,13 @@ VCS_REPO_SUCCESS = 0
 VCS_REPO_FAIL_NOT_CONFIGURED = 1
 VCS_REPO_FAIL_CALL = 2
 
+# return True if yes
+def VCS_Configured():
+    return ( REPO_BASE_URL and REPO_LOCAL_ROOT and SVN_ADMIN_USER and SVN_ADMIN_PASSWORD and SVN_ADMIN_FULL_PATH and USERS_REPO_PW_KEY_SALT )
+
 #return (code,dict)
 def Get_Info_For_Repo_Name( arg_repo_name, username=None, password=None, arg_echo = False ):
-    if ( REPO_BASE_URL is None ) or ( REPO_BASE_URL == '' ):
-        return ( VCS_REPO_FAIL_NOT_CONFIGURED, None )
-    else:
+    if VCS_Configured():
         try:
             r = svn.remote.RemoteClient( REPO_BASE_URL + arg_repo_name, username, password )
             return ( VCS_REPO_SUCCESS, r.info() )
@@ -35,6 +37,8 @@ def Get_Info_For_Repo_Name( arg_repo_name, username=None, password=None, arg_ech
             if arg_echo:
                 print( e )
             return ( VCS_REPO_FAIL_CALL, None )
+    else:
+        return ( VCS_REPO_FAIL_NOT_CONFIGURED, None )
 
 import configparser
 
@@ -88,9 +92,7 @@ def Write_Ini_For_New_Repo( arg_repo_root_path ):
 
 # return (code, str)
 def Create_New_Repo( ):
-    if ( REPO_BASE_URL is None ) or ( REPO_BASE_URL == '' ):
-        return ( VCS_REPO_FAIL_NOT_CONFIGURED, None )
-    else:
+    if VCS_Configured():
         try:
             repo_guid_name = uuid.uuid4().hex
             a = svn.admin.Admin( svnadmin_filepath = SVN_ADMIN_FULL_PATH )
@@ -99,6 +101,8 @@ def Create_New_Repo( ):
             return ( VCS_REPO_SUCCESS, repo_guid_name )
         except:
             return ( VCS_REPO_FAIL_CALL, '' )
+    else:
+        return ( VCS_REPO_FAIL_NOT_CONFIGURED, None )
 
 from commons.simple_crypt import *
 import base64
@@ -120,14 +124,14 @@ def Add_User_to_Repo( arg_repo_name, arg_user_and_pw_dict ):
 
 # return (code, str)
 def Get_List_For_Repo_Name( arg_repo_name, username=None, password=None, arg_echo = False ):
-    if ( REPO_BASE_URL is None ) or ( REPO_BASE_URL == '' ):
-        return ( VCS_REPO_FAIL_NOT_CONFIGURED, None )
-    else:
+    if VCS_Configured():
         try:
             r = svn.remote.RemoteClient( REPO_BASE_URL + arg_repo_name, username, password )
             # list() is a lazy generator, it doesn't fetch data immediately. We need to convert it to real list to gain the connection error if exist
-            return ( VCS_REPO_SUCCESS, list( r.list() ) )
+            return ( VCS_REPO_SUCCESS, list( r.list( extended = True ) ) )
         except Exception as e:
             if arg_echo:
                 print( e )
             return ( VCS_REPO_FAIL_CALL, None )
+    else:
+        return ( VCS_REPO_FAIL_NOT_CONFIGURED, None )
