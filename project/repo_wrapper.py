@@ -111,7 +111,7 @@ def Gen_Repo_User_PW( arg_test_pw = None ):
     pw = base64.b64encode( EnCrypt_Str(pw, USERS_REPO_PW_KEY_SALT ) ) # зашифровать и преобразовать в формат хранения
     return pw
 
-def Encrypt_Repo_User_PW( arg_encrypted_pw ):
+def Decrypt_Repo_User_PW( arg_encrypted_pw ):
     return( DeCrypt_Str( base64.b64decode( arg_encrypted_pw ), USERS_REPO_PW_KEY_SALT ) ) # преобразовать их формата хранения и расшифровать
 
 def Add_User_to_Repo( arg_repo_name, arg_user_and_pw_dict ):

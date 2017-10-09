@@ -149,7 +149,7 @@ class Project(BaseStampedModel):
             user_dict = { SVN_ADMIN_USER : SVN_ADMIN_PASSWORD }            
             member_profiles = self.GetFullMemberProfiles()
             for mp in member_profiles:
-                user_dict[ mp.user.username ] = Encrypt_Repo_User_PW( mp.repo_pw )
+                user_dict[ mp.user.username ] = Decrypt_Repo_User_PW( mp.repo_pw )
 
             Add_User_to_Repo( self.repo_name, user_dict )
 

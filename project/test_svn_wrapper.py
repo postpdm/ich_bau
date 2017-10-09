@@ -22,4 +22,4 @@ class SVN_Wrapper_Test(TestCase):
     def test_Repo_PW_Encoing(self):
         test_pw = 'some test pass'
         s = Gen_Repo_User_PW( test_pw )
-        self.assertEqual( Encrypt_Repo_User_PW(s), test_pw )
+        self.assertEqual( Decrypt_Repo_User_PW(s), test_pw )
