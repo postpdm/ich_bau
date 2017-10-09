@@ -23,3 +23,6 @@ class SVN_Wrapper_Test(TestCase):
         test_pw = 'some test pass'
         s = Gen_Repo_User_PW( test_pw )
         self.assertEqual( Decrypt_Repo_User_PW(s), test_pw )
+
+    def test_VCS_Configured(self):
+        self.assertEqual( VCS_Configured(), True )

@@ -25,7 +25,10 @@ VCS_REPO_FAIL_CALL = 2
 
 # return True if yes
 def VCS_Configured():
-    return ( REPO_BASE_URL and REPO_LOCAL_ROOT and SVN_ADMIN_USER and SVN_ADMIN_PASSWORD and SVN_ADMIN_FULL_PATH and USERS_REPO_PW_KEY_SALT )
+    if ( REPO_BASE_URL and REPO_LOCAL_ROOT and SVN_ADMIN_USER and SVN_ADMIN_PASSWORD and SVN_ADMIN_FULL_PATH and USERS_REPO_PW_KEY_SALT ):
+        return True
+    else:
+        return False
 
 #return (code,dict)
 def Get_Info_For_Repo_Name( arg_repo_name, username=None, password=None, arg_echo = False ):

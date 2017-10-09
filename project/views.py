@@ -212,6 +212,7 @@ def get_project_view(request, project_id, arg_task_filter = TASK_FILTER_OPEN, ar
     milestones = None
     repo_info = None
     repo_list = None
+    repo_server_is_configured = False
     members = None
     filter_type = ''
     task_filter = None
@@ -224,22 +225,28 @@ def get_project_view(request, project_id, arg_task_filter = TASK_FILTER_OPEN, ar
           count_closed_tasks=Count( Case(
            When(task__finished_fact_at__isnull=False, then=F('task__pk')),
            output_field=IntegerField()
-        )) 
-     
+        ))
+
         )
-   
+
 
     if arg_page == PROJECT_PAGE_FILES:
-        if project.have_repo():
-            s = project.repo_name
-            res_info = Get_Info_For_Repo_Name( s, SVN_ADMIN_USER, SVN_ADMIN_PASSWORD )
-            if res_info[0] == VCS_REPO_SUCCESS:
-                repo_info = res_info[1]
-                res_list = Get_List_For_Repo_Name( s, SVN_ADMIN_USER, SVN_ADMIN_PASSWORD )
-                if res_list[0] == VCS_REPO_SUCCESS:
-                    repo_list = res_list[1]
-            else:
-                messages.error( request, "Can't connect to repo!")
+        if VCS_Configured():
+            repo_server_is_configured = True
+
+            if project.have_repo():
+                s = project.repo_name
+                res_info = Get_Info_For_Repo_Name( s, SVN_ADMIN_USER, SVN_ADMIN_PASSWORD )
+                if res_info[0] == VCS_REPO_SUCCESS:
+                    repo_info = res_info[1]
+                    res_list = Get_List_For_Repo_Name( s, SVN_ADMIN_USER, SVN_ADMIN_PASSWORD )
+                    if res_list[0] == VCS_REPO_SUCCESS:
+                        repo_list = res_list[1]
+                        print(repo_list)
+                else:
+                    messages.error( request, "Can't connect to repo!")
+        else:
+            messages.error( request, "Repo server is not configured!")
 
     # prepare tasks only for title page
     if arg_page == PROJECT_PAGE_TITLE:
@@ -274,6 +281,7 @@ def get_project_view(request, project_id, arg_task_filter = TASK_FILTER_OPEN, ar
                      'user_can_work' : user_can_work,
                      'user_can_admin' : user_can_admin,
                      'show_page' : PROJECT_PAGE_FILTER[arg_page],
+                     'repo_server_is_configured' : repo_server_is_configured,
                      'repo_info' : repo_info,
                      'repo_list' : repo_list,
                          }

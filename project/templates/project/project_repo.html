@@ -1,21 +1,30 @@
 {% load i18n %}
-{% if project.repo_name %}
+
+{% if project.repo_name and repo_info and repo_server_is_configured %}
 
 <p>Repo url: <code>{{repo_info.url}}</code></p>
-<p>To checkout - use any SVN client with:</p>
-<p><code>svn checkout {{repo_info.url}} LOCAL_PATH --username {% if user.is_authenticated and user_can_work %}{{user}}{% else %}YOUR_USER_NAME{%endif%} --password YOUR_REPO_PW</code></p>
+<p>To checkout - use any SVN client with command line:</p>
+<p><i class="fa fa-terminal" aria-hidden="true"></i><code>svn checkout {{repo_info.url}} LOCAL_PATH --username {% if user.is_authenticated and user_can_work %}{{user}}{% else %}YOUR_USER_NAME{%endif%} --password YOUR_REPO_PW</code></p>
 <p>See for <code>YOUR_REPO_PW</code> in your user profile.</p>
 <p>You need to be a project member to checkout the repo.</p>
 
 <h3>File list:</h3>
-<ul>
+<table class="table table-striped">
 {% for rl in repo_list %}
-<li>{{rl}}</li>
+<tr>
+<td>{%if rl.is_directory%}a href{%endif%}  {{rl.name}}</td>
+<td>{{rl.commit_revision}}</td>
+<td>{{rl.author}}</td>
+</tr>
 {% endfor %}
-</ul>
+</table>
 
 <p>Last commit # {{repo_info.commit_revision}} from <strong>{{repo_info.commit_author}}</strong> at {{repo_info.commit_date}}</p>
+
 {% else %}
+
+{% if repo_server_is_configured and not project.repo_name %}
+
 <p class="bg-warning">File repo is not created for this project.</p>
 
 {% if user_can_admin %}
@@ -23,4 +32,7 @@
 {%else%}
 <p>Project admin can create the repo.</p>
 {% endif %}
+
+{% endif %}
+
 {% endif %}
