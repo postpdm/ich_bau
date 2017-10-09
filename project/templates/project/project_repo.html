@@ -10,11 +10,20 @@
 
 <h3>File list:</h3>
 <table class="table table-striped">
+<thead>
+<tr>
+<th>File</th>
+<th>Size</th>
+<th>Date</th>
+<th>Last commit</th>
+</tr>
+</thead>
 {% for rl in repo_list %}
 <tr>
-<td>{%if rl.is_directory%}a href{%endif%}  {{rl.name}}</td>
-<td>{{rl.commit_revision}}</td>
-<td>{{rl.author}}</td>
+<td>{{rl.name}}</td>
+<td>{%if not rl.is_directory%}{{rl.size}}{%endif%}</td>
+<td>{{rl.date}}</td>
+<td>#{{rl.commit_revision}} ({{rl.author}})</td>
 </tr>
 {% endfor %}
 </table>
