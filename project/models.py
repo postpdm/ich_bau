@@ -146,7 +146,7 @@ class Project(BaseStampedModel):
         # дать доступ к repo
         if self.have_repo():
             # дать доступ по всему списку членов проекта
-            user_dict = { SVN_ADMIN_USER : SVN_ADMIN_PASSWORD }            
+            user_dict = { SVN_ADMIN_USER : SVN_ADMIN_PASSWORD }
             member_profiles = self.GetFullMemberProfiles()
             for mp in member_profiles:
                 user_dict[ mp.user.username ] = Decrypt_Repo_User_PW( mp.repo_pw )
@@ -225,6 +225,14 @@ class Milestone(BaseStampedModel):
 
     def get_absolute_url(self):
         return "/project/milestone/%i/" % self.id
+
+def Get_Milestone_Report_for_Project( arg_project ):
+    from django.db.models import Count, When, Case, IntegerField, F
+    return Milestone.objects.filter(project = arg_project).order_by('finished_at').annotate(
+               count_tasks=Count('task'),
+               count_closed_tasks=Count( Case( When(task__finished_fact_at__isnull=False, then=F('task__pk')),
+               output_field=IntegerField()
+             )) )
 
 @receiver(post_save, sender=Milestone)
 def milestone_post_save_Notifier_Composer(sender, instance, **kwargs):

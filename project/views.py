@@ -219,16 +219,7 @@ def get_project_view(request, project_id, arg_task_filter = TASK_FILTER_OPEN, ar
     tasks = None
 
     if arg_page == PROJECT_PAGE_MILESTONES:
-        from django.db.models import Count, When, Case, IntegerField, F
-        milestones = Milestone.objects.filter(project = project).order_by('finished_at').annotate(
-          count_tasks=Count('task'),
-          count_closed_tasks=Count( Case(
-           When(task__finished_fact_at__isnull=False, then=F('task__pk')),
-           output_field=IntegerField()
-        ))
-
-        )
-
+        milestones = Get_Milestone_Report_for_Project(project)
 
     if arg_page == PROJECT_PAGE_FILES:
         if VCS_Configured():
