@@ -8,7 +8,7 @@ class SVN_Wrapper_Test(TestCase):
         self.assertEqual( res[0], VCS_REPO_FAIL_CALL )
 
     def test_Get_List(self):
-        res = Get_List_For_Repo_Name( 'some wrong repo' )
+        res = Get_List_For_Repo_Name( 'some wrong repo', 'some wrong path' )
         self.assertEqual( res[0], VCS_REPO_FAIL_CALL )
 
     def test_Repo_Conf_Name_Gen(self):

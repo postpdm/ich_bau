@@ -217,6 +217,7 @@ def get_project_view(request, project_id, arg_task_filter = TASK_FILTER_OPEN, ar
     filter_type = ''
     task_filter = None
     tasks = None
+    repo_rel_path = None
 
     if arg_page == PROJECT_PAGE_MILESTONES:
         milestones = Get_Milestone_Report_for_Project(project)
@@ -224,16 +225,20 @@ def get_project_view(request, project_id, arg_task_filter = TASK_FILTER_OPEN, ar
     if arg_page == PROJECT_PAGE_FILES:
         if VCS_Configured():
             repo_server_is_configured = True
+            # отночительный путь - какую папку смотрим
+            repo_rel_path = request.GET.get( 'path', '' )
 
             if project.have_repo():
                 s = project.repo_name
                 res_info = Get_Info_For_Repo_Name( s, SVN_ADMIN_USER, SVN_ADMIN_PASSWORD )
                 if res_info[0] == VCS_REPO_SUCCESS:
                     repo_info = res_info[1]
-                    res_list = Get_List_For_Repo_Name( s, SVN_ADMIN_USER, SVN_ADMIN_PASSWORD )
+                    res_list = Get_List_For_Repo_Name( s, repo_rel_path, SVN_ADMIN_USER, SVN_ADMIN_PASSWORD )
                     if res_list[0] == VCS_REPO_SUCCESS:
                         repo_list = res_list[1]
-                        print(repo_list)
+                    # после обращения - добавим / для построения списка нижележащих путей
+                    if repo_rel_path:
+                        repo_rel_path = repo_rel_path + '/'
                 else:
                     messages.error( request, "Can't connect to repo!")
         else:
@@ -275,6 +280,7 @@ def get_project_view(request, project_id, arg_task_filter = TASK_FILTER_OPEN, ar
                      'repo_server_is_configured' : repo_server_is_configured,
                      'repo_info' : repo_info,
                      'repo_list' : repo_list,
+                     'repo_rel_path' : repo_rel_path,
                          }
 
     # Рендерить ответ

@@ -126,12 +126,12 @@ def Add_User_to_Repo( arg_repo_name, arg_user_and_pw_dict ):
     Add_User_Info_to_Repo_CFG( file_names, arg_user_and_pw_dict )
 
 # return (code, str)
-def Get_List_For_Repo_Name( arg_repo_name, username=None, password=None, arg_echo = False ):
+def Get_List_For_Repo_Name( arg_repo_name, arg_rel_path, username=None, password=None, arg_echo = False ):
     if VCS_Configured():
         try:
             r = svn.remote.RemoteClient( REPO_BASE_URL + arg_repo_name, username, password )
             # list() is a lazy generator, it doesn't fetch data immediately. We need to convert it to real list to gain the connection error if exist
-            return ( VCS_REPO_SUCCESS, list( r.list( extended = True ) ) )
+            return ( VCS_REPO_SUCCESS, list( r.list( extended = True, rel_path = arg_rel_path ) ) )
         except Exception as e:
             if arg_echo:
                 print( e )

@@ -20,13 +20,19 @@
 </thead>
 {% for rl in repo_list %}
 <tr>
-<td>{{rl.name}}</td>
+<td>{{rl.name}}
+
+{%if rl.is_directory%}<a href="?path={{repo_rel_path}}{{rl.name}}">{{rl.name}}</a>{%endif%}
+
+</td>
 <td>{%if not rl.is_directory%}{{rl.size}}{%endif%}</td>
 <td>{{rl.date}}</td>
 <td>#{{rl.commit_revision}} ({{rl.author}})</td>
 </tr>
 {% endfor %}
 </table>
+
+{{repo_rel_path}}
 
 <p>Last commit # {{repo_info.commit_revision}} from <strong>{{repo_info.commit_author}}</strong> at {{repo_info.commit_date}}</p>
 
