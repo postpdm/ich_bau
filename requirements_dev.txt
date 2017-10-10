@@ -10,3 +10,5 @@ django-reversion
 
 easy-thumbnails
 markdown
+
+svn

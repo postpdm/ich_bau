@@ -53,6 +53,15 @@
                         {{ profile.user.date_joined }}
                     </div>
                     {% if request.user == profile.user %}
+                        {% if user_repo_pw %}
+                        <div class="item">
+                            <span class="dim">
+                                <i class="fa fa-key"></i>
+                                Your repo password:
+                            </span>
+                            {{ user_repo_pw }}
+                        </div>
+                        {% endif %}
                         <a href="{% url 'profiles_edit' %}" class="btn btn-default btn-xs"><i class="fa fa-pencil"></i> Edit Profile</a>
                     {% endif %}
                 </div>
