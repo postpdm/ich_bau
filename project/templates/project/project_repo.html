@@ -8,7 +8,7 @@
 <p>See for <code>YOUR_REPO_PW</code> in your user profile.</p>
 <p>You need to be a project member to checkout the repo.</p>
 
-<h3>File list:</h3>
+<h3>File list{% if repo_rel_path%} ({{repo_rel_path}}){%endif%}:</h3>
 <table class="table table-striped">
 <thead>
 <tr>
@@ -20,9 +20,9 @@
 </thead>
 {% for rl in repo_list %}
 <tr>
-<td>{{rl.name}}
+<td>
 
-{%if rl.is_directory%}<a href="?path={{repo_rel_path}}{{rl.name}}">{{rl.name}}</a>{%endif%}
+{%if rl.is_directory%}<a href="?path={{repo_rel_path}}{{rl.name}}">{{rl.name}}</a>{%else%}{{rl.name}}{%endif%}
 
 </td>
 <td>{%if not rl.is_directory%}{{rl.size}}{%endif%}</td>
@@ -31,8 +31,6 @@
 </tr>
 {% endfor %}
 </table>
-
-{{repo_rel_path}}
 
 <p>Last commit # {{repo_info.commit_revision}} from <strong>{{repo_info.commit_author}}</strong> at {{repo_info.commit_date}}</p>
 
