@@ -19,6 +19,8 @@ Creation of simple task and project management system for Computer Aided Design 
 
 You need the actual Python 3.6 version.
 
+For testing
+
 ```
 virtualenv.exe ich_bau_test
 git clone https://github.com/postpdm/ich_bau.git
