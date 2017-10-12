@@ -22,4 +22,5 @@ after_success:
 
 branches:
   only:
-    - SVN_basic
+    - master
+    - dev
