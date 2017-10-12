@@ -4,7 +4,7 @@ Creation of simple task and project management system for Computer Aided Design 
 
 [![Django Support](https://img.shields.io/badge/Django-1.11-blue.svg)](https://github.com/postpdm/ich_bau)
 
-[![Coverage Status](https://coveralls.io/repos/github/postpdm/ich_bau/badge.svg?branch=SVN_basic)](https://coveralls.io/github/postpdm/ich_bau?branch=SVN_basic)
+[![Coverage Status](https://coveralls.io/repos/github/postpdm/ich_bau/badge.svg?branch=master)](https://coveralls.io/github/postpdm/ich_bau?branch=master)
 
 [![Build Status](https://travis-ci.org/postpdm/ich_bau.svg?branch=SVN_basic)](https://travis-ci.org/postpdm/ich_bau)
 
