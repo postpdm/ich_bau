@@ -1,7 +1,7 @@
 from django.contrib.auth.models import User
 from .models import *
 
-from unittest import TestCase
+from django.test import TestCase
 
 BOT_TEST_NAME = 'BOT TEST NAME'
 
