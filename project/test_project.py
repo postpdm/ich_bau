@@ -81,3 +81,8 @@ class Project_Test(TestCase):
     def test_none_user_acl_admin_private(self):
         test_project = get_private_project()
         self.assertEqual( test_project.user_access_level( None ), PROJECT_ACCESS_NONE )
+        
+    def test_public_project_list(self):
+        pl = GetAllPublicProjectList()
+        self.assertEqual( get_public_project() in pl, True )
+        self.assertEqual( pl.count(), 1 )
