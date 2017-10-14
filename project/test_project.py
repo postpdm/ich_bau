@@ -50,7 +50,7 @@ class Project_Test(TestCase):
         user_creator = get_creator_user()
         self.assertEqual( test_project.is_member(user_creator), True )
 
-    def test_creator_is_member_False(self):
+    def test_not_member_is_member_False(self):
         test_project = get_public_project()
         user_not_member = get_user_not_member()
         self.assertEqual( test_project.is_member(user_not_member), False )
@@ -81,8 +81,17 @@ class Project_Test(TestCase):
     def test_none_user_acl_admin_private(self):
         test_project = get_private_project()
         self.assertEqual( test_project.user_access_level( None ), PROJECT_ACCESS_NONE )
-        
+
     def test_public_project_list(self):
         pl = GetAllPublicProjectList()
         self.assertEqual( get_public_project() in pl, True )
         self.assertEqual( pl.count(), 1 )
+
+    def test_GetMemberedProjectList_None(self):
+        self.assertEqual( GetMemberedProjectList( None ), {} )
+
+    def test_GetMemberedProjectList_NotMember(self):
+        self.assertEqual( GetMemberedProjectList( get_user_not_member() ).count(), 0 )
+
+    def test_GetMemberedProjectList_Creator(self):
+        self.assertEqual( GetMemberedProjectList( get_creator_user() ).count(), 2 )
