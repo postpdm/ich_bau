@@ -8,6 +8,8 @@ from django.contrib.auth.models import User
 
 from django.shortcuts import get_object_or_404
 
+from .messages import decode_json2msg
+
 class Notification(models.Model):
     sender_user = models.ForeignKey(User, related_name = 'sender_user' )
     created_at = models.DateTimeField(default=timezone.now)
@@ -16,6 +18,9 @@ class Notification(models.Model):
     msg_txt = models.CharField(max_length=255, blank=False)
     msg_url = models.URLField(max_length=75, blank=True, null = True)
 
+    def decode_msg( self ):
+        return decode_json2msg( self.msg_txt )
+    
     def get_unreaded( self ):
         return self.readed_at is None
 

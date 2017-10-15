@@ -6,7 +6,7 @@
 
 {% block body %}
     <div class="row">
-<div class="col-md-12">        
+<div class="col-md-12">
 
 <h1>Notifications</h1>
 
@@ -18,11 +18,11 @@
 <p></p>
 <ul>
 {% for n in notifications %}
-<li><a href="{{n.get_absolute_url}}">{{n.msg_txt}}</a> {{n.created_at}} by {{n.sender_user}}</li>
+<li>
+<a href="{{n.get_absolute_url}}">{{n.decode_msg}}</a> {{n.created_at}} by {{n.sender_user}}</li>
 {% endfor %}
 </ul>
     </div>
     </div>
-    
-    
+
 {% endblock %}
