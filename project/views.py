@@ -344,7 +344,19 @@ def milestone_view(request, milestone_id):
     context = RequestContext(request)
 
     milestone = get_object_or_404( Milestone, pk=milestone_id)
-    user_can_admin = milestone.project.can_admin( request.user )
+
+    ual = milestone.project.user_access_level( request.user )
+    user_can_work = False
+    user_can_admin = False
+    if ual == PROJECT_ACCESS_NONE:
+        raise Http404()
+    else:
+        if ual == PROJECT_ACCESS_WORK:
+            user_can_work = True
+        else:
+            if ual == PROJECT_ACCESS_ADMIN:
+                user_can_work = True
+                user_can_admin = True
 
     tasks = Task.objects.filter( milestone = milestone ).order_by('state')
 
@@ -352,6 +364,7 @@ def milestone_view(request, milestone_id):
     context_dict = { 'milestone': milestone,
                      'tasks' : tasks,
                      'user_can_admin' : user_can_admin,
+                     'user_can_work' : user_can_work,
                          }
 
     # Рендерить ответ

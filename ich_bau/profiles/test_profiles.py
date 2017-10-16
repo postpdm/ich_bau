@@ -21,3 +21,7 @@ class Profile_Test(TestCase):
     def test_Bot_repo_pw(self):
         bot_profile = Profile.objects.get(name=BOT_TEST_NAME)
         self.assertFalse( bot_profile.repo_pw is None )
+
+    def test_Bot_notifications_Zero(self):
+        bot_profile = Profile.objects.get(name=BOT_TEST_NAME)
+        self.assertEqual( GetUserNoticationsQ( bot_profile.user, True).count(), 0 )

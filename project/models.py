@@ -11,6 +11,7 @@ import reversion
 
 from ich_bau.profiles.notification_helper import Send_Notification
 from ich_bau.profiles.models import Profile
+from ich_bau.profiles.messages import *
 
 import markdown
 
@@ -169,7 +170,7 @@ class Member(BaseStampedModel):
         super(Member, self).save(*args, **kwargs)
         # послать уведомление. самому себе посылать не надо.
         if ( self.member_profile.user != self.modified_user ) and ( self.member_accept is None ):
-            message_str = 'You are asked to accept the membership of ' + self.project.fullname + ' project team!'
+            message_str = project_msg2json_str( MSG_NOTIFY_TYPE_ASK_ACCEPT_ID, arg_project_name = self.project.fullname )
             Send_Notification( self.modified_user, self.member_profile.user, message_str, self.project.get_absolute_url() )
 
     def set_team_accept( self ):
@@ -199,7 +200,9 @@ post_save.connect(Member.make_admin_after_project_create, sender=Project)
 def project_post_save_Notifier_Composer(sender, instance, **kwargs):
     # проект изменился - разослать уведомление всем участникам проекта - кроме автора изменений
     member_users = instance.GetFullMemberUsers().exclude( id = instance.modified_user.id )
-    message_str = 'Changes in the ' + instance.fullname + ' project'
+
+    message_str = project_msg2json_str( MSG_NOTIFY_TYPE_PROJECT_CHANGED_ID, arg_project_name = instance.fullname )
+
     for mu in member_users:
         Send_Notification( instance.modified_user, mu, message_str, instance.get_absolute_url() )
 
@@ -238,7 +241,7 @@ def Get_Milestone_Report_for_Project( arg_project ):
 def milestone_post_save_Notifier_Composer(sender, instance, **kwargs):
     # веха изменилась - разослать уведомление всем участникам проекта - кроме автора изменений
     member_users = instance.project.GetFullMemberUsers().exclude( id = instance.modified_user.id )
-    message_str = 'Changes in the milestone ' + instance.fullname + ' of ' + instance.project.fullname + ' project'
+    message_str = project_msg2json_str( MSG_NOTIFY_TYPE_PROJECT_MILESTONE_CHANGED_ID, arg_project_name = instance.project.fullname, arg_milestone_name = instance.fullname )
     for mu in member_users:
         Send_Notification( instance.modified_user, mu, message_str, instance.get_absolute_url() )
 
@@ -382,7 +385,7 @@ def task_post_save_Notifier_Composer(sender, instance, **kwargs):
 
     task_users = GetTaskUsers( instance, instance.modified_user )
 
-    message_str = 'Changes in the task ' + instance.fullname + ' of ' + instance.project.fullname + ' project'
+    message_str = project_msg2json_str( MSG_NOTIFY_TYPE_PROJECT_TASK_CHANGED_ID, arg_project_name = instance.project.fullname, arg_task_name = instance.fullname )
 
     assignee_user = None
     if ( not ( instance.assignee is None ) ) and ( not ( instance.assignee.user is None ) ):
@@ -397,13 +400,13 @@ def taskcomment_post_save_Notifier_Composer(sender, instance, **kwargs):
     # Добавился (изменился) коментарий к задаче - разослать уведомление всем участникам задания - кроме автора изменений
 
     if kwargs['created'] :
-        s = 'New'
+        msg_type = MSG_NOTIFY_TYPE_PROJECT_TASK_NEW_COMMENT_ID
     else:
-        s = 'Changed'
+        msg_type = MSG_NOTIFY_TYPE_PROJECT_TASK_CHANGED_COMMENT_ID
     parent_task = instance.parenttask
     task_users = GetTaskUsers( parent_task, instance.modified_user )
 
-    message_str = s + ' comment in the task ' + instance.parenttask.fullname + ' of ' + instance.parenttask.project.fullname + ' project'
+    message_str = project_msg2json_str( msg_type, arg_project_name = parent_task.project.fullname, arg_task_name = parent_task.fullname )
 
     parenttask_assignee_user = None
     if ( not ( parent_task.assignee is None ) ) and ( not ( parent_task.assignee.user is None ) ):
