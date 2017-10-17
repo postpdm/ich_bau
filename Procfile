@@ -1,1 +1,1 @@
-web: gunicorn ich-bau.wsgi
+web: gunicorn ich_bau.wsgi
