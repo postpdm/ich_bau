@@ -12,3 +12,5 @@ easy-thumbnails
 markdown
 
 svn
+
+gunicorn==19.6.0
