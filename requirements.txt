@@ -14,3 +14,4 @@ markdown
 svn
 
 gunicorn==19.6.0
+dj-database-url==0.4.1

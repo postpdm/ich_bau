@@ -8,6 +8,13 @@ except ImportError:
 
 BASE_DIR = PACKAGE_ROOT
 
+try:
+    import dj_database_url
+    # Change 'default' database configuration with $DATABASE_URL.
+    DATABASES['default'].update(dj_database_url.config(conn_max_age=500))
+except:
+    pass
+
 # SVN Repo settings
 REPO_SVN = {
     "REPO_BASE_URL" : "svn://localhost/",
@@ -120,11 +127,11 @@ INSTALLED_APPS = [
     "markdown",
     #"bootstrap3_datetime",
 
-    
+
     # project
     "commons",
     "project",
-    
+
     "ich_bau",
     "ich_bau.profiles",
 ]

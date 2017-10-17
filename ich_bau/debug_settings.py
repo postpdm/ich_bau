@@ -49,7 +49,7 @@ STATIC_URL = "/site_media/static/"
 # Make this unique, and don't share it with anybody.
 SECRET_KEY = "plg10%o7jr3u%f!2_6*0y6ly$aiof#feycz@j6c!r!jyfpzx3x"
 
-ALLOWED_HOSTS = [ 'ich-bau.herokuapp.com' ]
+ALLOWED_HOSTS = [ '*' ]
 
 EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
 
