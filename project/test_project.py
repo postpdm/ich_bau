@@ -95,3 +95,18 @@ class Project_Test(TestCase):
 
     def test_GetMemberedProjectList_Creator(self):
         self.assertEqual( GetMemberedProjectList( get_creator_user() ).count(), 2 )
+    
+    def test_GetFullMemberAdminList_public(self):
+        self.assertEqual( get_public_project().GetFullMemberAdminList().count(), 1 )
+
+    def test_member_User_can_join_public( self ):
+        self.assertEqual( get_public_project().can_join( get_creator_user() ), False )
+
+    def test_member_User_can_join_private( self ):
+        self.assertEqual( get_private_project().can_join( get_creator_user() ), False )
+        
+    def test_not_member_User_can_join_public( self ):
+        self.assertEqual( get_public_project().can_join( get_user_not_member() ), True )
+
+    def test_not_member_User_can_join_private( self ):
+        self.assertEqual( get_private_project().can_join( get_user_not_member() ), False )        
