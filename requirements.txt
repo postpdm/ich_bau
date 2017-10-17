@@ -1,0 +1,12 @@
+django
+django-user-accounts
+django-bootstrap-form
+pinax
+pinax-theme-bootstrap
+pinax-eventlog
+
+django-filter
+django-reversion
+
+easy-thumbnails
+markdown
