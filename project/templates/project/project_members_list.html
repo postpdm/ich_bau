@@ -1,4 +1,8 @@
 {% load i18n %}
+
+{% if user_can_join %}
+<a class="btn btn-primary" href="/project/member_want_join/{{project.pk}}/"><i class="fa fa-sign-in"></i> {% trans "Join" %}</a>
+{%endif%}
 <ul>
 {% for m in members %}
 <li>{{m.member_profile.user}}
