@@ -1,1 +1,1 @@
-web: python manage.py
+web: gunicorn ich_bau.wsgi
