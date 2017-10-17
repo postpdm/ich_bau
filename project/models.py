@@ -52,7 +52,7 @@ class Project(BaseStampedModel):
     def GetFullMemberList( self ):
         q = Member.objects.filter( project = self, team_accept__isnull = False, member_accept__isnull = False )
         return q
-        
+
     # список полных (полностью подтвержденных) админов проекта. Возвращает объекты Member
     def GetFullMemberAdminList( self ):
         q = self.GetFullMemberList().filter( admin_flag = True )
@@ -92,6 +92,10 @@ class Project(BaseStampedModel):
             return self.is_member( arg_user )
         else:
             return True
+
+    # может ли юзер подать заявку на включение
+    def can_join( self, arg_user ):
+        return ( not self.private_flag ) and ( arg_user.is_authenticated() ) and ( not self.GetMemberList().filter( member_profile__user = arg_user ).exists() )
 
     def user_access_level( self, arg_user ):
         member_level = None

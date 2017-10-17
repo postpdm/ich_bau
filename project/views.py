@@ -211,7 +211,7 @@ def get_project_view(request, project_id, arg_task_filter = TASK_FILTER_OPEN, ar
                 user_can_work = True
                 user_can_admin = True
 
-    user_can_join = ( not user_can_work ) and ( not project.private_flag ) and ( request.user.is_authenticated() )
+    user_can_join = project.can_join(request.user)
 
     milestones = None
     repo_info = None
@@ -412,6 +412,22 @@ def member_accept(request, member_id):
     if ( member.member_profile.user == request.user ):
         member.set_member_accept()
         return HttpResponseRedirect( member.project.get_absolute_url() )
+    else:
+        # сбой - юзер не тот!!!
+        return HttpResponseForbidden()
+
+# админ проекта принял запрос пользователя на включение в проект
+@login_required
+def team_accept(request, member_id):
+    member = get_object_or_404( Member, pk = member_id )
+    project = member.project
+
+    # проверить - админ ли
+    if ( project.is_admin( request.user ) ):
+        member.set_team_accept()
+        member.set_change_user( request.user )
+        member.save()
+        return HttpResponseRedirect( project.get_absolute_url() )
     else:
         # сбой - юзер не тот!!!
         return HttpResponseForbidden()

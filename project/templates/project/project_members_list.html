@@ -13,6 +13,9 @@
 
 {% if not m.team_accept %}
 {% trans "(team not accept)" %}
+{% if user_can_admin %}
+<a class="btn btn-primary" href="/project/member/{{m.pk}}/team_accept/"><i class="fa fa-chevron-down"></i> {% trans "Accept membership" %}</a>
+{% endif %}
 {% endif %}
 
 {% if not m.member_accept %}
