@@ -57,7 +57,7 @@ local_settings.py
 fixtures
 gulp
 #######
-static
+#static
 dev.db
 
 
