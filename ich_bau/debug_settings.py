@@ -2,8 +2,8 @@ import os
 
 DEBUG = True
 
-#PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), os.pardir))
-PROJECT_ROOT = os.path.dirname(os.path.abspath(__file__))
+PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), os.pardir))
+#PROJECT_ROOT = os.path.dirname(os.path.abspath(__file__))
 
 PACKAGE_ROOT = os.path.abspath(os.path.dirname(__file__))
 
@@ -42,13 +42,13 @@ MEDIA_URL = "/site_media/media/"
 # Don"t put anything in this directory yourself; store your static files
 # in apps" "static/" subdirectories and in STATICFILES_DIRS.
 # Example: "/home/media/media.lawrence.com/static/"
-#STATIC_ROOT = os.path.join(PACKAGE_ROOT, "site_media", "static")
-STATIC_ROOT = os.path.join(PROJECT_ROOT, 'staticfiles')
+STATIC_ROOT = os.path.join(PACKAGE_ROOT, "site_media", "static")
+#STATIC_ROOT = os.path.join(PROJECT_ROOT, 'staticfiles')
 
 # URL prefix for static files.
 # Example: "http://media.lawrence.com/static/"
-#STATIC_URL = "/site_media/static/"
-STATIC_URL = "/static/"
+STATIC_URL = "/site_media/static/"
+#STATIC_URL = "/static/"
 
 # Make this unique, and don't share it with anybody.
 SECRET_KEY = "plg10%o7jr3u%f!2_6*0y6ly$aiof#feycz@j6c!r!jyfpzx3x"
