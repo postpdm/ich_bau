@@ -59,15 +59,6 @@ STATICFILES_DIRS = [
 #    os.path.join(PROJECT_ROOT, 'static'),
 ]
 
-print('log')
-print('PROJECT_ROOT')
-print(PROJECT_ROOT)
-print('STATIC_ROOT')
-print(STATIC_ROOT)
-print('STATICFILES_DIRS')
-print(STATICFILES_DIRS)
-print(STATIC_URL)
-
 # List of finder classes that know how to find static files in
 # various locations.
 STATICFILES_FINDERS = [
