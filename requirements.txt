@@ -1,17 +1,17 @@
-django
-django-user-accounts
-django-bootstrap-form
-pinax
-pinax-theme-bootstrap
-pinax-eventlog
+Django==1.11.5
+django-user-accounts==2.0.3
+django-bootstrap-form==3.3
+Pinax==0.9a2
+pinax-theme-bootstrap==8.0.1
+pinax-eventlog==1.1.2
 
-django-filter
-django-reversion
+django-filter==1.0.4
+django-reversion==2.0.10
 
-easy-thumbnails
-markdown
+easy-thumbnails==2.4.1
+Markdown==2.6.9
 
-svn
+svn==0.3.45
 
 gunicorn==19.6.0
 dj-database-url==0.4.1
