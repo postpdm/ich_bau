@@ -14,7 +14,7 @@ before_install:
   - export DJANGO_SETTINGS_MODULE=ich_bau.settings
 
 script: 
-  - coverage run manage.py test
+  - coverage run --source=commons,ich_bau,project manage.py test
 
 after_success: 
   - coverage report
