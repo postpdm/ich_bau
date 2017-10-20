@@ -11,7 +11,7 @@ __pycache__/
 env/
 build/
 develop-eggs/
-dist/
+#dist/
 downloads/
 eggs/
 .eggs/
@@ -58,6 +58,7 @@ fixtures
 gulp
 #######
 #static
+static/src
 dev.db
 
 
