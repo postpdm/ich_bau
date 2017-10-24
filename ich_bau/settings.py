@@ -1,19 +1,16 @@
 import os
 
 # DEBUG, PROJECT_ROOT, PACKAGE_ROOT, DATABASES, MEDIA_ROOT, MEDIA_URL, STATIC_ROOT, STATIC_URL, SECRET_KEY, ALLOWED_HOSTS, EMAIL_BACKEND, EMAIL_HOST, EMAIL_HOST_USER, EMAIL_HOST_PASSWORD, EMAIL_PORT, EMAIL_USE_TLS, REPO_SVN
-try:
-    from .production_settings import *
-except ImportError:
-    from .debug_settings      import *
+if os.environ.get('DATABASE_URL'):
+    # heroku demo
+    from .heroku_demo_settings import *
+else:
+    try:
+        from .production_settings import *
+    except ImportError:
+        from .debug_settings      import *
 
 BASE_DIR = PACKAGE_ROOT
-
-try:
-    import dj_database_url
-    # Change 'default' database configuration with $DATABASE_URL.
-    DATABASES['default'].update(dj_database_url.config(conn_max_age=500))
-except:
-    pass
 
 # SVN Repo settings
 REPO_SVN = {
