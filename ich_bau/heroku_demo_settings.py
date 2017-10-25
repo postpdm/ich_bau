@@ -1,31 +1,27 @@
 import os
 
-DEBUG = True
+DEBUG = False
 
-MAIN_MESSAGE = 'Debug mode'
+MAIN_MESSAGE = 'Heroku demo. E-Mail if off. User upload flies is off. File repo is off'
 
 PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), os.pardir))
-#PROJECT_ROOT = os.path.dirname(os.path.abspath(__file__))
 
 PACKAGE_ROOT = os.path.abspath(os.path.dirname(__file__))
 
-DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": "dev.db",
-    }
-}
+import dj_database_url
+# Change 'default' database configuration with $DATABASE_URL.
+DATABASES['default'].update(dj_database_url.config(conn_max_age=500))
 
 # SVN Repo settings
 REPO_SVN = {
-    "REPO_BASE_URL" : "svn://localhost/",
-    "REPO_LOCAL_ROOT" : "d:\\test\\repos\\",
+    "REPO_BASE_URL" : "",
+    "REPO_LOCAL_ROOT" : "",
 
-    "SVN_ADMIN_USER" : "ich_bau_server",
-    "SVN_ADMIN_PASSWORD" : "key",
+    "SVN_ADMIN_USER" : "",
+    "SVN_ADMIN_PASSWORD" : "",
 
-    "SVN_ADMIN_FULL_PATH" : "d:\\test\\svn\\VisualSVN Server\\bin\\svnadmin.exe",
-    "USERS_REPO_PW_KEY_SALT" : "123"
+    "SVN_ADMIN_FULL_PATH" : "",
+    "USERS_REPO_PW_KEY_SALT" : ""
 }
 
 # локальные адреса, разрешенные для отладки
@@ -45,15 +41,13 @@ MEDIA_URL = "/site_media/media/"
 # in apps" "static/" subdirectories and in STATICFILES_DIRS.
 # Example: "/home/media/media.lawrence.com/static/"
 STATIC_ROOT = os.path.join(PACKAGE_ROOT, "site_media", "static")
-#STATIC_ROOT = os.path.join(PROJECT_ROOT, 'staticfiles')
 
 # URL prefix for static files.
 # Example: "http://media.lawrence.com/static/"
 STATIC_URL = "/site_media/static/"
-#STATIC_URL = "/static/"
 
 # Make this unique, and don't share it with anybody.
-SECRET_KEY = "plg10%o7jr3u%f!2_6*0y6ly$aiof#feycz@j6c!r!jyfpzx3x"
+SECRET_KEY = "drg10%o7jr3u%f!2_6*0y6ly$a7of#feycz@j6c!r!jyfpzx3g"
 
 ALLOWED_HOSTS = [ '*' ]
 
