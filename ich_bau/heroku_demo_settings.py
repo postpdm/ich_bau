@@ -2,7 +2,7 @@ import os
 
 DEBUG = False
 
-MAIN_MESSAGE = 'Heroku demo. E-Mail if off. User upload flies is off. File repo is off'
+MAIN_MESSAGE = 'Heroku demo. E-Mail is off. User upload flies is off. File repo is off'
 
 PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), os.pardir))
 
