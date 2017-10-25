@@ -8,7 +8,11 @@ PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), os.pardir
 
 PACKAGE_ROOT = os.path.abspath(os.path.dirname(__file__))
 
-DATABASES = {}
+DATABASES = {
+    "default": {
+    }
+}
+
 import dj_database_url
 # Change 'default' database configuration with $DATABASE_URL.
 DATABASES['default'].update(dj_database_url.config(conn_max_age=500))
