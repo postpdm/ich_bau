@@ -1,6 +1,6 @@
 import os
 
-DEBUG = False
+DEBUG = True
 
 MAIN_MESSAGE = 'Heroku demo. E-Mail is off. User upload flies is off. File repo is off'
 
