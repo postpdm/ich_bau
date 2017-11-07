@@ -131,6 +131,7 @@ INSTALLED_APPS = [
     # project
     "commons",
     "project",
+    "crm",
 
     "ich_bau",
     "ich_bau.profiles",
