@@ -19,7 +19,8 @@
 
 {% block nav %}
     <ul class="nav navbar-nav pull-left">
-      <li><a href="{% url 'profiles_list' %}">People</a></li>
+      <li><a href="{% url 'profiles_list' %}">Profiles</a></li>
+      <li><a href="{% url 'crm:contracts_list' %}">CRM</a></li>
       <li><a href="{% url 'project:index' %}">Projects</a></li>
     </ul>
 {% endblock %}
