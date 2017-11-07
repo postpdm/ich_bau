@@ -53,6 +53,11 @@ class Project(BaseStampedModel):
         q = Member.objects.filter( project = self, team_accept__isnull = False, member_accept__isnull = False )
         return q
 
+    # список полных (полностью подтвержденных) админов проекта. Возвращает объекты Member
+    def GetFullMemberAdminList( self ):
+        q = self.GetFullMemberList().filter( admin_flag = True )
+        return q
+
     # список профилей полных (полностью подтвержденных) членов проекта. Возвращает объекты Profile
     def GetFullMemberProfiles( self ):
         q = Profile.objects.filter( member_profile__project = self, member_profile__team_accept__isnull = False, member_profile__member_accept__isnull = False )
@@ -73,7 +78,7 @@ class Project(BaseStampedModel):
         if ( arg_user is None ) or ( not arg_user.is_authenticated() ):
             return False # аноним никогда не админ
         else:
-            return self.GetFullMemberList().filter( member_profile__user = arg_user, admin_flag = True ).exists()
+            return self.GetFullMemberAdminList().filter( member_profile__user = arg_user ).exists()
 
     def can_admin( self, arg_user ):
         # админить могут только админы, и для открытых, и для закрытых проектов
@@ -87,6 +92,10 @@ class Project(BaseStampedModel):
             return self.is_member( arg_user )
         else:
             return True
+
+    # может ли юзер подать заявку на включение
+    def can_join( self, arg_user ):
+        return ( not self.private_flag ) and ( arg_user.is_authenticated() ) and ( not self.GetMemberList().filter( member_profile__user = arg_user ).exists() )
 
     def user_access_level( self, arg_user ):
         member_level = None
@@ -173,6 +182,15 @@ class Member(BaseStampedModel):
             message_str = project_msg2json_str( MSG_NOTIFY_TYPE_ASK_ACCEPT_ID, arg_project_name = self.project.fullname )
             Send_Notification( self.modified_user, self.member_profile.user, message_str, self.project.get_absolute_url() )
 
+    def set_user_want_join( self, arg_user ):
+        self.member_profile = arg_user.profile
+        self.member_accept = timezone.now()
+        self.set_change_user(arg_user)
+        self.save()
+        message_str = project_msg2json_str( MSG_NOTIFY_TYPE_USER_WANT_JOIN_ID, arg_project_name = self.project.fullname )
+        for a in self.project.GetFullMemberAdminList():
+            Send_Notification( arg_user, a.member_profile.user, message_str, self.project.get_absolute_url() )
+
     def set_team_accept( self ):
         self.team_accept = timezone.now()
 
@@ -180,7 +198,6 @@ class Member(BaseStampedModel):
         self.member_accept = timezone.now()
         self.save()
         # дать доступ к repo
-
         self.project.add_repo_access()
 
     @classmethod

@@ -1,31 +1,16 @@
 import os
 
-# DEBUG, PROJECT_ROOT, PACKAGE_ROOT, DATABASES, MEDIA_ROOT, MEDIA_URL, STATIC_ROOT, STATIC_URL, SECRET_KEY, ALLOWED_HOSTS, EMAIL_BACKEND, EMAIL_HOST, EMAIL_HOST_USER, EMAIL_HOST_PASSWORD, EMAIL_PORT, EMAIL_USE_TLS, REPO_SVN
-try:
-    from .production_settings import *
-except ImportError:
-    from .debug_settings      import *
+# DEBUG, PROJECT_ROOT, PACKAGE_ROOT, DATABASES, MEDIA_ROOT, MEDIA_URL, STATIC_ROOT, STATIC_URL, SECRET_KEY, ALLOWED_HOSTS, EMAIL_BACKEND, EMAIL_HOST, EMAIL_HOST_USER, EMAIL_HOST_PASSWORD, EMAIL_PORT, EMAIL_USE_TLS, REPO_SVN, MAIN_MESSAGE
+if os.environ.get('DATABASE_URL'):
+    # heroku demo
+    from .heroku_demo_settings import *
+else:
+    try:
+        from .production_settings import *
+    except ImportError:
+        from .debug_settings      import *
 
 BASE_DIR = PACKAGE_ROOT
-
-try:
-    import dj_database_url
-    # Change 'default' database configuration with $DATABASE_URL.
-    DATABASES['default'].update(dj_database_url.config(conn_max_age=500))
-except:
-    pass
-
-# SVN Repo settings
-REPO_SVN = {
-    "REPO_BASE_URL" : "svn://localhost/",
-    "REPO_LOCAL_ROOT" : "d:\\test\\repos\\",
-
-    "SVN_ADMIN_USER" : "ich_bau_server",
-    "SVN_ADMIN_PASSWORD" : "key",
-
-    "SVN_ADMIN_FULL_PATH" : "d:\\test\\svn\\VisualSVN Server\\bin\\svnadmin.exe",
-    "USERS_REPO_PW_KEY_SALT" : "123"
-}
 
 # Local time zone for this installation. Choices can be found here:
 # http://en.wikipedia.org/wiki/List_of_tz_zones_by_name
@@ -56,6 +41,7 @@ USE_TZ = True
 # Additional locations of static files
 STATICFILES_DIRS = [
     os.path.join(PROJECT_ROOT, "static", "dist"),
+#    os.path.join(PROJECT_ROOT, 'static'),
 ]
 
 # List of finder classes that know how to find static files in

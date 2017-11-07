@@ -11,7 +11,7 @@ __pycache__/
 env/
 build/
 develop-eggs/
-dist/
+#dist/
 downloads/
 eggs/
 .eggs/
@@ -57,7 +57,8 @@ local_settings.py
 fixtures
 gulp
 #######
-static
+#static
+static/src
 dev.db
 
 

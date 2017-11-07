@@ -1,4 +1,8 @@
 {% load i18n %}
+
+{% if user_can_join %}
+<a class="btn btn-primary" href="/project/member_want_join/{{project.pk}}/"><i class="fa fa-sign-in"></i> {% trans "Join" %}</a>
+{%endif%}
 <ul>
 {% for m in members %}
 <li>{{m.member_profile.user}}
@@ -9,6 +13,9 @@
 
 {% if not m.team_accept %}
 {% trans "(team not accept)" %}
+{% if user_can_admin %}
+<a class="btn btn-primary" href="/project/member/{{m.pk}}/team_accept/"><i class="fa fa-chevron-down"></i> {% trans "Accept membership" %}</a>
+{% endif %}
 {% endif %}
 
 {% if not m.member_accept %}

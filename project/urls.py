@@ -20,7 +20,9 @@ urlpatterns = [
     url(r'^project/(?P<project_id>\w+)/create_repo/$', views.project_create_repo, name='project_create_repo'),
 
     url(r'^member_add/(?P<project_id>\w+)/$', views.AddMemberCreateView.as_view(), name='member_add'),
+    url(r'^member_want_join/(?P<project_id>\w+)/$', views.member_want_join, name='member_want_join'),
     url(r'^member/(?P<member_id>\w+)/member_accept/$', views.member_accept, name='member_accept'),
+    url(r'^member/(?P<member_id>\w+)/team_accept/$', views.team_accept, name='team_accept'),
 
     url(r'^task_add/(?P<project_id>\w+)/$', views.TaskCreateView.as_view(), name='task_add'),
     url(r'^task_add_to_milestone/(?P<milestone_id>\w+)/$', views.TaskCreateView.as_view(), name='task_add_to_milestone'),

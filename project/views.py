@@ -159,6 +159,7 @@ def project_history(request, project_id):
     # Рендерить ответ
     return render( request, 'project/project_history.html', context_dict )
 
+@login_required
 def project_create_repo(request, project_id):
     context = RequestContext(request)
     project = get_object_or_404( Project, pk=project_id)
@@ -197,6 +198,7 @@ def get_project_view(request, project_id, arg_task_filter = TASK_FILTER_OPEN, ar
 
     user_can_work = False
     user_can_admin = False
+    user_can_join = False
 
     ual = project.user_access_level( request.user )
     if ual == PROJECT_ACCESS_NONE:
@@ -208,6 +210,8 @@ def get_project_view(request, project_id, arg_task_filter = TASK_FILTER_OPEN, ar
             if ual == PROJECT_ACCESS_ADMIN:
                 user_can_work = True
                 user_can_admin = True
+
+    user_can_join = project.can_join(request.user)
 
     milestones = None
     repo_info = None
@@ -275,6 +279,7 @@ def get_project_view(request, project_id, arg_task_filter = TASK_FILTER_OPEN, ar
                      'filter': task_filter,
                      'filter_type' : filter_type,
                      'user_can_work' : user_can_work,
+                     'user_can_join' : user_can_join,
                      'user_can_admin' : user_can_admin,
                      'show_page' : PROJECT_PAGE_FILTER[arg_page],
                      'repo_server_is_configured' : repo_server_is_configured,
@@ -399,6 +404,7 @@ class AddMemberCreateView(LoginRequiredMixin, CreateView):
         return HttpResponseRedirect(self.object.project.get_absolute_url() )
 
 # пользователь принял приглашение в участники проекта
+@login_required
 def member_accept(request, member_id):
     member = get_object_or_404( Member, pk = member_id )
 
@@ -409,6 +415,51 @@ def member_accept(request, member_id):
     else:
         # сбой - юзер не тот!!!
         return HttpResponseForbidden()
+
+# админ проекта принял запрос пользователя на включение в проект
+@login_required
+def team_accept(request, member_id):
+    member = get_object_or_404( Member, pk = member_id )
+    project = member.project
+
+    # проверить - админ ли
+    if ( project.is_admin( request.user ) ):
+        member.set_team_accept()
+        member.set_change_user( request.user )
+        member.save()
+        return HttpResponseRedirect( project.get_absolute_url() )
+    else:
+        # сбой - юзер не тот!!!
+        return HttpResponseForbidden()
+
+# текущий пользователь хочет присоединится к участникам проекта
+@login_required
+def member_want_join(request, project_id):
+    #определить текущего юзера
+    curr_user = request.user
+    if curr_user.is_authenticated():
+        # определить проект
+        if not ( project_id is None ):
+            project = get_object_or_404( Project, pk = project_id )
+            # проверить, есть ли у него доступ на просмотр
+
+            m = Member( project = project )
+            m.set_user_want_join( curr_user )
+            messages.info(request, "You successfully send a join request to project admin! Admin got a request and could accept it.")
+            return HttpResponseRedirect( project.get_absolute_url() )
+        else:
+            Http404
+    else:
+        return HttpResponseForbidden()
+    #member = get_object_or_404( Member, pk = member_id )
+
+    # проверить - а тот ли юзер?
+    #if ( member.member_profile.user == request.user ):
+    #    member.set_member_accept()
+    #    return HttpResponseRedirect( member.project.get_absolute_url() )
+    #else:
+    #    # сбой - юзер не тот!!!
+    #    return HttpResponseForbidden()
 
 class TaskCreateView(LoginRequiredMixin, CreateView):
 
