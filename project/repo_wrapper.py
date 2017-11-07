@@ -61,36 +61,61 @@ def Write_Ini_for_CFG( arg_fn, arg_section_name, arg_dict ):
     with open(arg_fn, 'w') as configfile:
         config.write(configfile)
 
+def Add_User_To_Main_PassFile( arg_pass_file, arg_dict ):
+    config = configparser.ConfigParser()
+    try:
+        config.read_file(open( arg_pass_file ))
+    except:
+        pass
+    section_name = 'users'
+    if not ( section_name in config.sections() ):
+        config[ section_name ] = {}
+
+    some_thing_to_write = False
+
+    for k,v in arg_dict.items():
+        if not config.has_option(section_name, k):
+            config[section_name][k] = v
+            some_thing_to_write = True
+
+    if some_thing_to_write:
+        with open(arg_pass_file, 'w') as configfile:
+            config.write(configfile)
+
 # const names
 authz_fn  = 'authz'
 passwd_fn = 'passwd'
 svnserve_conf_fn = 'svnserve.conf'
 conf_folder = 'conf'
 
+two_folders_up = '../../'
+
 class Repo_File_Paths():
 
     _repo_root_path = ''
 
-    def __init__( self, arg_repo_root_path ):
+    def __init__( self, arg_repo_root_path, arg_repo_name ):
         self._repo_root_path = arg_repo_root_path
+        self._repo_path = arg_repo_root_path + arg_repo_name
 
     def auth_full_name( self ):
-        return self._repo_root_path + '\\' + conf_folder + '\\' + authz_fn
+        return self._repo_path + '\\' + conf_folder + '\\' + authz_fn
 
     def pass_full_name( self ):
-        return self._repo_root_path + '\\' + conf_folder + '\\' + passwd_fn
+        # one passwd file for all repos
+        return self._repo_root_path + '\\' + passwd_fn
 
     def svnserve_conf_full_name( self ):
-        return self._repo_root_path + '\\' + conf_folder + '\\' + svnserve_conf_fn
+        return self._repo_path + '\\' + conf_folder + '\\' + svnserve_conf_fn
 
 def Add_User_Info_to_Repo_CFG( arg_repo_file_paths, arg_user_and_pw_dict ): # arg_repo_file_paths - экземпляр Repo_File_Paths
-    Write_Ini_for_CFG( arg_repo_file_paths.pass_full_name(), 'users', arg_user_and_pw_dict )
+    Add_User_To_Main_PassFile( arg_repo_file_paths.pass_full_name(), arg_user_and_pw_dict )
     Write_Ini_for_CFG( arg_repo_file_paths.auth_full_name(), '/', dict.fromkeys( arg_user_and_pw_dict.keys(), 'rw' ) )
 
-def Write_Ini_For_New_Repo( arg_repo_root_path ):
-    file_names = Repo_File_Paths( arg_repo_root_path )
+def Write_Ini_For_New_Repo( arg_repo_root_path, arg_repo_name ):
+    file_names = Repo_File_Paths( arg_repo_root_path, arg_repo_name )
 
-    Write_Ini_for_CFG( file_names.svnserve_conf_full_name(), 'general', { 'anon-access' : 'none', 'auth-access' : 'write', 'password-db' : passwd_fn, 'authz-db' : authz_fn, } )
+    Write_Ini_for_CFG( file_names.svnserve_conf_full_name(), 'general', { 'anon-access' : 'none', 'auth-access' : 'write', 'password-db' : two_folders_up + passwd_fn, 'authz-db' : authz_fn, } )
     Add_User_Info_to_Repo_CFG( file_names, { SVN_ADMIN_USER : SVN_ADMIN_PASSWORD } )
 
 # return (code, str)
@@ -100,7 +125,7 @@ def Create_New_Repo( ):
             repo_guid_name = uuid.uuid4().hex
             a = svn.admin.Admin( svnadmin_filepath = SVN_ADMIN_FULL_PATH )
             a.create( REPO_LOCAL_ROOT + repo_guid_name, svnadmin_filepath = SVN_ADMIN_FULL_PATH )
-            Write_Ini_For_New_Repo( REPO_LOCAL_ROOT + repo_guid_name )
+            Write_Ini_For_New_Repo( REPO_LOCAL_ROOT, repo_guid_name )
             return ( VCS_REPO_SUCCESS, repo_guid_name )
         except:
             return ( VCS_REPO_FAIL_CALL, '' )
@@ -122,7 +147,7 @@ def Decrypt_Repo_User_PW( arg_encrypted_pw ):
     return( DeCrypt_Str( base64.b64decode( arg_encrypted_pw ), USERS_REPO_PW_KEY_SALT ) ) # преобразовать их формата хранения и расшифровать
 
 def Add_User_to_Repo( arg_repo_name, arg_user_and_pw_dict ):
-    file_names = Repo_File_Paths( REPO_LOCAL_ROOT + arg_repo_name )
+    file_names = Repo_File_Paths( REPO_LOCAL_ROOT, arg_repo_name )
     Add_User_Info_to_Repo_CFG( file_names, arg_user_and_pw_dict )
 
 # return (code, str)

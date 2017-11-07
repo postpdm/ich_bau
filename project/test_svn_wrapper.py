@@ -12,12 +12,13 @@ class SVN_Wrapper_Test(TestCase):
         self.assertEqual( res[0], VCS_REPO_FAIL_CALL )
 
     def test_Repo_Conf_Name_Gen(self):
-        s = ''
-        t = Repo_File_Paths( s )
+        repo_root = 'root_folder'
+        repo_name = 'repo_name'
+        t = Repo_File_Paths( repo_root, repo_name )
 
-        self.assertEqual( t.svnserve_conf_full_name( ), s + '\\conf\\svnserve.conf' )
-        self.assertEqual( t.pass_full_name( ),          s + '\\conf\\passwd' )
-        self.assertEqual( t.auth_full_name( ),          s + '\\conf\\authz' )
+        self.assertEqual( t.svnserve_conf_full_name( ), repo_root + repo_name + '\\conf\\svnserve.conf' )
+        self.assertEqual( t.pass_full_name( ),          repo_root + '\\passwd' ) # one passwd in root
+        self.assertEqual( t.auth_full_name( ),          repo_root + repo_name + '\\conf\\authz' )
 
     def test_Repo_PW_Encoing(self):
         test_pw = 'some test pass'
