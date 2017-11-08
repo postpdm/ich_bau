@@ -32,3 +32,11 @@ manage.py test
 manage.py migrate --run-syncdb
 manage.py runserver
 ```
+
+### Testing file repo functions
+
+For testing file repo functions you need actual version of Apache Subversion client and server.
+
+* `svn` and `svnadmin` command-line clients in your PATH
+* setting up the `REPO_SVN` settingns in `settings.py`
+* `file://`, `svn://`, `http://` or `https://` connection avilable to your repos
