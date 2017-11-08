@@ -103,7 +103,7 @@ class Repo_File_Paths():
         self._repo_path = os.path.join( self._repo_root_path + arg_repo_name, '' )
 
     def conf_folder(self):
-        return self._repo_path + conf_folder_fn + '\\'
+        return os.path.join( self._repo_path + conf_folder_fn, '' )
 
     def auth_full_name( self ):
         return self.conf_folder() + authz_fn

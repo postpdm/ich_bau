@@ -17,10 +17,10 @@ class SVN_Wrapper_Abstract_Test(TestCase):
         repo_name = 'repo_name'
         t = Repo_File_Paths( repo_root, repo_name )
 
-        self.assertEqual( t.conf_folder( ), repo_root + '\\' + repo_name + '\\conf\\' )
-        self.assertEqual( t.svnserve_conf_full_name( ), repo_root + '\\' + repo_name + '\\conf\\svnserve.conf' )
-        self.assertEqual( t.pass_full_name( ),          repo_root + '\\passwd' ) # one passwd in root
-        self.assertEqual( t.auth_full_name( ),          repo_root + '\\' + repo_name + '\\conf\\authz' )
+        self.assertEqual( t.conf_folder( ),             os.path.join( repo_root, repo_name, 'conf', '' ) )
+        self.assertEqual( t.svnserve_conf_full_name( ), os.path.join( repo_root, repo_name, 'conf', 'svnserve.conf' ) )
+        self.assertEqual( t.pass_full_name( ),          os.path.join( repo_root, 'passwd' ) ) # one passwd in root
+        self.assertEqual( t.auth_full_name( ),          os.path.join( repo_root, repo_name, 'conf', 'authz' ) )
 
     def test_Repo_PW_Encoing(self):
         test_pw = 'some test pass'
