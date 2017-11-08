@@ -9,6 +9,9 @@ from django.conf import settings
 
 import os
 
+from ich_bau.repo_settings_const import *
+
+REPO_TYPE              = settings.REPO_SVN["REPO_TYPE"]
 REPO_BASE_URL          = settings.REPO_SVN["REPO_BASE_URL"]
 REPO_LOCAL_ROOT        = settings.REPO_SVN["REPO_LOCAL_ROOT"]
 
@@ -27,7 +30,7 @@ VCS_REPO_FAIL_CALL = 2
 
 # return True if yes
 def VCS_Configured():
-    if ( REPO_BASE_URL and REPO_LOCAL_ROOT and SVN_ADMIN_USER and SVN_ADMIN_PASSWORD and SVN_ADMIN_FULL_PATH and USERS_REPO_PW_KEY_SALT ):
+    if ( REPO_TYPE in KNOWN_REPO_TYPES ) and ( REPO_BASE_URL and REPO_LOCAL_ROOT and SVN_ADMIN_USER and SVN_ADMIN_PASSWORD and SVN_ADMIN_FULL_PATH and USERS_REPO_PW_KEY_SALT ):
         return True
     else:
         return False
@@ -64,13 +67,19 @@ def Write_Ini_for_CFG( arg_fn, arg_section_name, arg_dict ):
         config.write(configfile)
 
 def Add_User_To_Main_PassFile( arg_pass_file, arg_dict ):
-    config = configparser.ConfigParser()
+    if REPO_TYPE == svn_serve:
+        section_name = 'users'
+        delimiter = '='
+    else:
+        section_name = 'users' # for apache htpasswd it's ignored. Configparser can't write to root, so I just leave it here
+        delimiter = ':'
+
+    config = configparser.ConfigParser( delimiters = delimiter )
     try:
         config.read_file(open( arg_pass_file ))
     except:
         pass
 
-    section_name = 'users'
     if not ( section_name in config.sections() ):
         config[ section_name ] = {}
 
@@ -83,11 +92,16 @@ def Add_User_To_Main_PassFile( arg_pass_file, arg_dict ):
 
     if some_thing_to_write:
         with open(arg_pass_file, 'w') as configfile:
-            config.write(configfile)
+            config.write(configfile, space_around_delimiters = False)
 
 # const names
 authz_fn  = 'authz'
-passwd_fn = 'passwd'
+if REPO_TYPE == svn_serve:
+    passwd_fn = 'passwd'
+else:
+    if REPO_TYPE == svn_apache:
+        passwd_fn = 'htpasswd'
+
 svnserve_conf_fn = 'svnserve.conf'
 conf_folder_fn = 'conf'
 
@@ -122,7 +136,8 @@ def Add_User_Info_to_Repo_CFG( arg_repo_file_paths, arg_user_and_pw_dict ): # ar
 def Write_Ini_For_New_Repo( arg_repo_root_path, arg_repo_name ):
     file_names = Repo_File_Paths( arg_repo_root_path, arg_repo_name )
 
-    Write_Ini_for_CFG( file_names.svnserve_conf_full_name(), 'general', { 'anon-access' : 'none', 'auth-access' : 'write', 'password-db' : two_folders_up + passwd_fn, 'authz-db' : authz_fn, } )
+    if REPO_TYPE == svn_serve:
+        Write_Ini_for_CFG( file_names.svnserve_conf_full_name(), 'general', { 'anon-access' : 'none', 'auth-access' : 'write', 'password-db' : two_folders_up + passwd_fn, 'authz-db' : authz_fn, } )
     Add_User_Info_to_Repo_CFG( file_names, { SVN_ADMIN_USER : SVN_ADMIN_PASSWORD } )
 
 # return (code, str)
