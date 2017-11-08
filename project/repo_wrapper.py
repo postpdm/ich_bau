@@ -67,6 +67,7 @@ def Add_User_To_Main_PassFile( arg_pass_file, arg_dict ):
         config.read_file(open( arg_pass_file ))
     except:
         pass
+
     section_name = 'users'
     if not ( section_name in config.sections() ):
         config[ section_name ] = {}

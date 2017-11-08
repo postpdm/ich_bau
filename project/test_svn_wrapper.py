@@ -1,8 +1,9 @@
 from project.repo_wrapper import *
 
 from unittest import TestCase
+import shutil, tempfile
 
-class SVN_Wrapper_Test(TestCase):
+class SVN_Wrapper_Abstract_Test(TestCase):
     def test_Get_Info(self):
         res = Get_Info_For_Repo_Name( 'some wrong repo' )
         self.assertEqual( res[0], VCS_REPO_FAIL_CALL )
@@ -27,3 +28,23 @@ class SVN_Wrapper_Test(TestCase):
 
     def test_VCS_Configured(self):
         self.assertEqual( VCS_Configured(), True )
+
+class SVN_Wrapper_Temp_Dir_Test(TestCase):
+    test_temp_dir = None
+
+    def setUp(self):
+        # Create a temporary directory
+        self.test_temp_dir = tempfile.mkdtemp()
+
+    def tearDown(self):
+        # Remove the directory after the test
+        shutil.rmtree(self.test_temp_dir)
+
+    def test_Repo_Conf_In_Temp_Dir(self):
+        repo_root = self.test_temp_dir
+        repo_name = 'repo_name'
+        t = Repo_File_Paths( repo_root, repo_name )
+
+        Add_User_To_Main_PassFile( t.pass_full_name(), { 'user_name1' : 'pass', 'user_name2' : 'pass2' } )
+        f = open( t.pass_full_name() )
+        self.assertEqual(f.read(), '[users]\nuser_name1 = pass\nuser_name2 = pass2\n\n')
