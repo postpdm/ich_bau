@@ -7,6 +7,8 @@ import uuid
 
 from django.conf import settings
 
+import os
+
 REPO_BASE_URL          = settings.REPO_SVN["REPO_BASE_URL"]
 REPO_LOCAL_ROOT        = settings.REPO_SVN["REPO_LOCAL_ROOT"]
 
@@ -87,7 +89,7 @@ def Add_User_To_Main_PassFile( arg_pass_file, arg_dict ):
 authz_fn  = 'authz'
 passwd_fn = 'passwd'
 svnserve_conf_fn = 'svnserve.conf'
-conf_folder = 'conf'
+conf_folder_fn = 'conf'
 
 two_folders_up = '../../'
 
@@ -96,18 +98,22 @@ class Repo_File_Paths():
     _repo_root_path = ''
 
     def __init__( self, arg_repo_root_path, arg_repo_name ):
-        self._repo_root_path = arg_repo_root_path
-        self._repo_path = arg_repo_root_path + arg_repo_name
+        # trailing slash
+        self._repo_root_path = os.path.join( arg_repo_root_path, '' )
+        self._repo_path = os.path.join( self._repo_root_path + arg_repo_name, '' )
+
+    def conf_folder(self):
+        return self._repo_path + conf_folder_fn + '\\'
 
     def auth_full_name( self ):
-        return self._repo_path + '\\' + conf_folder + '\\' + authz_fn
+        return self.conf_folder() + authz_fn
 
     def pass_full_name( self ):
         # one passwd file for all repos
-        return self._repo_root_path + '\\' + passwd_fn
+        return self._repo_root_path + passwd_fn
 
     def svnserve_conf_full_name( self ):
-        return self._repo_path + '\\' + conf_folder + '\\' + svnserve_conf_fn
+        return self.conf_folder() + svnserve_conf_fn
 
 def Add_User_Info_to_Repo_CFG( arg_repo_file_paths, arg_user_and_pw_dict ): # arg_repo_file_paths - ύκηεμολÿπ Repo_File_Paths
     Add_User_To_Main_PassFile( arg_repo_file_paths.pass_full_name(), arg_user_and_pw_dict )
