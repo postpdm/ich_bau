@@ -29,10 +29,9 @@ no history to view
 <a href="{{milestone.get_absolute_url}}history">History</a>
 {% endif %}
 
-
 {% endif %}
 
-<h2>Tasks {% if user_can_admin or user_can_work %}<a class="btn btn-default" href="/project/task_add_to_milestone/{{milestone.id}}/"><i class="fa fa-plus"></i> {% trans "Create task" %}</a>{% endif %}</h2>
+<h2>Tasks {% if not milestone.finished_at %}{% if user_can_admin or user_can_work %}<a class="btn btn-default" href="/project/task_add_to_milestone/{{milestone.id}}/"><i class="fa fa-plus"></i> {% trans "Create task" %}</a>{% endif %}{% endif %}</h2>
 
 {% include "project/task_list.html" with table_mode='milestone' %}
 

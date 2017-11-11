@@ -12,16 +12,23 @@ from ich_bau.profiles.messages import *
 
 import markdown
 
+@reversion.register()
 class Contract(BaseStampedModel):
-    shortname = models.CharField(max_length=255)
+    shortname = models.CharField(max_length=255, blank=True, null=True)
     fullname = models.CharField(max_length=255, verbose_name = 'Full name!')
     description = models.TextField(blank=True, null=True)
+    start_date = models.DateField( blank=True, null=True )
+    end_date = models.DateField( blank=True, null=True )
 
     class Meta:
         ordering = ['fullname']
 
     def __str__(self):
-        return self.fullname
+        if self.shortname:
+            s = self.shortname + ' ' + self.fullname
+        else:
+            s = self.fullname
+        return s
 
     def get_absolute_url(self):
         return "/crm/contract/%i/" % self.id

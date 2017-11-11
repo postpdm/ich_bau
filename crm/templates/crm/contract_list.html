@@ -7,13 +7,13 @@
 {% block body %}
     <div class="row">
         <div class="col-md-12">
-            <h1>CRM</h1>
+            <h1>Contracts  <a class="btn btn-default" href="/crm/contract_add/"><i class="fa fa-plus"></i>Create contract</a></h1>
         </div>
     </div>
     <div class="row">
         {% for contract in contracts %}
             <div class="col-md-3">
-
+            <a href="{{contract.get_absolute_url}}">{{contract}}</a>
             </div>
         {% endfor %}
     </div>

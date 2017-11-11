@@ -2,13 +2,13 @@
 
 {% load bootstrap %}
 
-{% block body_class %}milestone{% endblock %}
+{% block body_class %}contract{% endblock %}
 
 {% block head_title %}
-{% if milestone.pk %}
-Edit milestone
+{% if contract.pk %}
+Edit contract
 {% else %}
-Create milestone
+Create contract
 {% endif %}
 
 {% endblock %}
@@ -22,10 +22,10 @@ Create milestone
 
         <form class="span6" id="milestone_form" method="post" action="" enctype="multipart/form-data">
 
-                {% if milestone.pk %}
-                    <legend>Edit milestone</legend>
+                {% if contract.pk %}
+                    <legend>Edit contract</legend>
                 {% else %}
-                    <legend>Create milestone</legend>
+                    <legend>Create contract</legend>
                 {% endif %}
 
             {% csrf_token %}

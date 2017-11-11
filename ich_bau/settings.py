@@ -111,8 +111,7 @@ INSTALLED_APPS = [
     "easy_thumbnails",
     "reversion",
     "markdown",
-    #"bootstrap3_datetime",
-
+    "bootstrap3_datetime",
 
     # project
     "commons",

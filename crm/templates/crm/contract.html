@@ -1,0 +1,39 @@
+{% extends 'site_base.html' %}
+
+{% load i18n %}
+{% load bootstrap %}
+
+{% block head_title %}{{contract}}{% endblock %}
+
+{% block body %}
+    <div class="row">
+        <div class="col-md-12">
+<h1>{{contract}}</h1>
+
+{% if contract.description %}
+{{ contract.description_html|safe }}
+{% endif %}
+
+{% if contract.start_date  %}
+<p>Start date:{{contract.start_date}}</p>
+{%endif%}
+{% if contract.end_date %}
+</p>End date:{{ contract.end_date }}</p>
+{%endif%}
+
+
+{% if request.user.is_authenticated %}
+<a class="btn btn-default" href="{{contract.get_absolute_url}}contract_edit"><i class="fa fa-pencil-square-o"></i> {% trans "Edit contract" %}</a>
+{% endif %}
+
+{% if contract.created_at == contract.modified_at %}
+no history to view
+
+{% else %}
+<a href="{{contract.get_absolute_url}}history">History</a>
+{% endif %}
+
+</div>
+</div>
+
+{% endblock %}

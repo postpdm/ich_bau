@@ -19,7 +19,12 @@ class SVN_Wrapper_Abstract_Test(TestCase):
 
         self.assertEqual( t.conf_folder( ),             os.path.join( repo_root, repo_name, 'conf', '' ) )
         self.assertEqual( t.svnserve_conf_full_name( ), os.path.join( repo_root, repo_name, 'conf', 'svnserve.conf' ) )
-        self.assertEqual( t.pass_full_name( ),          os.path.join( repo_root, 'passwd' ) ) # one passwd in root
+        if REPO_TYPE == svn_serve:
+            self.assertEqual( t.pass_full_name( ),      os.path.join( repo_root, 'passwd' ) ) # one passwd in root
+        else:
+            if REPO_TYPE == svn_apache:
+                self.assertEqual( t.pass_full_name( ),  os.path.join( repo_root, 'htpasswd' ) ) # one passwd in root
+
         self.assertEqual( t.auth_full_name( ),          os.path.join( repo_root, repo_name, 'conf', 'authz' ) )
 
     def test_Repo_PW_Encoing(self):
@@ -52,7 +57,12 @@ class SVN_Wrapper_Temp_Dir_Test(TestCase):
 
         Add_User_To_Main_PassFile( fn, { 'user_name1' : 'pass', 'user_name2' : 'pass2' } )
         f = open( fn )
-        self.assertEqual(f.read(), '[users]\nuser_name1 = pass\nuser_name2 = pass2\n\n')
+
+        if REPO_TYPE == svn_serve:
+            self.assertEqual(f.read(), '[users]\nuser_name1=pass\nuser_name2=pass2\n\n')
+        else:
+            if REPO_TYPE == svn_apache:
+                self.assertEqual(f.read(), '[users]\nuser_name1:pass\nuser_name2:pass2\n\n')
         f.close()
 
     def test_Repo_Conf_In_Temp_Dir(self):

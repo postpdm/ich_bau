@@ -17,8 +17,11 @@ import dj_database_url
 # Change 'default' database configuration with $DATABASE_URL.
 DATABASES['default'].update(dj_database_url.config(conn_max_age=500))
 
+from .repo_settings_const import *
+
 # SVN Repo settings
 REPO_SVN = {
+    "REPO_TYPE" : None,
     "REPO_BASE_URL" : "",
     "REPO_LOCAL_ROOT" : "",
 

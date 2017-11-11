@@ -25,3 +25,16 @@ class Profile_Test(TestCase):
     def test_Bot_notifications_Zero(self):
         bot_profile = Profile.objects.get(name=BOT_TEST_NAME)
         self.assertEqual( GetUserNoticationsQ( bot_profile.user, True).count(), 0 )
+
+from django.test import Client
+class Profile_Test_Client(TestCase):
+    def test_Profile_Test_Client_Root(self):
+        c = Client()
+        response = c.post( '/profile/view/' )
+        self.assertEqual( response.status_code, 302 ) # we are not authorized - login redirect
+
+class Profile_Test_Client_Try_Wrong_Login(TestCase):
+    def test_Profile_Test_Client_Root(self):
+        c = Client()        
+        res = c.login(username='perfect_stranger', password='yaoyao!')
+        self.assertEqual( res, False )

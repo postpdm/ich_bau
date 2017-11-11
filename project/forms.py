@@ -5,7 +5,7 @@ from project.models import Project, Task, TaskComment, Milestone, Member, TaskLi
 
 from django.forms.widgets import HiddenInput
 
-#from bootstrap3_datetime.widgets import DateTimePicker
+from bootstrap3_datetime.widgets import DateTimePicker
 
 class ProjectForm(forms.ModelForm):
     #description = HTML_Field( required = False )
@@ -15,17 +15,12 @@ class ProjectForm(forms.ModelForm):
         fields = ['fullname', 'private_flag', 'active_flag', 'description' ]
 
 class MilestoneForm(forms.ModelForm):
-    # planned_at = forms.DateField(
-        # widget=DateTimePicker(options={"format": "YYYY-MM-DD",
-                                       # "pickTime": False}))
-    # finished_at = forms.DateField( required = False,
-        # widget=DateTimePicker( options={"format": "YYYY-MM-DD", "pickTime": False} ))
+    planned_at = forms.DateField( required = False, widget=DateTimePicker(options={"format": "YYYY-MM-DD", "pickTime": False}))
+    finished_at = forms.DateField( required = False, widget=DateTimePicker(options={"format": "YYYY-MM-DD", "pickTime": False}))
 
     class Meta:
         model = Milestone
-        fields = ['fullname'
-        #, 'planned_at', 'finished_at'
-        ]
+        fields = ['fullname', 'planned_at', 'finished_at' ]
 
 from ich_bau.profiles.models import Profile, Get_Users_Profiles
 
