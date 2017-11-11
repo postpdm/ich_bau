@@ -32,3 +32,9 @@ class Profile_Test_Client(TestCase):
         c = Client()
         response = c.post( '/profile/view/' )
         self.assertEqual( response.status_code, 302 ) # we are not authorized - login redirect
+
+class Profile_Test_Client_Try_Wrong_Login(TestCase):
+    def test_Profile_Test_Client_Root(self):
+        c = Client()        
+        res = c.login(username='perfect_stranger', password='yaoyao!')
+        self.assertEqual( res, False )
