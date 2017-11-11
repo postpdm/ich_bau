@@ -14,7 +14,6 @@ class ProjectForm(forms.ModelForm):
         model = Project
         fields = ['fullname', 'private_flag', 'active_flag', 'description' ]
 
-#date_time_picker = 
 class MilestoneForm(forms.ModelForm):
     planned_at = forms.DateField( widget=DateTimePicker(options={"format": "YYYY-MM-DD", "pickTime": False}))
     finished_at = forms.DateField( widget=DateTimePicker(options={"format": "YYYY-MM-DD", "pickTime": False}))

@@ -50,3 +50,8 @@ Create milestone
 <script type="text/javascript" src="/site_media/static/bootstrap3_datetime/js/moment.min.js"></script>
 <script type="text/javascript" src="/site_media/static/bootstrap3_datetime/js/bootstrap-datetimepicker.min.js"></script>
 {%endblock%}
+
+{% block styles %}
+{{block.super}}
+<link href='/site_media/static/bootstrap3_datetime/css/bootstrap-datetimepicker.min.css' rel='stylesheet' />
+{%endblock%}
