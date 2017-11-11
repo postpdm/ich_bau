@@ -19,29 +19,29 @@ DATABASES = {
 from .repo_settings_const import *
 
 # SVN Repo settings
-# REPO_SVN = {
-    # "REPO_TYPE" : svn_serve,
-    # "REPO_BASE_URL" : "svn://localhost/",
-    # "REPO_LOCAL_ROOT" : "d:\\test\\repos\\",
-
-    # "SVN_ADMIN_USER" : "ich_bau_server",
-    # "SVN_ADMIN_PASSWORD" : "key",
-
-    # "SVN_ADMIN_FULL_PATH" : "d:\\test\\svn\\VisualSVN Server\\bin\\svnadmin.exe",
-    # "USERS_REPO_PW_KEY_SALT" : "123"
-# }
-
 REPO_SVN = {
-    "REPO_TYPE" : svn_apache,
-    "REPO_BASE_URL" : "http://localhost:8081/svn/",
-    "REPO_LOCAL_ROOT" : "d:\\p\\apache\\apachehouse\\Apache24\\Repositories\\",
+    "REPO_TYPE" : svn_serve,
+    "REPO_BASE_URL" : "svn://localhost/",
+    "REPO_LOCAL_ROOT" : "d:\\test\\repos\\",
 
     "SVN_ADMIN_USER" : "ich_bau_server",
     "SVN_ADMIN_PASSWORD" : "key",
 
-    "SVN_ADMIN_FULL_PATH" : "d:\\p\\apache\\apachehouse\\Apache24\\bin\\svnadmin.exe",
+    "SVN_ADMIN_FULL_PATH" : "d:\\test\\svn\\VisualSVN Server\\bin\\svnadmin.exe",
     "USERS_REPO_PW_KEY_SALT" : "123"
 }
+
+# REPO_SVN = {
+    # "REPO_TYPE" : svn_apache,
+    # "REPO_BASE_URL" : "http://localhost:8081/svn/",
+    # "REPO_LOCAL_ROOT" : "d:\\p\\apache\\apachehouse\\Apache24\\Repositories\\",
+
+    # "SVN_ADMIN_USER" : "ich_bau_server",
+    # "SVN_ADMIN_PASSWORD" : "key",
+
+    # "SVN_ADMIN_FULL_PATH" : "d:\\p\\apache\\apachehouse\\Apache24\\bin\\svnadmin.exe",
+    # "USERS_REPO_PW_KEY_SALT" : "123"
+# }
 
 # локальные адреса, разрешенные для отладки
 INTERNAL_IPS = '127.0.0.1'

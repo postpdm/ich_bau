@@ -8,6 +8,8 @@ pinax-eventlog==1.1.2
 django-filter==1.0.4
 django-reversion==2.0.10
 
+git+https://github.com/yn-coder/django-bootstrap3-datetimepicker.git
+
 easy-thumbnails==2.4.1
 Markdown==2.6.9
 

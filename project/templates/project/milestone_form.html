@@ -9,7 +9,7 @@
 Edit milestone
 {% else %}
 Create milestone
-{% endif %}        
+{% endif %}
 
 {% endblock %}
 
@@ -21,26 +21,32 @@ Create milestone
 {{ form.media }}
 
         <form class="span6" id="milestone_form" method="post" action="" enctype="multipart/form-data">
-        
+
                 {% if milestone.pk %}
                     <legend>Edit milestone</legend>
                 {% else %}
                     <legend>Create milestone</legend>
-                {% endif %}        
-        
+                {% endif %}
+
             {% csrf_token %}
             {% for hidden in form.hidden_fields %}
                 {{ hidden }}
             {% endfor %}
-            
+
             {% for field in form.visible_fields %}
 
                 {{ field|bootstrap }}
             {% endfor %}
-            
+
 
             <button class="btn btn-primary" type="submit" name="submit">Save</button>
         </form>
-</div>        
+</div>
 </div>
 {% endblock %}
+
+{% block scripts %}
+{{block.super}}
+<script type="text/javascript" src="/site_media/static/bootstrap3_datetime/js/moment.min.js"></script>
+<script type="text/javascript" src="/site_media/static/bootstrap3_datetime/js/bootstrap-datetimepicker.min.js"></script>
+{%endblock%}
