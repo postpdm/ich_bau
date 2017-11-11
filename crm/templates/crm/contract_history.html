@@ -1,0 +1,47 @@
+{% extends 'site_base.html' %}
+
+{% load i18n %}
+{% load bootstrap %}
+
+{% block head_title %}{{contract}} history{% endblock %}
+
+{% block body %}
+    <div class="row">
+        <div class="col-md-12">
+<h1>{{contract}} history</h1>
+
+<a href="{{contract.get_absolute_url}}">back</a>
+
+    <table class="table table-striped">
+    <thead>
+    <tr>
+    <th>Date-time</th>
+    <th>Short name</th>
+    <th>Full name</th>
+    <th>Description</th>
+    <th>Start date</th>
+    <th>End date</th>
+    <th>User</th>
+    </tr>
+    </thead>
+    <tbody>
+        {% for v in versions %}
+        <tr>
+        <td>{{v.revision.date_created}}</td>
+        <td>{%if v.field_dict.shortname%}{{v.field_dict.shortname}}{%endif%}</td>
+        <td>{{v.field_dict.fullname}}</td>
+        <td>{{v.field_dict.description|safe}}</td>
+        <td>{{v.field_dict.start_date}}</td>
+        <td>{{v.field_dict.end_date}}</td>
+        <td><a href="{% url 'profiles_detail' pk=v.revision.user.profile.pk %}">{{v.revision.user}}</a></td>
+        </tr>
+        {% endfor %}
+
+    </tbody>
+    <table>  
+
+
+</div>
+</div>
+  
+{% endblock %}

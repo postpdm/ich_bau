@@ -69,3 +69,14 @@ def contract_edit(request, contract_id):
     return render(  request, 'crm/contract_form.html',
             {'form': form, 'contract':contract},
              context)
+
+def contract_history(request, contract_id):
+    context = RequestContext(request)
+    contract = get_object_or_404( Contract, pk=contract_id)
+
+    versions = Version.objects.get_for_object( contract )
+
+    context_dict = { 'contract': contract,
+                     'versions': versions }
+    # Рендерить ответ
+    return render( request, 'crm/contract_history.html', context_dict )
