@@ -15,8 +15,8 @@ class ProjectForm(forms.ModelForm):
         fields = ['fullname', 'private_flag', 'active_flag', 'description' ]
 
 class MilestoneForm(forms.ModelForm):
-    planned_at = forms.DateField( widget=DateTimePicker(options={"format": "YYYY-MM-DD", "pickTime": False}))
-    finished_at = forms.DateField( widget=DateTimePicker(options={"format": "YYYY-MM-DD", "pickTime": False}))
+    planned_at = forms.DateField( required = False, widget=DateTimePicker(options={"format": "YYYY-MM-DD", "pickTime": False}))
+    finished_at = forms.DateField( required = False, widget=DateTimePicker(options={"format": "YYYY-MM-DD", "pickTime": False}))
 
     class Meta:
         model = Milestone
