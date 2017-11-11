@@ -1,0 +1,57 @@
+{% extends 'site_base.html' %}
+
+{% load bootstrap %}
+
+{% block body_class %}contract{% endblock %}
+
+{% block head_title %}
+{% if contract.pk %}
+Edit contract
+{% else %}
+Create contract
+{% endif %}
+
+{% endblock %}
+
+
+{% block body %}
+<div class="row">
+<div class="col-md-9">
+
+{{ form.media }}
+
+        <form class="span6" id="milestone_form" method="post" action="" enctype="multipart/form-data">
+
+                {% if contract.pk %}
+                    <legend>Edit contract</legend>
+                {% else %}
+                    <legend>Create contract</legend>
+                {% endif %}
+
+            {% csrf_token %}
+            {% for hidden in form.hidden_fields %}
+                {{ hidden }}
+            {% endfor %}
+
+            {% for field in form.visible_fields %}
+
+                {{ field|bootstrap }}
+            {% endfor %}
+
+
+            <button class="btn btn-primary" type="submit" name="submit">Save</button>
+        </form>
+</div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+{{block.super}}
+<script type="text/javascript" src="/site_media/static/bootstrap3_datetime/js/moment.min.js"></script>
+<script type="text/javascript" src="/site_media/static/bootstrap3_datetime/js/bootstrap-datetimepicker.min.js"></script>
+{%endblock%}
+
+{% block styles %}
+{{block.super}}
+<link href='/site_media/static/bootstrap3_datetime/css/bootstrap-datetimepicker.min.css' rel='stylesheet' />
+{%endblock%}
