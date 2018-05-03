@@ -5,13 +5,15 @@ from django.test import TestCase
 
 TEST_MAIN_ORG_NAME = 'Main org'
 
+SUB_ORG_NAMES_LIST = ( 'a', 'b', 'c', 'd' )
+
 class Profile_Test(TestCase):
     def setUp(self):
         self.main_org_profile = Profile( profile_type = PROFILE_TYPE_ORG )
         self.main_org_profile.name = TEST_MAIN_ORG_NAME
         self.main_org_profile.save()
-        
-        for i in ( 'a', 'b', 'c' ):
+
+        for i in SUB_ORG_NAMES_LIST:
             sub_dep_profile = Profile( profile_type = PROFILE_TYPE_DEPARTAMENT )
             sub_dep_profile.name = i
             sub_dep_profile.save()
@@ -20,4 +22,7 @@ class Profile_Test(TestCase):
 
     def test_Org_profile_type(self):
         self.assertEqual( self.main_org_profile.profile_type, PROFILE_TYPE_ORG )
-        self.assertEqual( Profile_Affiliation.objects.filter(main_profile=self.main_org_profile).count(), 3 )
+
+    def test_Main_Org_Subs(self):
+        self.assertEqual( self.main_org_profile.sub_profiles().count(), len( SUB_ORG_NAMES_LIST ) )
+
