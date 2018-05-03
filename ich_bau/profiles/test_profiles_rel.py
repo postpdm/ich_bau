@@ -26,3 +26,5 @@ class Profile_Test(TestCase):
     def test_Main_Org_Subs(self):
         self.assertEqual( self.main_org_profile.sub_profiles().count(), len( SUB_ORG_NAMES_LIST ) )
 
+    def test_Main_Org_Main(self):
+        self.assertEqual( self.main_org_profile.main_profiles().count(), 0 )

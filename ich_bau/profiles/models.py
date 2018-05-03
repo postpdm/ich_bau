@@ -99,6 +99,9 @@ class Profile(models.Model):
     def sub_profiles(self):
         return Profile_Affiliation.objects.filter(main_profile=self )
 
+    def main_profiles(self):
+        return Profile_Affiliation.objects.filter(sub_profile=self )
+
     def description_html(self):
         return markdown.markdown(self.description)
 
