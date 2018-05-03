@@ -20,7 +20,7 @@ class Notification(models.Model):
 
     def decode_msg( self ):
         return decode_json2msg( self.msg_txt )
-    
+
     def get_unreaded( self ):
         return self.readed_at is None
 
@@ -95,6 +95,9 @@ class Profile(models.Model):
         else:
             s = self.user.username
         return s + " (" + PROFILE_TYPE_CHOICES[self.profile_type][1] + ")"
+
+    def sub_profiles(self):
+        return Profile_Affiliation.objects.filter(main_profile=self )
 
     def description_html(self):
         return markdown.markdown(self.description)
