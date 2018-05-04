@@ -1,7 +1,7 @@
 from django.contrib.auth.models import User
 from .models import *
 
-from django.test import TestCase
+from django.test import TestCase, Client
 
 BOT_TEST_NAME = 'BOT TEST NAME'
 
@@ -30,7 +30,12 @@ class Profile_Test(TestCase):
         bot_profile = Profile.objects.get(name=BOT_TEST_NAME)
         self.assertEqual( bot_profile.get_absolute_url(), '/p/1/' )
 
-from django.test import Client
+    def test_Bot_profile_page(self):
+        bot_profile = Profile.objects.get(name=BOT_TEST_NAME)
+        c = Client()
+        response = c.get( bot_profile.get_absolute_url() )
+        self.assertContains(response, BOT_TEST_NAME, status_code=200 )
+
 class Profile_Test_Client(TestCase):
     def test_Profile_Test_Client_Root(self):
         c = Client()
