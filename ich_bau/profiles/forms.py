@@ -2,13 +2,9 @@ import re
 
 from django import forms
 
-from .models import Profile
+from .models import Profile, PROFILE_TYPE_CHOICES
 
-class ProfileForm(forms.ModelForm):
-
-    class Meta:
-        model = Profile
-        fields = [
+form_fields = [
             "name",
             "avatar",
             "description",
@@ -16,14 +12,14 @@ class ProfileForm(forms.ModelForm):
             "website",
         ]
 
-class ContactProfileForm(ProfileForm):
+class ProfileForm(forms.ModelForm):
+
     class Meta:
-        model = Profile        
-        fields = [
-            "profile_type",
-            "name",
-            "avatar",
-            "description",
-            "location",
-            "website",
-        ]        #fields + 
+        model = Profile
+        fields = form_fields
+
+class ContactProfileForm(ProfileForm):
+    profile_type = forms.ChoiceField(required=True, choices=PROFILE_TYPE_CHOICES)
+    class Meta:
+        model = Profile
+        fields = [ "profile_type", ] + form_fields
