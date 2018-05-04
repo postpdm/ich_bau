@@ -36,7 +36,8 @@
                             </span>
                             <a href="{{ profile.website }}">{{ profile.website }}</a>
                         </div>
-                    {% endif %}                    
+                    {% endif %}
+                    {%if profile.user%}
                     <div class="item">
                         <span class="dim">
                             <i class="fa fa-clock-o"></i>
@@ -44,6 +45,7 @@
                         </span>
                         {{ profile.user.date_joined }}
                     </div>
+                    {%endif%}
                     {% if request.user == profile.user %}
                         {% if user_repo_pw %}
                         <div class="item">
