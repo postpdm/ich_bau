@@ -39,3 +39,9 @@ class Profile_Test(TestCase):
 
             self.assertEqual( sm.count(), 1 )
             self.assertEqual( sm[0].main_profile, self.main_org_profile )
+
+    def test_You_CANT_Link_Org_To_Self(self):
+        r = Profile_Affiliation( main_profile=self.main_org_profile, sub_profile=self.main_org_profile )
+
+        with self.assertRaises(Exception):
+            r.save()

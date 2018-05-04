@@ -116,6 +116,12 @@ class Profile_Affiliation(models.Model):
     class Meta:
         unique_together = ( "main_profile", "sub_profile")
 
+    def save(self, *args, **kwargs):
+        if ( self.main_profile == self.sub_profile ):
+            raise Exception("Cannot save - profile cannot affiliate to itself!")
+        else:
+            return super(Profile_Affiliation, self).save(*args, **kwargs)
+
 class Profile_Control_User(models.Model):
     controlled_profile = models.ForeignKey(Profile, related_name = 'controlled_profile' )
     control_user = models.ForeignKey(User, related_name="control_user")
