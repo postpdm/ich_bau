@@ -1,5 +1,5 @@
 from django.core.urlresolvers import reverse
-from django.views.generic import UpdateView, DetailView, ListView
+from django.views.generic import CreateView, UpdateView, DetailView, ListView
 
 from django.contrib import messages
 
@@ -8,7 +8,7 @@ from django.template import RequestContext
 
 from account.mixins import LoginRequiredMixin
 
-from .forms import ProfileForm
+from .forms import ProfileForm, ContactProfileForm
 from .models import *
 from account.decorators import login_required
 from reversion.models import Version
@@ -60,6 +60,10 @@ class ProfileListView(ListView):
 
     model = Profile
     context_object_name = "profiles"
+
+class ProfileCreateView(LoginRequiredMixin, CreateView):
+    model = Profile
+    form_class = ContactProfileForm
 
 from .models import Notification, GetUserNoticationsQ
 

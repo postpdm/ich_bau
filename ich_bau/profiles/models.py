@@ -69,7 +69,6 @@ class Profile(models.Model):
     description = models.TextField(blank=True)
     location = models.CharField(max_length=100, blank=True)
     website = models.CharField(max_length=250, blank=True)
-    twitter_username = models.CharField("Twitter Username", max_length=100, blank=True)
 
     created_at = models.DateTimeField(default=timezone.now)
     modified_at = models.DateTimeField(default=timezone.now)

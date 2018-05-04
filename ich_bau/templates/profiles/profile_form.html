@@ -11,8 +11,18 @@
     <div class="row">
         <div class="col-md-9">
             <form class="form profile-form" action="" method="POST" enctype="multipart/form-data">
-                <legend>Edit Profile</legend>
+                {% if profile %}
+                <legend>Edit Profile</legend>                
+                {% else %}
+                <legend>Create Profile</legend>
+                {% endif %}
                 {% csrf_token %}
+                
+                {% if profile %}
+                {% else %}
+                {{ form.profile_type|bootstrap }}                
+                {% endif %}
+                
                 {{ form.name|bootstrap }}
                 <div id="div_id_avatar" class="control-group">
                     <label for="id_avatar" class="control-label">
@@ -43,27 +53,10 @@
                 {{ form.description|bootstrap }}
                 {{ form.location|bootstrap }}
                 {{ form.website|bootstrap }}
-                {% with field=form.twitter_username %}
-                    <div class="form-group{% if field.errors %} has-error{% endif %}">
-                        {% if field.auto_id %}
-                            <label class="control-label {{ classes.label }} {% if field.field.required %}{{ form.required_css_class }}{% endif %}" for="{{ field.auto_id }}">{{ field.label }}</label>
-                        {% endif %}
-                        <div class="input-group">
-                            <span class="input-group-addon">@</span>
-                            <input type="text" name="{{ field.name }}" value="{{ field.value }}" class="form-control" />
-                        </div>
-                        {% for error in field.errors %}
-                            <span class="help-block {{ form.error_css_class }}">{{ error }}</span>
-                        {% endfor %}
-                        {% if field.help_text %}
-                            <p class="help-block">
-                                {{ field.help_text|safe }}
-                            </p>
-                        {% endif %}
-                    </div>
-                {% endwith %}
                 <button type="submit" class="btn btn-primary">Save</button>
-                <a class="btn btn-default" href="{% url 'profiles_detail' pk=profile.id %}">Cancel</a>
+                {% if profile %}
+                    <a class="btn btn-default" href="{% url 'profiles_detail' pk=profile.id %}">Cancel</a>
+                {% endif %}
             </form>
         </div>
     </div>
