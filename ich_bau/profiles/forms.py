@@ -2,7 +2,7 @@ import re
 
 from django import forms
 
-from .models import Profile, PROFILE_TYPE_CHOICES
+from .models import Profile, PROFILE_TYPE_CHOICES_EDITOR
 
 form_fields = [
             "name",
@@ -19,7 +19,7 @@ class ProfileForm(forms.ModelForm):
         fields = form_fields
 
 class ContactProfileForm(ProfileForm):
-    profile_type = forms.ChoiceField(required=True, choices=PROFILE_TYPE_CHOICES)
+    profile_type = forms.ChoiceField(required=True, choices=PROFILE_TYPE_CHOICES_EDITOR)
     class Meta:
         model = Profile
         fields = [ "profile_type", ] + form_fields
