@@ -26,6 +26,10 @@ class Profile_Test(TestCase):
         bot_profile = Profile.objects.get(name=BOT_TEST_NAME)
         self.assertEqual( GetUserNoticationsQ( bot_profile.user, True).count(), 0 )
 
+    def test_Bot_profile_absolute_url(self):
+        bot_profile = Profile.objects.get(name=BOT_TEST_NAME)
+        self.assertEqual( bot_profile.get_absolute_url(), '/p/1/' )
+
 from django.test import Client
 class Profile_Test_Client(TestCase):
     def test_Profile_Test_Client_Root(self):
@@ -35,6 +39,6 @@ class Profile_Test_Client(TestCase):
 
 class Profile_Test_Client_Try_Wrong_Login(TestCase):
     def test_Profile_Test_Client_Root(self):
-        c = Client()        
+        c = Client()
         res = c.login(username='perfect_stranger', password='yaoyao!')
         self.assertFalse( res )

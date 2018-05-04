@@ -7,6 +7,7 @@ from django.utils import timezone
 from django.contrib.auth.models import User
 
 from django.shortcuts import get_object_or_404
+from django.core.urlresolvers import reverse
 
 from .messages import decode_json2msg
 
@@ -85,6 +86,9 @@ class Profile(models.Model):
 
     def __str__(self):
         return self.display_name
+
+    def get_absolute_url(self):
+        return reverse('profiles_detail', kwargs={ 'pk': self.id} )
 
     @property
     def display_name(self):
