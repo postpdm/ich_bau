@@ -93,7 +93,8 @@ class Profile(models.Model):
         if self.name:
             s = self.name
         else:
-            s = self.user.username
+            if self.user:
+                s = self.user.username
         return s + " (" + PROFILE_TYPE_CHOICES[self.profile_type][1] + ")"
 
     def sub_profiles(self):
