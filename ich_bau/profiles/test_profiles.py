@@ -34,7 +34,7 @@ class Profile_Test(TestCase):
         bot_profile = Profile.objects.get(name=BOT_TEST_NAME)
         c = Client()
         response = c.get( bot_profile.get_absolute_url() )
-        self.assertContains(response, BOT_TEST_NAME, status_code=200 )
+        self.assertContains(response, BOT_TEST_NAME + ' (Bot)', status_code=200 )
 
 class Profile_Test_Client(TestCase):
     def test_Profile_Test_Client_Root(self):
