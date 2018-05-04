@@ -36,6 +36,11 @@ class Profile_Test(TestCase):
         response = c.get( bot_profile.get_absolute_url() )
         self.assertContains(response, BOT_TEST_NAME + ' (Bot)', status_code=200 )
 
+    def test_Create_Wrong_profile_type(self):
+        p = Profile( profile_type = -9999 )
+        with self.assertRaises(Exception):
+            p.save()
+
 class Profile_Test_Client(TestCase):
     def test_Profile_Test_Client_Root(self):
         c = Client()

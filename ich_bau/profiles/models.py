@@ -80,12 +80,15 @@ class Profile(models.Model):
     repo_pw = models.CharField(max_length=100, blank=True)
 
     def save(self, *args, **kwargs):
-        self.modified_at = timezone.now()
-        if ( self.profile_type in ( PROFILE_TYPE_USER, PROFILE_TYPE_BOT ) ) and ( ( self.repo_pw is None ) or ( self.repo_pw == '' ) ):
-            from project.repo_wrapper import Gen_Repo_User_PW
-            self.repo_pw = Gen_Repo_User_PW()
+        if self.profile_type in PROFILE_TYPE_LIST: # check for profile type
+            self.modified_at = timezone.now()
+            if ( self.profile_type in ( PROFILE_TYPE_USER, PROFILE_TYPE_BOT ) ) and ( ( self.repo_pw is None ) or ( self.repo_pw == '' ) ):
+                from project.repo_wrapper import Gen_Repo_User_PW
+                self.repo_pw = Gen_Repo_User_PW()
 
-        return super(Profile, self).save(*args, **kwargs)
+            return super(Profile, self).save(*args, **kwargs)
+        else:
+            raise Exception("Cannot save - wrong profile type!")
 
     def __str__(self):
         return self.display_name
