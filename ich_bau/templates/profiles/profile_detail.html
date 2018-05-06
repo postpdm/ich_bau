@@ -56,7 +56,9 @@
                             {{ user_repo_pw }}
                         </div>
                         {% endif %}
-                        <a href="{% url 'profiles_edit' %}" class="btn btn-default btn-xs"><i class="fa fa-pencil"></i> Edit Profile</a>
+                        <a href="{% url 'profiles_edit' %}" class="btn btn-default btn-xs"><i class="fa fa-pencil"></i> Edit My Profile</a>
+                    {% else %}
+                    <a href="{% url 'profile_update' pk=profile.pk %}" class="btn btn-default btn-xs"><i class="fa fa-pencil"></i> Edit Profile</a>
                     {% endif %}
                 </div>
             </div>

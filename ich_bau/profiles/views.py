@@ -65,6 +65,10 @@ class ProfileCreateView(LoginRequiredMixin, CreateView):
     model = Profile
     form_class = ContactProfileForm
 
+class ProfileUpdateView(LoginRequiredMixin, UpdateView):
+    model = Profile
+    form_class = ContactProfileForm
+
 from .models import Notification, GetUserNoticationsQ
 
 @login_required

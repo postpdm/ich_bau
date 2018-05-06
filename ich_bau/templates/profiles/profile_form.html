@@ -12,17 +12,17 @@
         <div class="col-md-9">
             <form class="form profile-form" action="" method="POST" enctype="multipart/form-data">
                 {% if profile %}
-                <legend>Edit Profile</legend>                
+                <legend>Edit Profile</legend>
                 {% else %}
                 <legend>Create Profile</legend>
                 {% endif %}
                 {% csrf_token %}
-                
-                {% if profile %}
+
+                {% if profile.user == request.user %}
                 {% else %}
-                {{ form.profile_type|bootstrap }}                
+                {{ form.profile_type|bootstrap }}
                 {% endif %}
-                
+
                 {{ form.name|bootstrap }}
                 <div id="div_id_avatar" class="control-group">
                     <label for="id_avatar" class="control-label">
