@@ -112,6 +112,9 @@ class Profile(models.Model):
     def main_profiles(self):
         return Profile_Affiliation.objects.filter(sub_profile=self )
 
+    def list_of_avail_for_affiliate(self):
+        return Profile.objects.all().exclude( id = self.id ).exclude( sub_profile__main_profile_id = self.id )
+
     def description_html(self):
         return markdown.markdown(self.description)
 
