@@ -45,3 +45,6 @@ class Profile_Test(TestCase):
 
         with self.assertRaises(Exception):
             r.save()
+
+    def test_list_of_avail_for_affiliate(self):
+        self.assertEqual( self.main_org_profile.list_of_avail_for_affiliate().count(), 0 )
