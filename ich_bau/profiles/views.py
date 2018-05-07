@@ -45,8 +45,8 @@ class ProfileDetailView(DetailView):
             from project.repo_wrapper import Decrypt_Repo_User_PW
             context['user_repo_pw'] = Decrypt_Repo_User_PW( current_profile.repo_pw )
 
-        context['main_profiles'] = Profile_Affiliation.objects.filter( sub_profile = current_profile )
-        context['sub_profiles'] =  Profile_Affiliation.objects.filter( main_profile = current_profile )
+        context['main_profiles'] = current_profile.main_profiles()
+        context['sub_profiles'] =  current_profile.sub_profiles()
         if ( current_profile.profile_type == PROFILE_TYPE_USER ) and ( not( current_profile.user is None ) ):
             context['controlled_profiles'] = Profile_Control_User.objects.filter( control_user = current_profile.user )
         context['controlled_by_user'] = Profile_Control_User.objects.filter( controlled_profile = current_profile )
