@@ -80,6 +80,7 @@
         {% endfor %}
         </ul>
         {% endif %}
+        <a href="{% url 'profile_add_sub' pk=profile.id %}" class="btn btn-default btn-xs"><i class="fa fa-pencil"></i> Add sub</a>
         </div>
         <h2>Controlled profiles</h2>
         {% if controlled_profiles %}

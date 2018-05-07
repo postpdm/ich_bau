@@ -8,10 +8,11 @@ from django.template import RequestContext
 
 from account.mixins import LoginRequiredMixin
 
-from .forms import ProfileForm, ContactProfileForm
+from .forms import ProfileForm, ContactProfileForm, Profile_AffiliationForm
 from .models import *
 from account.decorators import login_required
 from reversion.models import Version
+from django.http import HttpResponseRedirect, Http404
 
 class ProfileEditView(LoginRequiredMixin, UpdateView):
 
@@ -68,6 +69,25 @@ class ProfileCreateView(LoginRequiredMixin, CreateView):
 class ProfileUpdateView(LoginRequiredMixin, UpdateView):
     model = Profile
     form_class = ContactProfileForm
+
+class ProfileCreateSubView(LoginRequiredMixin, CreateView):
+    model = Profile_Affiliation
+    form_class = Profile_AffiliationForm
+
+    def get_initial(self):
+        try:
+            self.mp = get_object_or_404( Profile, pk = self.kwargs['pk'])
+            return { 'main_profile': self.mp, }
+        except:
+            Http404()
+
+    def form_valid(self, form):
+        self.object = form.save(commit=False)
+        self.object.main_profile = self.mp
+        self.object.save()
+
+        messages.success(self.request, "You successfully add the affiliation!")
+        return HttpResponseRedirect( self.object.main_profile.get_absolute_url() )
 
 from .models import Notification, GetUserNoticationsQ
 
