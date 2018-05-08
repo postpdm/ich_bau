@@ -4,7 +4,7 @@ from django.test import TestCase, Client
 
 from django.core.urlresolvers import reverse
 
-from .models import Project, Task
+from .models import Project, Task, Milestone
 
 TEST_USER_NAME  = 'test_user'
 TEST_USER_EMAIL = 'test_user@nothere.com'
@@ -15,6 +15,8 @@ TEST_PROJECT_DESCRIPTION_1 = 'First description'
 TEST_PROJECT_DESCRIPTION_2 = 'Second description'
 
 TEST_TASK_FULLNAME = 'TEST TASK #1 FULL NAME'
+
+TEST_MILESTONE_FULLNAME = 'TEST MILESTONE #1 FULL NAME'
 
 class Project_View_Test_Client(TestCase):
     def test_Project_All_Public(self):
@@ -127,3 +129,29 @@ class Project_View_Test_Client(TestCase):
         # visit task history page
         response = c.get( reverse('project:task_history', args = (test_task_1.id,) ) )
         self.assertContains(response, TEST_TASK_FULLNAME, status_code=200 )
+
+        # Milestones
+
+        self.assertEqual( Milestone.objects.count(), 0 )
+
+        # create first milestone
+        response = c.post( reverse('project:milestone_add', args = (test_project_1.id,) ), { 'fullname' : TEST_MILESTONE_FULLNAME, } )
+        # we are redirected to new milestone page
+        self.assertEqual( response.status_code, 302 )
+        self.assertEqual( Milestone.objects.count(), 1 )
+
+        test_ms_1 = Milestone.objects.get(id=1)
+        # check url
+        self.assertEqual( response.url, test_ms_1.get_absolute_url() )
+        # check name
+        self.assertEqual( test_ms_1.fullname, TEST_MILESTONE_FULLNAME )
+        # check milestone is in project
+        self.assertEqual( test_ms_1.project, test_project_1 )
+
+        # visit milestone page
+        response = c.get( reverse('project:milestone_view', args = (test_ms_1.id,) ) )
+        self.assertContains(response, TEST_MILESTONE_FULLNAME, status_code=200 )
+        # visit milestone history page
+        response = c.get( reverse('project:milestone_history', args = (test_ms_1.id,) ) )
+        self.assertContains(response, TEST_MILESTONE_FULLNAME, status_code=200 )
+
