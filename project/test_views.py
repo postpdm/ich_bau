@@ -4,7 +4,7 @@ from django.test import TestCase, Client
 
 from django.core.urlresolvers import reverse
 
-from .models import Project
+from .models import Project, Task
 
 TEST_USER_NAME  = 'test_user'
 TEST_USER_EMAIL = 'test_user@nothere.com'
@@ -13,6 +13,8 @@ TEST_USER_PW    = 'test_user_pw'
 TEST_PROJECT_FULLNAME = 'TEST PROJECT #1 FULL NAME'
 TEST_PROJECT_DESCRIPTION_1 = 'First description'
 TEST_PROJECT_DESCRIPTION_2 = 'Second description'
+
+TEST_TASK_FULLNAME = 'TEST TASK #1 FULL NAME'
 
 class Project_View_Test_Client(TestCase):
     def test_Project_All_Public(self):
@@ -92,3 +94,15 @@ class Project_View_Test_Client(TestCase):
         response = c.get( reverse('project:search_public'), { 'fullname' : TEST_PROJECT_FULLNAME, 'description' : TEST_PROJECT_DESCRIPTION_2 } )
         self.assertContains(response, '1 found.', status_code=200 )
 
+        response = c.post( reverse('project:task_add', args = (1,) ), { 'fullname' : TEST_TASK_FULLNAME, } )
+        # we are redirected to new task page
+        self.assertEqual( response.status_code, 302 )
+
+        self.assertEqual( Task.objects.count(), 1 )
+        test_task_1 = Task.objects.get(id=1)
+        self.assertEqual( response.url, test_task_1.get_absolute_url() )
+        self.assertEqual( test_task_1.fullname, TEST_TASK_FULLNAME )
+        self.assertEqual( test_task_1.project, test_project_1 )
+
+        response = c.get( reverse('project:task_view', args = (test_task_1.id,) ) )
+        self.assertContains(response, TEST_TASK_FULLNAME, status_code=200 )
