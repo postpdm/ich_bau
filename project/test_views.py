@@ -81,6 +81,18 @@ class Project_View_Test_Client(TestCase):
         response = c.get( reverse('project:project_view_milestones', args = (test_project_1.id,) ) )
         self.assertContains(response, TEST_PROJECT_FULLNAME, status_code=200 )
 
+        # check - project closed task list page is available
+        response = c.get( reverse('project:project_view_closed_tasks', args = (test_project_1.id,) ) )
+        self.assertContains(response, TEST_PROJECT_FULLNAME, status_code=200 )
+
+        # check - project search task list page is available
+        response = c.get( reverse('project:project_view_search_tasks', args = (test_project_1.id,) ) )
+        self.assertContains(response, TEST_PROJECT_FULLNAME, status_code=200 )
+
+        # check - project search view files page is available
+        response = c.get( reverse('project:project_view_files', args = (test_project_1.id,) ) )
+        self.assertContains(response, TEST_PROJECT_FULLNAME, status_code=200 )
+
         # check form posting from edit page - set new description
         response = c.post( reverse('project:project_edit', args = (test_project_1.id,)), { 'fullname' : TEST_PROJECT_FULLNAME, 'description' : TEST_PROJECT_DESCRIPTION_2, } )
         self.assertEqual(response.status_code, 302 )
@@ -94,15 +106,24 @@ class Project_View_Test_Client(TestCase):
         response = c.get( reverse('project:search_public'), { 'fullname' : TEST_PROJECT_FULLNAME, 'description' : TEST_PROJECT_DESCRIPTION_2 } )
         self.assertContains(response, '1 found.', status_code=200 )
 
+        # create first task
         response = c.post( reverse('project:task_add', args = (test_project_1.id,) ), { 'fullname' : TEST_TASK_FULLNAME, } )
         # we are redirected to new task page
         self.assertEqual( response.status_code, 302 )
 
         self.assertEqual( Task.objects.count(), 1 )
+        # get object
         test_task_1 = Task.objects.get(id=1)
+        # check url
         self.assertEqual( response.url, test_task_1.get_absolute_url() )
+        # check name
         self.assertEqual( test_task_1.fullname, TEST_TASK_FULLNAME )
+        # check task is in project
         self.assertEqual( test_task_1.project, test_project_1 )
 
+        # visit task page
         response = c.get( reverse('project:task_view', args = (test_task_1.id,) ) )
+        self.assertContains(response, TEST_TASK_FULLNAME, status_code=200 )
+        # visit task history page
+        response = c.get( reverse('project:task_history', args = (test_task_1.id,) ) )
         self.assertContains(response, TEST_TASK_FULLNAME, status_code=200 )
