@@ -70,3 +70,6 @@ class Project_View_Test_Client(TestCase):
 
         response = c.get( reverse('project:project_history', args = (1,) ) )
         self.assertContains(response, TEST_PROJECT_FULLNAME, status_code=200 )
+
+        response = c.get( reverse('project:project_view_milestones', args = (1,) ) )
+        self.assertContains(response, TEST_PROJECT_FULLNAME, status_code=200 )
