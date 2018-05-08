@@ -67,3 +67,6 @@ class Project_View_Test_Client(TestCase):
         # check - project page is available
         response = c.get( reverse('project:project_view', args = (1,) ) )
         self.assertContains(response, TEST_PROJECT_FULLNAME, status_code=200 )
+
+        response = c.get( reverse('project:project_history', args = (1,) ) )
+        self.assertContains(response, TEST_PROJECT_FULLNAME, status_code=200 )
