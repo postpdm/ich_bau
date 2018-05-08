@@ -11,6 +11,8 @@ TEST_USER_EMAIL = 'test_user@nothere.com'
 TEST_USER_PW    = 'test_user_pw'
 
 TEST_PROJECT_FULLNAME = 'TEST PROJECT #1 FULL NAME'
+TEST_PROJECT_DESCRIPTION_1 = ''
+TEST_PROJECT_DESCRIPTION_2 = 'New description'
 
 class Project_View_Test_Client(TestCase):
     def test_Project_All_Public(self):
@@ -46,7 +48,7 @@ class Project_View_Test_Client(TestCase):
         self.assertTrue( res )
 
         # create new project with post
-        response = c.post( reverse('project:project_add'), { 'fullname' : TEST_PROJECT_FULLNAME, 'description' : '', } )
+        response = c.post( reverse('project:project_add'), { 'fullname' : TEST_PROJECT_FULLNAME, 'description' : TEST_PROJECT_DESCRIPTION_1, } )
         # we are redirected to new project page
         self.assertEqual( response.status_code, 302 )
 
@@ -55,6 +57,7 @@ class Project_View_Test_Client(TestCase):
         test_project_1 = Project.objects.get(id=1)
         self.assertEqual( response.url, test_project_1.get_absolute_url() )
         self.assertEqual( test_project_1.fullname, TEST_PROJECT_FULLNAME )
+        self.assertEqual( test_project_1.description, TEST_PROJECT_DESCRIPTION_1 )
         self.assertTrue( test_project_1.is_member( test_user ) )
 
         # check - new project is available in search page
@@ -68,8 +71,17 @@ class Project_View_Test_Client(TestCase):
         response = c.get( reverse('project:project_view', args = (1,) ) )
         self.assertContains(response, TEST_PROJECT_FULLNAME, status_code=200 )
 
+        # check - project history page is available
         response = c.get( reverse('project:project_history', args = (1,) ) )
         self.assertContains(response, TEST_PROJECT_FULLNAME, status_code=200 )
 
+        # check - project milestone list page is available
         response = c.get( reverse('project:project_view_milestones', args = (1,) ) )
         self.assertContains(response, TEST_PROJECT_FULLNAME, status_code=200 )
+
+        # check form posting from edit page - set new description
+        response = c.post( reverse('project:project_edit', args = (1,)), { 'fullname' : TEST_PROJECT_FULLNAME, 'description' : TEST_PROJECT_DESCRIPTION_2, } )
+        self.assertEqual(response.status_code, 302 )
+        test_project_1.refresh_from_db()
+
+        self.assertEqual( test_project_1.description, TEST_PROJECT_DESCRIPTION_2 )
