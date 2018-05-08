@@ -70,19 +70,19 @@ class Project_View_Test_Client(TestCase):
         self.assertContains(response, '0 found.', status_code=200 )
 
         # check - project page is available
-        response = c.get( reverse('project:project_view', args = (1,) ) )
+        response = c.get( reverse('project:project_view', args = (test_project_1.id,) ) )
         self.assertContains(response, TEST_PROJECT_FULLNAME, status_code=200 )
 
         # check - project history page is available
-        response = c.get( reverse('project:project_history', args = (1,) ) )
+        response = c.get( reverse('project:project_history', args = (test_project_1.id,) ) )
         self.assertContains(response, TEST_PROJECT_FULLNAME, status_code=200 )
 
         # check - project milestone list page is available
-        response = c.get( reverse('project:project_view_milestones', args = (1,) ) )
+        response = c.get( reverse('project:project_view_milestones', args = (test_project_1.id,) ) )
         self.assertContains(response, TEST_PROJECT_FULLNAME, status_code=200 )
 
         # check form posting from edit page - set new description
-        response = c.post( reverse('project:project_edit', args = (1,)), { 'fullname' : TEST_PROJECT_FULLNAME, 'description' : TEST_PROJECT_DESCRIPTION_2, } )
+        response = c.post( reverse('project:project_edit', args = (test_project_1.id,)), { 'fullname' : TEST_PROJECT_FULLNAME, 'description' : TEST_PROJECT_DESCRIPTION_2, } )
         self.assertEqual(response.status_code, 302 )
         # refresh object from db
         test_project_1.refresh_from_db()
@@ -94,7 +94,7 @@ class Project_View_Test_Client(TestCase):
         response = c.get( reverse('project:search_public'), { 'fullname' : TEST_PROJECT_FULLNAME, 'description' : TEST_PROJECT_DESCRIPTION_2 } )
         self.assertContains(response, '1 found.', status_code=200 )
 
-        response = c.post( reverse('project:task_add', args = (1,) ), { 'fullname' : TEST_TASK_FULLNAME, } )
+        response = c.post( reverse('project:task_add', args = (test_project_1.id,) ), { 'fullname' : TEST_TASK_FULLNAME, } )
         # we are redirected to new task page
         self.assertEqual( response.status_code, 302 )
 
