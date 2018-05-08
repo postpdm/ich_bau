@@ -75,8 +75,12 @@ class Project_View_Test_Client(TestCase):
         response = c.get( reverse('project:project_view', args = (test_project_1.id,) ) )
         self.assertContains(response, TEST_PROJECT_FULLNAME, status_code=200 )
 
+        # check - project unknown is 404
+        response = c.get( reverse('project:project_view', args = (9999999999,) ) )
+        self.assertEqual(response.status_code, 404 )
+
         # check - project unknown page is 404
-        response = c.get( reverse('project:project_view', args = (test_project_1.id,) ) + 'page_unknown' )
+        response = c.get( reverse('project:project_view', args = (test_project_1.id,) ) + '/page_unknown' )
         self.assertEqual(response.status_code, 404 )
 
         # check - project history page is available
