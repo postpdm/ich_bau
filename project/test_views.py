@@ -11,8 +11,8 @@ TEST_USER_EMAIL = 'test_user@nothere.com'
 TEST_USER_PW    = 'test_user_pw'
 
 TEST_PROJECT_FULLNAME = 'TEST PROJECT #1 FULL NAME'
-TEST_PROJECT_DESCRIPTION_1 = ''
-TEST_PROJECT_DESCRIPTION_2 = 'New description'
+TEST_PROJECT_DESCRIPTION_1 = 'First description'
+TEST_PROJECT_DESCRIPTION_2 = 'Second description'
 
 class Project_View_Test_Client(TestCase):
     def test_Project_All_Public(self):
@@ -61,7 +61,7 @@ class Project_View_Test_Client(TestCase):
         self.assertTrue( test_project_1.is_member( test_user ) )
 
         # check - new project is available in search page
-        response = c.get( reverse('project:search_public'), { 'fullname' : TEST_PROJECT_FULLNAME } )
+        response = c.get( reverse('project:search_public'), { 'fullname' : TEST_PROJECT_FULLNAME, 'description' : TEST_PROJECT_DESCRIPTION_1, } )
         self.assertContains(response, '1 found.', status_code=200 )
 
         response = c.get( reverse('project:search_public'), { 'fullname' : '-no-', 'description' : '-no-' } )
@@ -82,6 +82,13 @@ class Project_View_Test_Client(TestCase):
         # check form posting from edit page - set new description
         response = c.post( reverse('project:project_edit', args = (1,)), { 'fullname' : TEST_PROJECT_FULLNAME, 'description' : TEST_PROJECT_DESCRIPTION_2, } )
         self.assertEqual(response.status_code, 302 )
+        # refresh object from db
         test_project_1.refresh_from_db()
-
+        # is description actually changed?
         self.assertEqual( test_project_1.description, TEST_PROJECT_DESCRIPTION_2 )
+
+        response = c.get( reverse('project:search_public'), { 'fullname' : TEST_PROJECT_FULLNAME, 'description' : TEST_PROJECT_DESCRIPTION_1 } )
+        self.assertContains(response, '0 found.', status_code=200 )
+        response = c.get( reverse('project:search_public'), { 'fullname' : TEST_PROJECT_FULLNAME, 'description' : TEST_PROJECT_DESCRIPTION_2 } )
+        self.assertContains(response, '1 found.', status_code=200 )
+
