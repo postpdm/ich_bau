@@ -103,6 +103,20 @@ class Project_View_Test_Client(TestCase):
         response = c.get( reverse('project:project_view_files', args = (test_project_1.id,) ) )
         self.assertContains(response, TEST_PROJECT_FULLNAME, status_code=200 )
 
+        # check - try to create the repo for this project
+        response = c.get( reverse('project:project_create_repo', args = (test_project_1.id,) ),  follow=True )
+        self.assertRedirects(response, reverse('project:project_view_files', args = (test_project_1.id,) ) )
+
+        self.assertContains(response, TEST_PROJECT_FULLNAME, status_code=200 )
+        self.assertContains(response, "You successfully create the repo for this project!", status_code=200 )
+
+        # check - try to create the repo for this project AGAIN - should print "already have!"
+        response = c.get( reverse('project:project_create_repo', args = (test_project_1.id,) ),  follow=True )
+        self.assertRedirects(response, reverse('project:project_view_files', args = (test_project_1.id,) ) )
+
+        self.assertContains(response, TEST_PROJECT_FULLNAME, status_code=200 )
+        self.assertContains(response, "Project already have a repo!", status_code=200 )
+
         # check form posting from edit page - set new description
         response = c.post( reverse('project:project_edit', args = (test_project_1.id,)), { 'fullname' : TEST_PROJECT_FULLNAME, 'description' : TEST_PROJECT_DESCRIPTION_2, } )
         self.assertEqual(response.status_code, 302 )
