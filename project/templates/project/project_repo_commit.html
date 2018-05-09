@@ -1,0 +1,17 @@
+{{project}}
+<hr>
+{{rev_id}}
+<hr>
+{{rev_info}}
+<hr>
+
+<ol>
+date-{{ rev_info.date }}<br>
+msg-{{ rev_info.msg}}<br>
+revision-{{ rev_info.revision}}<br>
+author-{{ rev_info.author}}<br>
+changelist{{ rev_info.changelist}}<br>
+{%for cl in rev_info.changelist%}
+{{cl}}<br>
+{%endfor%}
+

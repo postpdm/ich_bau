@@ -48,6 +48,22 @@ def Get_Info_For_Repo_Name( arg_repo_name, username=None, password=None, arg_ech
     else:
         return ( VCS_REPO_FAIL_NOT_CONFIGURED, None )
 
+#return (code,dict)
+# rev_num=None mean all
+def Get_Log_For_Repo_Name( arg_repo_name, username=None, password=None, arg_echo = False, rev_num=None ):
+    if VCS_Configured():
+        try:
+            r = svn.remote.RemoteClient( REPO_BASE_URL + arg_repo_name, username, password )
+            # log() is a lazy generator, it doesn't fetch data immediately. We need to convert it to real list to gain the connection error if exist
+            return ( VCS_REPO_SUCCESS, list( r.log_default(revision_from=rev_num, revision_to=rev_num, changelist=True) ) )
+
+        except Exception as e:
+            if arg_echo:
+                print( e )
+            return ( VCS_REPO_FAIL_CALL, None )
+    else:
+        return ( VCS_REPO_FAIL_NOT_CONFIGURED, None )
+
 import configparser
 
 def Write_Ini_for_CFG( arg_fn, arg_section_name, arg_dict ):

@@ -229,7 +229,7 @@ def get_project_view(request, project_id, arg_task_filter = TASK_FILTER_OPEN, ar
     if arg_page == PROJECT_PAGE_FILES:
         if VCS_Configured():
             repo_server_is_configured = True
-            # отночительный путь - какую папку смотрим
+            # относительный путь - какую папку смотрим
             repo_rel_path = request.GET.get( 'path', '' )
 
             if project.have_repo():
@@ -290,6 +290,33 @@ def get_project_view(request, project_id, arg_task_filter = TASK_FILTER_OPEN, ar
 
     # Рендерить ответ
     return render( request, 'project/project.html', context_dict )
+
+def project_view_file_commit_view(request, project_id, rev_id):
+    context = RequestContext(request)
+    project = get_object_or_404( Project, pk=project_id)
+
+
+    if VCS_Configured():
+        repo_server_is_configured = True
+
+        if project.have_repo():
+            s = project.repo_name
+            res_info = Get_Log_For_Repo_Name( s, SVN_ADMIN_USER, SVN_ADMIN_PASSWORD, rev_num=rev_id )
+            if res_info[0] == VCS_REPO_SUCCESS:
+                try:
+                    rev_info = res_info[1][0]
+                except:
+                    rev_info = None                
+            else:
+                messages.error( request, "Can't connect to repo!")
+    else:
+        messages.error( request, "Repo server is not configured!")
+
+    context_dict = { 'project': project,
+                     'rev_id' : rev_id,
+                     'rev_info' : rev_info,
+    }
+    return render( request, 'project/project_repo_commit.html', context_dict )
 
 class MilestoneCreateView(LoginRequiredMixin, CreateView):
 

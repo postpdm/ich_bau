@@ -8,7 +8,7 @@
 <p>See for <code>YOUR_REPO_PW</code> in your user profile.</p>
 <p>You need to be a project member to checkout the repo.</p>
 
-<h3>File list{% if repo_rel_path%} (<a href="{{project.get_absolute_url}}files/">root</a>/{{repo_rel_path}}){%endif%}:</h3>
+<h3>File list{% if repo_rel_path%} (<a href="{% url 'project:project_view_files' project_id=project.pk %}">root</a>/{{repo_rel_path}}){%endif%}:</h3>
 
 <table class="table table-striped">
 <thead>
@@ -28,12 +28,12 @@
 </td>
 <td>{%if not rl.is_directory%}{{rl.size}}{%endif%}</td>
 <td>{{rl.date}}</td>
-<td>#{{rl.commit_revision}} ({{rl.author}})</td>
+<td><a href="{% url 'project:project_view_file_commit_view' project_id=project.id rev_id=rl.commit_revision %}">#{{rl.commit_revision}}</a> ({{rl.author}})</td>
 </tr>
 {% endfor %}
 </table>
 
-<p>Last commit # {{repo_info.commit_revision}} from <strong>{{repo_info.commit_author}}</strong> at {{repo_info.commit_date}}</p>
+<p>Last commit <a href="{% url 'project:project_view_file_commit_view' project_id=project.id rev_id=repo_info.commit_revision %}">#{{repo_info.commit_revision}}</a> from <strong>{{repo_info.commit_author}}</strong> at {{repo_info.commit_date}}</p>
 
 {% else %}
 
