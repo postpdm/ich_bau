@@ -1,5 +1,5 @@
 from django.core.urlresolvers import reverse
-from django.views.generic import UpdateView, DetailView, ListView
+from django.views.generic import CreateView, UpdateView, DetailView, ListView
 
 from django.contrib import messages
 
@@ -8,10 +8,11 @@ from django.template import RequestContext
 
 from account.mixins import LoginRequiredMixin
 
-from .forms import ProfileForm
+from .forms import ProfileForm, ContactProfileForm, Profile_AffiliationForm
 from .models import *
 from account.decorators import login_required
 from reversion.models import Version
+from django.http import HttpResponseRedirect, Http404
 
 class ProfileEditView(LoginRequiredMixin, UpdateView):
 
@@ -44,8 +45,8 @@ class ProfileDetailView(DetailView):
             from project.repo_wrapper import Decrypt_Repo_User_PW
             context['user_repo_pw'] = Decrypt_Repo_User_PW( current_profile.repo_pw )
 
-        context['main_profiles'] = Profile_Affiliation.objects.filter( sub_profile = current_profile )
-        context['sub_profiles'] =  Profile_Affiliation.objects.filter( main_profile = current_profile )
+        context['main_profiles'] = current_profile.main_profiles()
+        context['sub_profiles'] =  current_profile.sub_profiles()
         if ( current_profile.profile_type == PROFILE_TYPE_USER ) and ( not( current_profile.user is None ) ):
             context['controlled_profiles'] = Profile_Control_User.objects.filter( control_user = current_profile.user )
         context['controlled_by_user'] = Profile_Control_User.objects.filter( controlled_profile = current_profile )
@@ -60,6 +61,33 @@ class ProfileListView(ListView):
 
     model = Profile
     context_object_name = "profiles"
+
+class ProfileCreateView(LoginRequiredMixin, CreateView):
+    model = Profile
+    form_class = ContactProfileForm
+
+class ProfileUpdateView(LoginRequiredMixin, UpdateView):
+    model = Profile
+    form_class = ContactProfileForm
+
+class ProfileCreateSubView(LoginRequiredMixin, CreateView):
+    model = Profile_Affiliation
+    form_class = Profile_AffiliationForm
+
+    def get_initial(self):
+        try:
+            self.mp = get_object_or_404( Profile, pk = self.kwargs['pk'])
+            return { 'main_profile': self.mp, }
+        except:
+            Http404()
+
+    def form_valid(self, form):
+        self.object = form.save(commit=False)
+        self.object.main_profile = self.mp
+        self.object.save()
+
+        messages.success(self.request, "You successfully add the affiliation!")
+        return HttpResponseRedirect( self.object.main_profile.get_absolute_url() )
 
 from .models import Notification, GetUserNoticationsQ
 

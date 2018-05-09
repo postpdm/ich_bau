@@ -1,0 +1,46 @@
+{% extends 'site_base.html' %}
+
+{% load bootstrap %}
+
+{% block body_class %}affiliation{% endblock %}
+
+{% block head_title %}
+{% if profile_affiliation.pk %}
+Edit
+{% else %}
+Add
+{% endif %}
+
+{% endblock %}
+
+
+{% block body %}
+<div class="row">
+<div class="col-md-9">
+
+{{ form.media }}
+
+        <form class="span6" id="milestone_form" method="post" action="" enctype="multipart/form-data">
+
+                {% if profile_affiliation.pk %}
+                    <legend>Edit</legend>
+                {% else %}
+                    <legend>Add</legend>
+                {% endif %}
+
+            {% csrf_token %}
+            {% for hidden in form.hidden_fields %}
+                {{ hidden }}
+            {% endfor %}
+
+            {% for field in form.visible_fields %}
+
+                {{ field|bootstrap }}
+            {% endfor %}
+
+
+            <button class="btn btn-primary" type="submit" name="submit">Save</button>
+        </form>
+</div>
+</div>
+{% endblock %}

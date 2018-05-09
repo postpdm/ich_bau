@@ -2,29 +2,38 @@ import re
 
 from django import forms
 
-from .models import Profile
+from .models import Profile, Profile_Affiliation, PROFILE_TYPE_CHOICES_EDITOR
 
-class ProfileForm(forms.ModelForm):
-
-    class Meta:
-        model = Profile
-        fields = [
+form_fields = [
             "name",
             "avatar",
             "description",
             "location",
             "website",
-            "twitter_username",
         ]
 
-    def clean_twitter_username(self):
-        value = self.cleaned_data["twitter_username"]
-        value = value.strip()
-        if not value:
-            return value
-        if value.startswith("@"):
-            value = value[1:]
-        m = re.match(r"^[a-zA-Z0-9_]{1,20}$", value)
-        if not m:
-            raise forms.ValidationError("invalid Twitter username")
-        return value
+class ProfileForm(forms.ModelForm):
+
+    class Meta:
+        model = Profile
+        fields = form_fields
+
+class ContactProfileForm(ProfileForm):
+    profile_type = forms.ChoiceField(required=True, choices=PROFILE_TYPE_CHOICES_EDITOR)
+    class Meta:
+        model = Profile
+        fields = [ "profile_type", ] + form_fields
+
+class Profile_AffiliationForm(forms.ModelForm):
+    class Meta:
+        model = Profile_Affiliation
+        fields = [ 'sub_profile' , ]
+
+    def __init__(self, *args, **kwargs):
+        super(Profile_AffiliationForm, self).__init__(*args, **kwargs)
+        # форма работает в режиме создания (смотрим 'initial')
+        mp = kwargs.pop('initial', None)['main_profile']
+
+        # отображать только не привязанные
+        if mp:
+            self.fields['sub_profile'].queryset = mp.list_of_avail_for_affiliate()

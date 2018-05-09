@@ -5,7 +5,7 @@
 {% block body %}
     <div class="row">
         <div class="col-md-12">
-        
+
 <h1>Projects <a class="btn btn-default" href="/project/project_add/"><i class="fa fa-plus"></i>Create project</a></h1>
 
 <ul class="nav nav-tabs">
@@ -16,11 +16,11 @@
 
 <p></p>
 
-{% if filter_type == 'search_public' %} 
+{% if filter_type == 'search_public' %}
 {% load bootstrap %}
     <div class="row">
         <div class="col-md-5">
-        
+
     <form action="" method="get">
         {{ filter.form|bootstrap }}
         <input type="submit" class="btn btn-info" />
@@ -31,7 +31,8 @@
     {% for obj in filter.qs %}
         <a href="{{ obj.get_absolute_url }}">{{ obj.fullname }}</a><br />
     {% endfor %}
-    
+    <p>{{filter.qs.count}} found.</p>
+
 {% else %}
 
 {% if filter_type == '' and not request.user.is_authenticated %}
@@ -51,7 +52,7 @@ Please, log in to see your projects.
 {% else %}
 {% include "project/task_list.html" with table_mode='index' %}
 {% endif %}
-        
+
         </div>
     </div>
 

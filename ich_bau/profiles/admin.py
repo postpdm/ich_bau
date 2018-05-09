@@ -11,7 +11,6 @@ admin.site.register(
         "avatar",
         "location",
         "website",
-        "twitter_username",
         "created_at",
     ],
     list_filter=[
@@ -23,7 +22,6 @@ admin.site.register(
         "name",
         "location",
         "website",
-        "twitter_username",
     ]
 )
 
