@@ -8,7 +8,7 @@
 <p>See for <code>YOUR_REPO_PW</code> in your user profile.</p>
 <p>You need to be a project member to checkout the repo.</p>
 
-<h3>File list{% if repo_rel_path%} ({{repo_rel_path}}){%endif%}:</h3>
+<h3>File list{% if repo_rel_path%} (<a href="{{project.get_absolute_url}}files/">root</a>{%endif%}/{{repo_rel_path}}):</h3>
 <table class="table table-striped">
 <thead>
 <tr>
