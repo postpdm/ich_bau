@@ -295,20 +295,23 @@ def project_view_file_commit_view(request, project_id, rev_id):
     context = RequestContext(request)
     project = get_object_or_404( Project, pk=project_id)
 
+    rev_info = None
 
     if VCS_Configured():
         repo_server_is_configured = True
 
         if project.have_repo():
             s = project.repo_name
-            res_info = Get_Log_For_Repo_Name( s, SVN_ADMIN_USER, SVN_ADMIN_PASSWORD, rev_num=rev_id )
-            if res_info[0] == VCS_REPO_SUCCESS:
-                try:
+            try:
+                res_info = Get_Log_For_Repo_Name( s, SVN_ADMIN_USER, SVN_ADMIN_PASSWORD, rev_num=rev_id )
+                if res_info[0] == VCS_REPO_SUCCESS:
                     rev_info = res_info[1][0]
-                except:
-                    rev_info = None                
-            else:
-                messages.error( request, "Can't connect to repo!")
+                else:
+                    messages.error( request, "Wrong revision id or some error!")
+            except:
+                messages.error( request, "Wrong revision id or some error!")
+        else:
+            messages.error( request, "Can't connect to repo!")
     else:
         messages.error( request, "Repo server is not configured!")
 
