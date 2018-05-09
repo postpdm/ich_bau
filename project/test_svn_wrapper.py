@@ -8,6 +8,10 @@ class SVN_Wrapper_Abstract_Test(TestCase):
         res = Get_Info_For_Repo_Name( 'some wrong repo' )
         self.assertEqual( res[0], VCS_REPO_FAIL_CALL )
 
+    def test_Get_Log(self):
+        res = Get_Log_For_Repo_Name( 'some wrong repo' )
+        self.assertEqual( res[0], VCS_REPO_FAIL_CALL )
+
     def test_Get_List(self):
         res = Get_List_For_Repo_Name( 'some wrong repo', 'some wrong path' )
         self.assertEqual( res[0], VCS_REPO_FAIL_CALL )
