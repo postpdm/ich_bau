@@ -10,6 +10,13 @@ Creation of simple task and project management system for Computer Aided Design 
 
 [![Build Status](https://travis-ci.org/postpdm/ich_bau.svg?branch=SVN_basic)](https://travis-ci.org/postpdm/ich_bau)
 
+
+
+[![](https://img.shields.io/github/issues-pr/postpdm/ich_bau.svg)](https://github.com/postpdm/ich_bau/pulls)
+[![](https://img.shields.io/github/issues-pr-closed/postpdm/ich_bau.svg)](https://github.com/postpdm/ich_bau/pulls?q=is%3Apr+is%3Aclosed)
+
+
+
 ## Main goals
 
 * Simple but usefull planning and task flow
