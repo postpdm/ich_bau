@@ -1,17 +1,17 @@
-Django==1.11.5
+Django==2.0.5
 django-user-accounts==2.0.3
-django-bootstrap-form==3.3
+django-bootstrap-form==3.4
 Pinax==0.9a2
 pinax-theme-bootstrap==8.0.1
-pinax-eventlog==1.1.2
+pinax-eventlog==2.0.3
 
-django-filter==1.0.4
-django-reversion==2.0.10
+django-filter==1.1.0
+django-reversion==2.0.13
 
 git+https://github.com/yn-coder/django-bootstrap3-datetimepicker.git
 
-easy-thumbnails==2.4.1
-Markdown==2.6.9
+easy-thumbnails==2.5
+Markdown==2.6.11
 
 svn==0.3.45
 

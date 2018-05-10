@@ -1,4 +1,4 @@
-from django.core.urlresolvers import reverse
+from django.urls import reverse_lazy
 from django.views.generic import CreateView, UpdateView, DetailView, ListView
 
 from django.contrib import messages

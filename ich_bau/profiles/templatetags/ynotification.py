@@ -13,7 +13,7 @@ def unread_notification_count(context):
 
     request = context['request']
     u = request.user
-    if ( u is None ) or not ( u.is_authenticated() ):
+    if ( u is None ) or not ( u.is_authenticated ):
         return ''
 
     m_count = GetUserNoticationsQ(u, True).count()

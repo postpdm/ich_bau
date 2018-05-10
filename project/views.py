@@ -9,7 +9,7 @@ from django.utils import timezone
 
 from django.shortcuts import get_object_or_404, render
 from django.http import HttpResponseRedirect, Http404
-from django.core.urlresolvers import reverse
+from django.urls import reverse_lazy
 from django.views import generic
 from django.contrib import messages
 
@@ -36,7 +36,7 @@ def get_index( request, arg_page = PROJECT_FILTER_MINE ):
     context = RequestContext(request)
     if arg_page == PROJECT_FILTER_MINE:
         my_task = None
-        if request.user.is_authenticated():
+        if request.user.is_authenticated:
             my_task = Task.objects.filter( state = TASK_STATE_NEW, assignee__user = request.user )
         context_dict = { 'projects': GetMemberedProjectList(request.user),
                          'filter_type' : '',
@@ -467,7 +467,7 @@ def team_accept(request, member_id):
 def member_want_join(request, project_id):
     #определить текущего юзера
     curr_user = request.user
-    if curr_user.is_authenticated():
+    if curr_user.is_authenticated:
         # определить проект
         if not ( project_id is None ):
             project = get_object_or_404( Project, pk = project_id )
@@ -592,7 +592,7 @@ def task_view(request, task_id):
                     user_can_admin = True
                     user_can_comment = True
                 else:
-                    if ual == PROJECT_ACCESS_VIEW and task.get_opened() and request.user.is_authenticated():
+                    if ual == PROJECT_ACCESS_VIEW and task.get_opened() and request.user.is_authenticated:
                         user_can_comment = True
 
         comments = TaskComment.objects.filter( parenttask = task )
@@ -601,7 +601,7 @@ def task_view(request, task_id):
         task_checklist = TaskCheckList.objects.filter( parenttask = task )
 
         # доступ списку коментов открыт, а форму показывать не надо
-        if request.user.is_authenticated():
+        if request.user.is_authenticated:
             if request.method == "POST":
 
                 if 'submit' in request.POST:

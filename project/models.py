@@ -69,13 +69,13 @@ class Project(BaseStampedModel):
         return q
 
     def is_member( self, arg_user ):
-        if ( arg_user is None ) or ( not arg_user.is_authenticated() ):
+        if ( arg_user is None ) or ( not arg_user.is_authenticated ):
             return False # аноним никогда не участник
         else:
             return self.GetFullMemberProfiles().filter( user = arg_user ).exists()
 
     def is_admin( self, arg_user ):
-        if ( arg_user is None ) or ( not arg_user.is_authenticated() ):
+        if ( arg_user is None ) or ( not arg_user.is_authenticated ):
             return False # аноним никогда не админ
         else:
             return self.GetFullMemberAdminList().filter( member_profile__user = arg_user ).exists()
@@ -95,12 +95,12 @@ class Project(BaseStampedModel):
 
     # может ли юзер подать заявку на включение
     def can_join( self, arg_user ):
-        return ( not self.private_flag ) and ( arg_user.is_authenticated() ) and ( not self.GetMemberList().filter( member_profile__user = arg_user ).exists() )
+        return ( not self.private_flag ) and ( arg_user.is_authenticated ) and ( not self.GetMemberList().filter( member_profile__user = arg_user ).exists() )
 
     def user_access_level( self, arg_user ):
         member_level = None
         # если пользователь не авторизован, то доступ только к открытым проектам и только на просмотр
-        if ( arg_user is None ) or ( not arg_user.is_authenticated() ):
+        if ( arg_user is None ) or ( not arg_user.is_authenticated ):
             if self.private_flag:
                 return PROJECT_ACCESS_NONE
             else:
@@ -164,8 +164,8 @@ class Project(BaseStampedModel):
             Add_User_to_Repo( self.repo_name, user_dict )
 
 class Member(BaseStampedModel):
-    project = models.ForeignKey(Project, blank=False, null=False )
-    member_profile = models.ForeignKey( Profile, blank=False, null=False, related_name = "member_profile" )
+    project = models.ForeignKey(Project, on_delete=models.PROTECT, blank=False, null=False )
+    member_profile = models.ForeignKey( Profile, on_delete=models.PROTECT, blank=False, null=False, related_name = "member_profile" )
     admin_flag=models.BooleanField(blank=True, default=False, verbose_name = 'Admin')
     # флаг подтверждения со стороны админа проекта
     team_accept = models.DateTimeField( blank=True, null=True )
@@ -228,14 +228,14 @@ def GetAllPublicProjectList( ):
 
 def GetMemberedProjectList( arg_user ):
     # если он не авторизован, то и членства ни в одном проекте нет
-    if ( arg_user is None ) or ( not arg_user.is_authenticated() ):
+    if ( arg_user is None ) or ( not arg_user.is_authenticated ):
         return { }
     else:
         return Project.objects.filter( member__member_profile__user = arg_user ).order_by('-active_flag')
 
 @reversion.register()
 class Milestone(BaseStampedModel):
-    project = models.ForeignKey(Project, blank=False, null=False )
+    project = models.ForeignKey(Project, on_delete=models.PROTECT, blank=False, null=False )
     fullname = models.CharField(max_length=255, verbose_name = 'Full name!', blank=False, null=False )
     planned_at = models.DateTimeField( blank=True, null=True )
     finished_at = models.DateTimeField( blank=True, null=True )
@@ -278,17 +278,17 @@ TASK_STATE_LIST_CHOICES = (
 
 @reversion.register()
 class Task(BaseStampedModel):
-    project = models.ForeignKey(Project, blank=False, null=False )
+    project = models.ForeignKey(Project, on_delete=models.PROTECT, blank=False, null=False )
     fullname = models.CharField(max_length=255, verbose_name = 'Full name!' )
     description = models.TextField(blank=True, null=True)
     # была мысль, что applicant - это тикет в Servicedesk от определенного клиента. Но если тикеты в SD будут отдельно, то достаточно и holder
     # applicant = models.ForeignKey( Profile, blank=True, null=True, related_name = "Applicant" )
-    assignee = models.ForeignKey( Profile, blank=True, null=True, related_name = "Assignee" )
-    holder = models.ForeignKey(Profile, blank=True, null=True, related_name = "Holder" )
+    assignee = models.ForeignKey( Profile, on_delete=models.PROTECT, blank=True, null=True, related_name = "Assignee" )
+    holder = models.ForeignKey(Profile, on_delete=models.PROTECT, blank=True, null=True, related_name = "Holder" )
 
     state = models.PositiveSmallIntegerField( blank=False, null=False, default = TASK_STATE_NEW )
     # 0 - новая задача
-    milestone = models.ForeignKey(Milestone, blank=True, null=True )
+    milestone = models.ForeignKey(Milestone, on_delete=models.PROTECT, blank=True, null=True )
     target_date_at = models.DateTimeField( blank=True, null=True )
     finished_fact_at = models.DateTimeField( blank=True, null=True )
     important = models.BooleanField(blank=True, default=False)
@@ -347,8 +347,8 @@ class Task(BaseStampedModel):
 
 # связи между задачами
 class TaskLink(models.Model):
-    maintask=models.ForeignKey( Task, related_name = 'main' )
-    subtask=models.ForeignKey( Task, related_name = 'sub' )
+    maintask=models.ForeignKey( Task, on_delete=models.PROTECT, related_name = 'main' )
+    subtask=models.ForeignKey( Task, on_delete=models.PROTECT, related_name = 'sub' )
     class Meta:
         unique_together = ("maintask", "subtask")
 
@@ -357,7 +357,7 @@ class TaskLink(models.Model):
 
 @reversion.register()
 class TaskComment(BaseStampedModel):
-    parenttask = models.ForeignKey( Task, null = False )
+    parenttask = models.ForeignKey( Task, on_delete=models.PROTECT, null = False )
     comment = models.TextField(blank=False, null=False)
 
     def get_absolute_url(self):
@@ -372,10 +372,10 @@ class TaskComment(BaseStampedModel):
 
 @reversion.register()
 class TaskCheckList(BaseStampedModel):
-    parenttask = models.ForeignKey( Task, null = False, related_name = 'parenttask'  )
+    parenttask = models.ForeignKey( Task, on_delete=models.PROTECT, null = False, related_name = 'parenttask'  )
     checkname = models.CharField( max_length=255, blank=False, null=False )
     check_flag=models.BooleanField(blank=True, default=False)
-    convertedtask = models.ForeignKey( Task, default = None, null = True, related_name = 'convertedtask' )
+    convertedtask = models.ForeignKey( Task, on_delete=models.PROTECT, default = None, null = True, related_name = 'convertedtask' )
 
     def get_absolute_url(self):
         return "/project/task_check/%i/" % self.id
