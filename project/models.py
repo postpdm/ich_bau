@@ -383,8 +383,12 @@ class TaskCheckList(BaseStampedModel):
     def __str__(self):
         return self.checkname
 
-def GetTaskUsers( arg_task, arg_exclude_user ):
-    return User.objects.filter( id__in = TaskComment.objects.values_list('created_user', flat = True).filter(parenttask = arg_task ).exclude( created_user = arg_exclude_user ).distinct() )
+def GetTaskCommentators( arg_task, arg_exclude_user = None ):
+    q = TaskComment.objects.values_list('created_user', flat = True).filter(parenttask = arg_task )
+    if arg_exclude_user:
+        q = q.exclude( created_user = arg_exclude_user )
+
+    return User.objects.filter( id__in = q.distinct() )
 
 def Send_Notifications_For_Task( arg_sender_user, arg_msg, arg_list, arg_url, arg_task_assignee, arg_task_holder ):
     for m in arg_list:
@@ -400,7 +404,7 @@ def Send_Notifications_For_Task( arg_sender_user, arg_msg, arg_list, arg_url, ar
 def task_post_save_Notifier_Composer(sender, instance, **kwargs):
     # задание изменилось - разослать уведомление всем участникам задания - кроме автора изменений
 
-    task_users = GetTaskUsers( instance, instance.modified_user )
+    task_users = GetTaskCommentators( instance, instance.modified_user )
 
     message_str = project_msg2json_str( MSG_NOTIFY_TYPE_PROJECT_TASK_CHANGED_ID, arg_project_name = instance.project.fullname, arg_task_name = instance.fullname )
 
@@ -421,7 +425,7 @@ def taskcomment_post_save_Notifier_Composer(sender, instance, **kwargs):
     else:
         msg_type = MSG_NOTIFY_TYPE_PROJECT_TASK_CHANGED_COMMENT_ID
     parent_task = instance.parenttask
-    task_users = GetTaskUsers( parent_task, instance.modified_user )
+    task_users = GetTaskCommentators( parent_task, instance.modified_user )
 
     message_str = project_msg2json_str( msg_type, arg_project_name = parent_task.project.fullname, arg_task_name = parent_task.fullname )
 
