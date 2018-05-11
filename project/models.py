@@ -384,7 +384,7 @@ class TaskCheckList(BaseStampedModel):
         return self.checkname
 
 def GetTaskUsers( arg_task, arg_exclude_user ):
-    return User.objects.filter( id = TaskComment.objects.values_list('created_user', flat = True).filter(parenttask = arg_task ).exclude( created_user = arg_exclude_user ).distinct() )
+    return User.objects.filter( id__in = TaskComment.objects.values_list('created_user', flat = True).filter(parenttask = arg_task ).exclude( created_user = arg_exclude_user ).distinct() )
 
 def Send_Notifications_For_Task( arg_sender_user, arg_msg, arg_list, arg_url, arg_task_assignee, arg_task_holder ):
     for m in arg_list:

@@ -95,7 +95,7 @@ class Project_Test(TestCase):
 
     def test_GetMemberedProjectList_Creator(self):
         self.assertEqual( GetMemberedProjectList( get_creator_user() ).count(), 2 )
-    
+
     def test_GetFullMemberAdminList_public(self):
         self.assertEqual( get_public_project().GetFullMemberAdminList().count(), 1 )
 
@@ -104,9 +104,17 @@ class Project_Test(TestCase):
 
     def test_member_User_can_join_private( self ):
         self.assertEqual( get_private_project().can_join( get_creator_user() ), False )
-        
+
     def test_not_member_User_can_join_public( self ):
         self.assertEqual( get_public_project().can_join( get_user_not_member() ), True )
 
     def test_not_member_User_can_join_private( self ):
-        self.assertEqual( get_private_project().can_join( get_user_not_member() ), False )        
+        self.assertEqual( get_private_project().can_join( get_user_not_member() ), False )
+
+    def test_Create_Task( self ):
+        test_project = get_public_project()
+        user_creator = get_creator_user()
+        task_1 = Task( project=test_project, fullname='1' )
+        task_1.set_change_user(user_creator)
+        task_1.save()
+        self.assertEqual( task_1.fullname, '1' )

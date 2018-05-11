@@ -94,7 +94,7 @@ class Profile(models.Model):
         return self.display_name
 
     def get_absolute_url(self):
-        return reverse('profiles_detail', kwargs={ 'pk': self.id} )
+        return reverse_lazy('profiles_detail', kwargs={ 'pk': self.id} )
 
     @property
     def display_name(self):
