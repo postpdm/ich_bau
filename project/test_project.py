@@ -151,7 +151,12 @@ class Project_Test(TestCase):
 
         test_task.set_task_state( get_creator_user(), TASK_STATE_CLOSED )
         self.assertEqual( test_task.state, TASK_STATE_CLOSED )
+        self.assertFalse( test_task.get_opened() )
+        self.assertEqual( test_task.get_state_name(), 'Closed' )
+
         self.assertIsNotNone( test_task.finished_fact_at )
         test_task.set_task_state( get_creator_user(), TASK_STATE_NEW )
         self.assertEqual( test_task.state, TASK_STATE_NEW )
         self.assertIsNone( test_task.finished_fact_at )
+        self.assertTrue( test_task.get_opened() )
+        self.assertEqual( test_task.get_state_name(), 'New' )
