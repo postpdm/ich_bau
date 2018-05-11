@@ -2,13 +2,20 @@
 
 Creation of simple task and project management system for Computer Aided Design and Drafting.
 
-[![Django Support](https://img.shields.io/badge/Django-1.11-blue.svg)](https://github.com/postpdm/ich_bau)
+[![Django Support](https://img.shields.io/badge/Django-2.05-blue.svg)](https://github.com/postpdm/ich_bau)
 
 [![Requirements Status](https://requires.io/github/postpdm/ich_bau/requirements.svg?branch=master)](https://requires.io/github/postpdm/ich_bau/requirements/?branch=master)
 
 [![Coverage Status](https://coveralls.io/repos/github/postpdm/ich_bau/badge.svg?branch=master)](https://coveralls.io/github/postpdm/ich_bau?branch=master)
 
 [![Build Status](https://travis-ci.org/postpdm/ich_bau.svg?branch=SVN_basic)](https://travis-ci.org/postpdm/ich_bau)
+
+
+
+[![](https://img.shields.io/github/issues-pr/postpdm/ich_bau.svg)](https://github.com/postpdm/ich_bau/pulls)
+[![](https://img.shields.io/github/issues-pr-closed/postpdm/ich_bau.svg)](https://github.com/postpdm/ich_bau/pulls?q=is%3Apr+is%3Aclosed)
+
+
 
 ## Main goals
 
