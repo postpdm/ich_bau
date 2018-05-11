@@ -2,7 +2,7 @@
 
 Creation of simple task and project management system for Computer Aided Design and Drafting.
 
-[![Django Support](https://img.shields.io/badge/Django-1.11-blue.svg)](https://github.com/postpdm/ich_bau)
+[![Django Support](https://img.shields.io/badge/Django-2.05-blue.svg)](https://github.com/postpdm/ich_bau)
 
 [![Requirements Status](https://requires.io/github/postpdm/ich_bau/requirements.svg?branch=master)](https://requires.io/github/postpdm/ich_bau/requirements/?branch=master)
 
