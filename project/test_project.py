@@ -138,4 +138,16 @@ class Project_Test(TestCase):
 
         self.assertEqual( GetTaskCommentators( test_task ).count(), 1 )
 
-        self.assertEqual( GetTaskCommentators( test_task, get_creator_user() ).count(), 0 )
+        self.assertEqual( GetTaskCommentators( test_task, user_creator ).count(), 0 )
+
+    def test_Task_Set_Wrong_State( self ):
+        test_task = create_task()
+
+        with self.assertRaises(Exception):
+            test_task.set_task_state( get_creator_user(), -10202 ) # some imposible state
+
+    def test_Task_Set_Closed_State( self ):
+        test_task = create_task()
+
+        test_task.set_task_state( get_creator_user(), TASK_STATE_CLOSED )
+        self.assertEqual( test_task.state, TASK_STATE_CLOSED )
