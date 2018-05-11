@@ -11,6 +11,8 @@ TEST_USER_NAME_CREATOR = 'test project creator'
 TEST_USER_NAME_NOT_MEMBER = 'user is not a member'
 TEST_PROJECT_PUBLIC_NAME = 'test project name public'
 TEST_PROJECT_PRIVATE_NAME = 'test project name private'
+TEST_PROJECT_TASK_FULLNAME        = 'Test project task'
+TEST_PROJECT_TASK_DESCRIPTION_MKDN = '**A**'
 
 def get_public_project():
     return Project.objects.get(fullname=TEST_PROJECT_PUBLIC_NAME)
@@ -23,6 +25,14 @@ def get_creator_user():
 
 def get_user_not_member():
     return User.objects.get( username = TEST_USER_NAME_NOT_MEMBER )
+
+def create_task():
+    test_project = get_public_project()
+    user_creator = get_creator_user()
+    task = Task( project=test_project, fullname=TEST_PROJECT_TASK_FULLNAME, description = TEST_PROJECT_TASK_DESCRIPTION_MKDN )
+    task.set_change_user(user_creator)
+    task.save()
+    return task
 
 class Project_Test(TestCase):
     def setUp(self):
@@ -95,7 +105,7 @@ class Project_Test(TestCase):
 
     def test_GetMemberedProjectList_Creator(self):
         self.assertEqual( GetMemberedProjectList( get_creator_user() ).count(), 2 )
-    
+
     def test_GetFullMemberAdminList_public(self):
         self.assertEqual( get_public_project().GetFullMemberAdminList().count(), 1 )
 
@@ -104,9 +114,54 @@ class Project_Test(TestCase):
 
     def test_member_User_can_join_private( self ):
         self.assertEqual( get_private_project().can_join( get_creator_user() ), False )
-        
+
     def test_not_member_User_can_join_public( self ):
         self.assertEqual( get_public_project().can_join( get_user_not_member() ), True )
 
     def test_not_member_User_can_join_private( self ):
-        self.assertEqual( get_private_project().can_join( get_user_not_member() ), False )        
+        self.assertEqual( get_private_project().can_join( get_user_not_member() ), False )
+
+    def test_Create_Task_check_fullname( self ):
+        test_task = create_task()
+        self.assertEqual( test_task.fullname, TEST_PROJECT_TASK_FULLNAME )
+
+    def test_Create_Task_check_state( self ):
+        test_task = create_task()
+        self.assertEqual( test_task.state, TASK_STATE_NEW )
+
+    def test_Create_Task_check_Markdown_Description( self ):
+        test_task = create_task()
+        self.assertEqual( test_task.description_html(), '<p><strong>A</strong></p>' )
+
+    def test_task_Add_Comment( self ):
+        test_task = create_task()
+        user_creator = get_creator_user()
+        c = TaskComment( parenttask = test_task, comment='123' )
+        c.set_change_user(user_creator)
+        c.save()
+        self.assertEqual( c.comment, '123' )
+
+        self.assertEqual( GetTaskCommentators( test_task ).count(), 1 )
+
+        self.assertEqual( GetTaskCommentators( test_task, user_creator ).count(), 0 )
+
+    def test_Task_Set_Wrong_State( self ):
+        test_task = create_task()
+
+        with self.assertRaises(Exception):
+            test_task.set_task_state( get_creator_user(), -10202 ) # some imposible state
+
+    def test_Task_Set_Closed_State( self ):
+        test_task = create_task()
+
+        test_task.set_task_state( get_creator_user(), TASK_STATE_CLOSED )
+        self.assertEqual( test_task.state, TASK_STATE_CLOSED )
+        self.assertFalse( test_task.get_opened() )
+        self.assertEqual( test_task.get_state_name(), 'Closed' )
+
+        self.assertIsNotNone( test_task.finished_fact_at )
+        test_task.set_task_state( get_creator_user(), TASK_STATE_NEW )
+        self.assertEqual( test_task.state, TASK_STATE_NEW )
+        self.assertIsNone( test_task.finished_fact_at )
+        self.assertTrue( test_task.get_opened() )
+        self.assertEqual( test_task.get_state_name(), 'New' )

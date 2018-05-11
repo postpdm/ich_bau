@@ -7,14 +7,14 @@ from django.utils import timezone
 from django.contrib.auth.models import User
 
 from django.shortcuts import get_object_or_404
-from django.core.urlresolvers import reverse
+from django.urls import reverse_lazy
 
 from .messages import decode_json2msg
 
 class Notification(models.Model):
-    sender_user = models.ForeignKey(User, related_name = 'sender_user' )
+    sender_user = models.ForeignKey(User, on_delete=models.PROTECT, related_name = 'sender_user' )
     created_at = models.DateTimeField(default=timezone.now)
-    reciever_user = models.ForeignKey(User, related_name = 'reciever_user')
+    reciever_user = models.ForeignKey(User, on_delete=models.PROTECT, related_name = 'reciever_user')
     readed_at = models.DateTimeField( blank=True, null = True )
     msg_txt = models.CharField(max_length=255, blank=False)
     msg_url = models.URLField(max_length=75, blank=True, null = True)
@@ -67,7 +67,7 @@ PROFILE_TYPE_CHOICES = (
 
 class Profile(models.Model):
     profile_type = models.PositiveSmallIntegerField( blank=False, null=False, default = PROFILE_TYPE_USER )
-    user = models.OneToOneField(User, blank=True, null=True, related_name="profile")
+    user = models.OneToOneField(User, on_delete=models.PROTECT, blank=True, null=True, related_name="profile")
     name = models.CharField(max_length=75, blank=True)
     avatar = models.ImageField(upload_to=avatar_upload, blank=True)
     description = models.TextField(blank=True)
@@ -94,7 +94,7 @@ class Profile(models.Model):
         return self.display_name
 
     def get_absolute_url(self):
-        return reverse('profiles_detail', kwargs={ 'pk': self.id} )
+        return reverse_lazy('profiles_detail', kwargs={ 'pk': self.id} )
 
     @property
     def display_name(self):
@@ -123,8 +123,8 @@ def Get_Users_Profiles():
     return Profile.objects.filter( profile_type = PROFILE_TYPE_USER )
 
 class Profile_Affiliation(models.Model):
-    main_profile = models.ForeignKey(Profile, related_name = 'main_profile' )
-    sub_profile = models.ForeignKey(Profile, related_name = 'sub_profile' )
+    main_profile = models.ForeignKey(Profile, on_delete=models.PROTECT, related_name = 'main_profile' )
+    sub_profile = models.ForeignKey(Profile, on_delete=models.PROTECT, related_name = 'sub_profile' )
 
     class Meta:
         unique_together = ( "main_profile", "sub_profile")
@@ -136,8 +136,8 @@ class Profile_Affiliation(models.Model):
             return super(Profile_Affiliation, self).save(*args, **kwargs)
 
 class Profile_Control_User(models.Model):
-    controlled_profile = models.ForeignKey(Profile, related_name = 'controlled_profile' )
-    control_user = models.ForeignKey(User, related_name="control_user")
+    controlled_profile = models.ForeignKey(Profile, on_delete=models.PROTECT, related_name = 'controlled_profile' )
+    control_user = models.ForeignKey(User, on_delete=models.PROTECT, related_name="control_user")
 
     class Meta:
         unique_together = ( "controlled_profile", "control_user" )

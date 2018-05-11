@@ -2,6 +2,8 @@ from django.conf.urls import url
 
 from project import views
 
+app_name = 'project'
+
 urlpatterns = [
 
     url(r'^$', views.index, name='index'),
@@ -16,7 +18,9 @@ urlpatterns = [
     url(r'^project/(?P<project_id>\w+)/closed_task/$', views.project_view_closed_tasks, name='project_view_closed_tasks'),
     url(r'^project/(?P<project_id>\w+)/search_task/$', views.project_view_search_tasks, name='project_view_search_tasks'),
     url(r'^project/(?P<project_id>\w+)/milestones/$', views.project_view_milestones, name='project_view_milestones'),
+    # repo urls
     url(r'^project/(?P<project_id>\w+)/files/$', views.project_view_files, name='project_view_files'),
+    url(r'^project/(?P<project_id>\w+)/files/commit/(?P<rev_id>\w+)/$', views.project_view_file_commit_view, name='project_view_file_commit_view'),
     url(r'^project/(?P<project_id>\w+)/create_repo/$', views.project_create_repo, name='project_create_repo'),
 
     url(r'^member_add/(?P<project_id>\w+)/$', views.AddMemberCreateView.as_view(), name='member_add'),

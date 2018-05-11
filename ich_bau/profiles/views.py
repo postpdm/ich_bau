@@ -1,4 +1,4 @@
-from django.core.urlresolvers import reverse
+from django.urls import reverse_lazy
 from django.views.generic import CreateView, UpdateView, DetailView, ListView
 
 from django.contrib import messages
@@ -23,7 +23,7 @@ class ProfileEditView(LoginRequiredMixin, UpdateView):
         return self.request.user.profile
 
     def get_success_url(self):
-        return reverse( my_profile_view )
+        return reverse_lazy( my_profile_view )
 
     def form_valid(self, form):
         response = super(ProfileEditView, self).form_valid(form)

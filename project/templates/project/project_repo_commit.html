@@ -1,0 +1,42 @@
+{% extends 'site_base.html' %}
+
+{% load i18n %}
+{% load bootstrap %}
+
+{% block head_title %}Commit #{{rev_id}}{% endblock %}
+
+{% block body %}
+    <div class="row">
+        <div class="col-md-12">
+
+<h1>Commit #{{rev_id}} for <a href="{% url 'project:project_view_files' project_id=project.pk%}">{{project}}</a></h1>
+{%if rev_info%}
+<table class="table ">
+<tr>
+    <td>Date</td><td>{{ rev_info.date }}</td>
+</tr>
+<tr>
+    <td>Message</td><td>{{ rev_info.msg}}</td>
+</tr>
+    <td>Revision</td><td>{{ rev_info.revision}}</td>
+</tr>
+<tr>
+    <td>Author</td><td>{{ rev_info.author}}</td>
+</tr>
+<tr>
+    <td>Change list</td>
+    <td>
+        {%for cl in rev_info.changelist%}
+        {{cl}}<br>
+        {%endfor%}
+    </td>
+</tr>
+
+</div>
+</div>
+</table>
+{%else%}
+<p class="bg-warning">Can't find revision information.</p>
+{%endif%}
+
+{% endblock %}

@@ -9,7 +9,7 @@ from django.utils import timezone
 
 from django.shortcuts import get_object_or_404, render
 from django.http import HttpResponseRedirect, Http404
-from django.core.urlresolvers import reverse
+from django.urls import reverse_lazy
 from django.views import generic
 from django.contrib import messages
 
@@ -36,7 +36,7 @@ def get_index( request, arg_page = PROJECT_FILTER_MINE ):
     context = RequestContext(request)
     if arg_page == PROJECT_FILTER_MINE:
         my_task = None
-        if request.user.is_authenticated():
+        if request.user.is_authenticated:
             my_task = Task.objects.filter( state = TASK_STATE_NEW, assignee__user = request.user )
         context_dict = { 'projects': GetMemberedProjectList(request.user),
                          'filter_type' : '',
@@ -229,7 +229,7 @@ def get_project_view(request, project_id, arg_task_filter = TASK_FILTER_OPEN, ar
     if arg_page == PROJECT_PAGE_FILES:
         if VCS_Configured():
             repo_server_is_configured = True
-            # отночительный путь - какую папку смотрим
+            # относительный путь - какую папку смотрим
             repo_rel_path = request.GET.get( 'path', '' )
 
             if project.have_repo():
@@ -290,6 +290,36 @@ def get_project_view(request, project_id, arg_task_filter = TASK_FILTER_OPEN, ar
 
     # Рендерить ответ
     return render( request, 'project/project.html', context_dict )
+
+def project_view_file_commit_view(request, project_id, rev_id):
+    context = RequestContext(request)
+    project = get_object_or_404( Project, pk=project_id)
+
+    rev_info = None
+
+    if VCS_Configured():
+        repo_server_is_configured = True
+
+        if project.have_repo():
+            s = project.repo_name
+            try:
+                res_info = Get_Log_For_Repo_Name( s, SVN_ADMIN_USER, SVN_ADMIN_PASSWORD, rev_num=rev_id )
+                if res_info[0] == VCS_REPO_SUCCESS:
+                    rev_info = res_info[1][0]
+                else:
+                    messages.error( request, "Wrong revision id or some error!")
+            except:
+                messages.error( request, "Wrong revision id or some error!")
+        else:
+            messages.error( request, "Can't connect to repo!")
+    else:
+        messages.error( request, "Repo server is not configured!")
+
+    context_dict = { 'project': project,
+                     'rev_id' : rev_id,
+                     'rev_info' : rev_info,
+    }
+    return render( request, 'project/project_repo_commit.html', context_dict )
 
 class MilestoneCreateView(LoginRequiredMixin, CreateView):
 
@@ -437,7 +467,7 @@ def team_accept(request, member_id):
 def member_want_join(request, project_id):
     #определить текущего юзера
     curr_user = request.user
-    if curr_user.is_authenticated():
+    if curr_user.is_authenticated:
         # определить проект
         if not ( project_id is None ):
             project = get_object_or_404( Project, pk = project_id )
@@ -562,7 +592,7 @@ def task_view(request, task_id):
                     user_can_admin = True
                     user_can_comment = True
                 else:
-                    if ual == PROJECT_ACCESS_VIEW and task.get_opened() and request.user.is_authenticated():
+                    if ual == PROJECT_ACCESS_VIEW and task.get_opened() and request.user.is_authenticated:
                         user_can_comment = True
 
         comments = TaskComment.objects.filter( parenttask = task )
@@ -571,7 +601,7 @@ def task_view(request, task_id):
         task_checklist = TaskCheckList.objects.filter( parenttask = task )
 
         # доступ списку коментов открыт, а форму показывать не надо
-        if request.user.is_authenticated():
+        if request.user.is_authenticated:
             if request.method == "POST":
 
                 if 'submit' in request.POST:
