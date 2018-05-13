@@ -14,7 +14,7 @@ easy-thumbnails==2.5
 Markdown==2.6.11
 
 svn==0.3.45
-django-pagedown=1.0.4
+django-pagedown==1.0.4
 
 gunicorn==19.6.0
 dj-database-url==0.4.1
