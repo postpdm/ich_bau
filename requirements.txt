@@ -15,6 +15,7 @@ Markdown==2.6.11
 
 svn==0.3.45
 django-pagedown==1.0.4
+django-cryptography==0.3
 
 gunicorn==19.6.0
 dj-database-url==0.4.1

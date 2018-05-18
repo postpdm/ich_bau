@@ -15,3 +15,4 @@ markdown
 
 svn
 django-pagedown
+django-cryptography

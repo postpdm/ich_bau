@@ -20,8 +20,6 @@ SVN_ADMIN_PASSWORD     = settings.REPO_SVN["SVN_ADMIN_PASSWORD"]
 
 SVN_ADMIN_FULL_PATH    = settings.REPO_SVN["SVN_ADMIN_FULL_PATH"]
 
-USERS_REPO_PW_KEY_SALT = settings.REPO_SVN["USERS_REPO_PW_KEY_SALT"]
-
 # codes
 
 VCS_REPO_SUCCESS = 0
@@ -30,7 +28,7 @@ VCS_REPO_FAIL_CALL = 2
 
 # return True if yes
 def VCS_Configured():
-    if ( REPO_TYPE in KNOWN_REPO_TYPES ) and ( REPO_BASE_URL and REPO_LOCAL_ROOT and SVN_ADMIN_USER and SVN_ADMIN_PASSWORD and SVN_ADMIN_FULL_PATH and USERS_REPO_PW_KEY_SALT ):
+    if ( REPO_TYPE in KNOWN_REPO_TYPES ) and ( REPO_BASE_URL and REPO_LOCAL_ROOT and SVN_ADMIN_USER and SVN_ADMIN_PASSWORD and SVN_ADMIN_FULL_PATH ):
         return True
     else:
         return False
@@ -170,19 +168,13 @@ def Create_New_Repo( ):
     else:
         return ( VCS_REPO_FAIL_NOT_CONFIGURED, None )
 
-from commons.simple_crypt import *
-import base64
-
 def Gen_Repo_User_PW( arg_test_pw = None ):
     if not( arg_test_pw is None ):
         pw = arg_test_pw
     else:
         pw = uuid.uuid4().hex
-    pw = base64.b64encode( EnCrypt_Str(pw, USERS_REPO_PW_KEY_SALT ) ) # зашифровать и преобразовать в формат хранения
-    return pw
 
-def Decrypt_Repo_User_PW( arg_encrypted_pw ):
-    return( DeCrypt_Str( base64.b64decode( arg_encrypted_pw ), USERS_REPO_PW_KEY_SALT ) ) # преобразовать их формата хранения и расшифровать
+    return pw
 
 def Add_User_to_Repo( arg_repo_name, arg_user_and_pw_dict ):
     file_names = Repo_File_Paths( REPO_LOCAL_ROOT, arg_repo_name )

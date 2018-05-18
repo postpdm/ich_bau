@@ -5,7 +5,6 @@ from django.test import TestCase
 
 from django.db import transaction
 import reversion
-#from reversion.models import Version
 
 TEST_USER_NAME_CREATOR = 'test project creator'
 TEST_USER_NAME_NOT_MEMBER = 'user is not a member'

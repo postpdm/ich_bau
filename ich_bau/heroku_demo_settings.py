@@ -29,7 +29,6 @@ REPO_SVN = {
     "SVN_ADMIN_PASSWORD" : "",
 
     "SVN_ADMIN_FULL_PATH" : "",
-    "USERS_REPO_PW_KEY_SALT" : ""
 }
 
 # локальные адреса, разрешенные для отладки

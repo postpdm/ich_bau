@@ -42,8 +42,7 @@ class ProfileDetailView(DetailView):
         current_profile = self.get_object()
         if current_profile.user == self.request.user:
             # юзер смотрит свой собственный профиль
-            from project.repo_wrapper import Decrypt_Repo_User_PW
-            context['user_repo_pw'] = Decrypt_Repo_User_PW( current_profile.repo_pw )
+            context['user_repo_pw'] = current_profile.repo_pw
 
         context['main_profiles'] = current_profile.main_profiles()
         context['sub_profiles'] =  current_profile.sub_profiles()
