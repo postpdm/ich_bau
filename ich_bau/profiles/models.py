@@ -98,6 +98,11 @@ class Profile(models.Model):
         return reverse_lazy('profiles_detail', kwargs={ 'pk': self.id} )
 
     @property
+    def is_user(self):
+        print( self.profile_type, PROFILE_TYPE_USER )
+        return self.profile_type == PROFILE_TYPE_USER
+
+    @property
     def display_name(self):
         s = ''
         if self.name:
