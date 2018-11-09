@@ -34,9 +34,10 @@ For testing
 virtualenv.exe ich_bau_test
 git clone https://github.com/postpdm/ich_bau.git
 activate
-pip install -r requirements_dev.txt
+pip install -r requirements.txt
 manage.py test
 manage.py migrate --run-syncdb
+manage.py createsuperuser
 manage.py runserver
 ```
 
@@ -46,4 +47,4 @@ For testing file repo functions you need actual version of Apache Subversion cli
 
 * `svn` and `svnadmin` command-line clients in your PATH
 * setting up the `REPO_SVN` settingns in `settings.py`
-* `file://`, `svn://`, `http://` or `https://` connection avilable to your repos
+* `file://`, `svn://`, `http://` or `https://` connections is available to your repos 
