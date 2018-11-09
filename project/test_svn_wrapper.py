@@ -31,10 +31,9 @@ class SVN_Wrapper_Abstract_Test(TestCase):
 
         self.assertEqual( t.auth_full_name( ),          os.path.join( repo_root, repo_name, 'conf', 'authz' ) )
 
-    def test_Repo_PW_Encoing(self):
-        test_pw = 'some test pass'
-        s = Gen_Repo_User_PW( test_pw )
-        self.assertEqual( Decrypt_Repo_User_PW(s), test_pw )
+    def test_Gen_Repo_User_PW(self):
+        pw= Gen_Repo_User_PW()
+        self.assertNotEqual( pw, '')
 
     def test_VCS_Configured(self):
         self.assertEqual( VCS_Configured(), True )

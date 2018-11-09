@@ -10,6 +10,8 @@ from django.shortcuts import get_object_or_404
 from django.urls import reverse_lazy
 
 from .messages import decode_json2msg
+from django_cryptography.fields import encrypt
+from project.repo_wrapper import Gen_Repo_User_PW
 
 class Notification(models.Model):
     sender_user = models.ForeignKey(User, on_delete=models.PROTECT, related_name = 'sender_user' )
@@ -77,13 +79,12 @@ class Profile(models.Model):
     created_at = models.DateTimeField(default=timezone.now)
     modified_at = models.DateTimeField(default=timezone.now)
 
-    repo_pw = models.CharField(max_length=100, blank=True)
+    repo_pw = encrypt( models.CharField(max_length=100, blank=True) )
 
     def save(self, *args, **kwargs):
         if self.profile_type in PROFILE_TYPE_LIST: # check for profile type
             self.modified_at = timezone.now()
             if ( self.profile_type in ( PROFILE_TYPE_USER, PROFILE_TYPE_BOT ) ) and ( ( self.repo_pw is None ) or ( self.repo_pw == '' ) ):
-                from project.repo_wrapper import Gen_Repo_User_PW
                 self.repo_pw = Gen_Repo_User_PW()
 
             return super(Profile, self).save(*args, **kwargs)
@@ -95,6 +96,11 @@ class Profile(models.Model):
 
     def get_absolute_url(self):
         return reverse_lazy('profiles_detail', kwargs={ 'pk': self.id} )
+
+    @property
+    def is_user(self):
+        print( self.profile_type, PROFILE_TYPE_USER )
+        return self.profile_type == PROFILE_TYPE_USER
 
     @property
     def display_name(self):

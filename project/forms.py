@@ -7,8 +7,10 @@ from django.forms.widgets import HiddenInput
 
 from bootstrap3_datetime.widgets import DateTimePicker
 
+from commons.editors import MarkDownEditor_Field
+
 class ProjectForm(forms.ModelForm):
-    #description = HTML_Field( required = False )
+    description = MarkDownEditor_Field(arg_required=False)
 
     class Meta:
         model = Project
@@ -39,7 +41,7 @@ class MemberForm(forms.ModelForm):
             self.fields['member_profile'].queryset = Get_Users_Profiles().exclude( member_profile__project_id = p.id )
 
 class TaskForm(forms.ModelForm):
-    #description = HTML_Field( required = False )
+    description = MarkDownEditor_Field(arg_required=False)
 
     class Meta:
         model = Task
@@ -87,9 +89,8 @@ class TaskLinkedForm(forms.ModelForm):
         model = TaskLink
         fields = ['subtask']
 
-
 class TaskCommentForm(forms.ModelForm):
-    #comment = HTML_Field( required = True )
+    comment = MarkDownEditor_Field()
 
     class Meta:
         model = TaskComment

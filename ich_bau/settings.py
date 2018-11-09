@@ -112,6 +112,7 @@ INSTALLED_APPS = [
     "reversion",
     "markdown",
     "bootstrap3_datetime",
+    "pagedown",
 
     # project
     "commons",

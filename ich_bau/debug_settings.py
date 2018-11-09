@@ -28,7 +28,6 @@ REPO_SVN = {
     "SVN_ADMIN_PASSWORD" : "key",
 
     "SVN_ADMIN_FULL_PATH" : "d:\\test\\svn\\VisualSVN Server\\bin\\svnadmin.exe",
-    "USERS_REPO_PW_KEY_SALT" : "123"
 }
 
 # REPO_SVN = {
@@ -40,7 +39,6 @@ REPO_SVN = {
     # "SVN_ADMIN_PASSWORD" : "key",
 
     # "SVN_ADMIN_FULL_PATH" : "d:\\p\\apache\\apachehouse\\Apache24\\bin\\svnadmin.exe",
-    # "USERS_REPO_PW_KEY_SALT" : "123"
 # }
 
 # локальные адреса, разрешенные для отладки

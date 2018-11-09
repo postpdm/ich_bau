@@ -14,3 +14,5 @@ easy-thumbnails
 markdown
 
 svn
+django-pagedown
+django-cryptography
