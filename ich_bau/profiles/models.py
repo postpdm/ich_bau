@@ -99,7 +99,6 @@ class Profile(models.Model):
 
     @property
     def is_user(self):
-        print( self.profile_type, PROFILE_TYPE_USER )
         return self.profile_type == PROFILE_TYPE_USER
 
     @property
