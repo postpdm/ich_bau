@@ -98,8 +98,8 @@ class Profile(models.Model):
         return reverse_lazy('profiles_detail', kwargs={ 'pk': self.id} )
 
     @property
-    def is_user(self):
-        return self.profile_type == PROFILE_TYPE_USER
+    def has_account(self):
+        return ( self.profile_type in ( PROFILE_TYPE_USER, PROFILE_TYPE_BOT ) )
 
     @property
     def display_name(self):

@@ -40,6 +40,10 @@ class Profile_Test(TestCase):
         response = c.get( bot_profile.get_absolute_url() )
         self.assertContains(response, BOT_TEST_NAME + ' (Bot)', status_code=200 )
 
+    def test_Bot_has_account(self):
+        bot_profile = Profile.objects.get(name=BOT_TEST_NAME)
+        self.assertTrue( bot_profile.has_account )
+
     def test_Create_Wrong_profile_type(self):
         p = Profile( profile_type = -9999 )
         with self.assertRaises(Exception):
