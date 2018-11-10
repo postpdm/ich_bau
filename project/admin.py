@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import Project
+from .models import Project, Task, Milestone
 
 admin.site.register(
     Project,
@@ -13,3 +13,11 @@ admin.site.register(
         "modified_at",
         "modified_user",
     ],)
+
+admin.site.register(
+    Task,
+    )
+
+admin.site.register(
+    Milestone,
+    )
