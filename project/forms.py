@@ -5,9 +5,7 @@ from project.models import Project, Task, TaskComment, Milestone, Member, TaskLi
 
 from django.forms.widgets import HiddenInput
 
-from bootstrap3_datetime.widgets import DateTimePicker
-
-from commons.editors import MarkDownEditor_Field
+from commons.editors import DateTime_Field, MarkDownEditor_Field
 
 class ProjectForm(forms.ModelForm):
     description = MarkDownEditor_Field(arg_required=False)
@@ -17,8 +15,8 @@ class ProjectForm(forms.ModelForm):
         fields = ['fullname', 'private_flag', 'active_flag', 'description' ]
 
 class MilestoneForm(forms.ModelForm):
-    planned_at = forms.DateField( required = False, widget=DateTimePicker(options={"format": "YYYY-MM-DD", "pickTime": False}))
-    finished_at = forms.DateField( required = False, widget=DateTimePicker(options={"format": "YYYY-MM-DD", "pickTime": False}))
+    planned_at = DateTime_Field( False )
+    finished_at = DateTime_Field( False )
 
     class Meta:
         model = Milestone
