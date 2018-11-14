@@ -37,7 +37,7 @@ def get_index( request, arg_page = PROJECT_FILTER_MINE ):
     if arg_page == PROJECT_FILTER_MINE:
         my_task = None
         if request.user.is_authenticated:
-            my_task = Task.objects.filter( state = TASK_STATE_NEW, assignee__user = request.user )
+            my_task = Get_User_Tasks(request.user)
         context_dict = { 'projects': GetMemberedProjectList(request.user),
                          'filter_type' : '',
                          'tasks' : my_task,

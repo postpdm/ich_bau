@@ -438,3 +438,6 @@ def taskcomment_post_save_Notifier_Composer(sender, instance, **kwargs):
         parenttask_holder_user = parent_task.holder.user
 
     Send_Notifications_For_Task( instance.modified_user, message_str, task_users, parent_task.get_absolute_url(), parenttask_assignee_user, parenttask_holder_user )
+
+def Get_User_Tasks( arg_user ):
+    return Task.objects.filter( state = TASK_STATE_NEW, assignee__user = arg_user )
