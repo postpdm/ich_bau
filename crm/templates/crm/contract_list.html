@@ -11,10 +11,23 @@
         </div>
     </div>
     <div class="row">
-        {% for contract in contracts %}
-            <div class="col-md-3">
-            <a href="{{contract.get_absolute_url}}">{{contract}}</a>
-            </div>
-        {% endfor %}
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Contracts</th>
+                    <th>Start date</th>
+                    <th>End date</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for contract in contracts %}
+                <tr>
+                    <td><a href="{{contract.get_absolute_url}}">{{contract}}</a></td>
+                    <td>{{contract.start_date|date}}</td>
+                    <td>{{contract.end_date|date}}</td>
+                </tr>
+                {% endfor %}        
+            </tbody>            
+        </table>
     </div>
 {% endblock %}
