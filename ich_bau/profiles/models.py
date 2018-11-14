@@ -44,8 +44,6 @@ def avatar_upload(instance, filename):
     filename = "%s.%s" % (uuid.uuid4(), ext)
     return os.path.join("avatars", filename)
 
-import markdown
-
 PROFILE_TYPE_BOT = 0
 PROFILE_TYPE_USER = 1
 PROFILE_TYPE_PEOPLE = 2 # without accunt
@@ -121,7 +119,7 @@ class Profile(models.Model):
         return Profile.objects.all().exclude( id = self.id ).exclude( sub_profile__main_profile_id = self.id )
 
     def description_html(self):
-        return markdown.markdown(self.description)
+        return self.description
 
 # датасет профилей, принадлежащих юзерам
 def Get_Users_Profiles():

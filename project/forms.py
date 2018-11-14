@@ -5,10 +5,10 @@ from project.models import Project, Task, TaskComment, Milestone, Member, TaskLi
 
 from django.forms.widgets import HiddenInput
 
-from commons.editors import DateTime_Field, MarkDownEditor_Field
+from commons.editors import DateTime_Field, TextEditor_Field
 
 class ProjectForm(forms.ModelForm):
-    description = MarkDownEditor_Field(arg_required=False)
+    description = TextEditor_Field(arg_required=False)
 
     class Meta:
         model = Project
@@ -39,7 +39,7 @@ class MemberForm(forms.ModelForm):
             self.fields['member_profile'].queryset = Get_Users_Profiles().exclude( member_profile__project_id = p.id )
 
 class TaskForm(forms.ModelForm):
-    description = MarkDownEditor_Field(arg_required=False)
+    description = TextEditor_Field(arg_required=False)
 
     class Meta:
         model = Task
@@ -88,7 +88,7 @@ class TaskLinkedForm(forms.ModelForm):
         fields = ['subtask']
 
 class TaskCommentForm(forms.ModelForm):
-    comment = MarkDownEditor_Field()
+    comment = TextEditor_Field()
 
     class Meta:
         model = TaskComment

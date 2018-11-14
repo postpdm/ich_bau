@@ -11,8 +11,7 @@ django-reversion
 git+https://github.com/yn-coder/django-bootstrap3-datetimepicker.git
 
 easy-thumbnails
-markdown
 
 svn
-django-pagedown
+django-summernote
 django-cryptography

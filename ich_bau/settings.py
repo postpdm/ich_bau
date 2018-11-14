@@ -110,9 +110,8 @@ INSTALLED_APPS = [
     "django_filters",
     "easy_thumbnails",
     "reversion",
-    "markdown",
     "bootstrap3_datetime",
-    "pagedown",
+    "django_summernote",
 
     # project
     "commons",

@@ -134,7 +134,7 @@ class Project_View_Test_Client(TestCase):
         # create first task
         response = c.post( reverse_lazy('project:task_add', args = (test_project_1.id,) ), { 'fullname' : TEST_TASK_FULLNAME, } )
         # we are redirected to new task page
-        self.assertEqual( response.status_code, 302 )
+        self.assertEqual( response.status_code, 200 )
 
         self.assertEqual( Task.objects.count(), 1 )
         # get object

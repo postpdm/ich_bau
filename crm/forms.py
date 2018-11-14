@@ -5,10 +5,10 @@ from crm.models import Contract
 
 from django.forms.widgets import HiddenInput
 
-from commons.editors import DateTime_Field, MarkDownEditor_Field
+from commons.editors import DateTime_Field, TextEditor_Field
 
 class ContractForm(forms.ModelForm):
-    description = MarkDownEditor_Field()
+    description = TextEditor_Field()
     start_date = DateTime_Field()
     end_date   = DateTime_Field()
 

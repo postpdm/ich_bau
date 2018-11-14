@@ -13,8 +13,6 @@ from ich_bau.profiles.notification_helper import Send_Notification
 from ich_bau.profiles.models import Profile
 from ich_bau.profiles.messages import *
 
-import markdown
-
 from project.repo_wrapper import *
 
 # access level
@@ -146,7 +144,7 @@ class Project(BaseStampedModel):
         return "/project/project/%i/" % self.id
 
     def description_html(self):
-        return markdown.markdown(self.description)
+        return self.description
 
     def have_repo( self ): # True - да, repo есть
         s = self.repo_name
@@ -343,7 +341,7 @@ class Task(BaseStampedModel):
         return "/project/task/%i/" % self.id
 
     def description_html(self):
-        return markdown.markdown(self.description)
+        return self.description
 
 # связи между задачами
 class TaskLink(models.Model):
@@ -368,7 +366,7 @@ class TaskComment(BaseStampedModel):
         return str( self.created_user ) + " " + self.created_at.strftime("%Y-%m-%d %H:%M:%S")
 
     def comment_html(self):
-        return markdown.markdown(self.comment)
+        return self.comment
 
 @reversion.register()
 class TaskCheckList(BaseStampedModel):
