@@ -164,3 +164,11 @@ class Project_Test(TestCase):
         self.assertIsNone( test_task.finished_fact_at )
         self.assertTrue( test_task.get_opened() )
         self.assertEqual( test_task.get_state_name(), 'New' )
+
+    def test_assignee( self ):
+        t = Get_User_Tasks( None )
+        self.assertEqual( t.count(), 0 )
+        test_task = create_task()
+        test_task.assignee__user = get_creator_user()
+        test_task.save()
+        self.assertEqual( t.count(), 1 )
