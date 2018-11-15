@@ -3,6 +3,7 @@ from .models import *
 
 from django.test import TestCase
 from .messages import *
+from notification_helper import *
 
 TEST_USER_NAME = 'USER'
 TEST_USER_PW = 'USER_PW'
@@ -21,4 +22,3 @@ class Message_Test(TestCase):
         self.assertEqual( Get_Users_Profiles().count(), 0 )
         test_user = User.objects.create_user( username = TEST_USER_NAME, password = TEST_USER_PW )
         self.assertEqual( Get_Users_Profiles().count(), 1 )
-
