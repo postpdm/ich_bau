@@ -13,3 +13,6 @@ class Message_Test(TestCase):
     def test_Encode_Project_MSG_Fail(self):
         s = project_msg2json_str( -1, arg_project_name = '*' )
         self.assertFalse( s )
+
+    def test_Get_Users_Profiles(self):
+        self.assertEqual( Get_Users_Profiles().count(), 0 )
