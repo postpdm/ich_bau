@@ -10,8 +10,6 @@ from ich_bau.profiles.notification_helper import Send_Notification
 from ich_bau.profiles.models import Profile
 from ich_bau.profiles.messages import *
 
-import markdown
-
 @reversion.register()
 class Contract(BaseStampedModel):
     shortname = models.CharField(max_length=255, blank=True, null=True)
@@ -34,5 +32,4 @@ class Contract(BaseStampedModel):
         return "/crm/contract/%i/" % self.id
 
     def description_html(self):
-        return markdown.markdown(self.description)
-
+        return self.description

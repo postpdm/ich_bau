@@ -131,6 +131,7 @@ class Project_View_Test_Client(TestCase):
         response = c.get( reverse_lazy('project:search_public'), { 'fullname' : TEST_PROJECT_FULLNAME, 'description' : TEST_PROJECT_DESCRIPTION_2 } )
         self.assertContains(response, '1 found.', status_code=200 )
 
+        self.assertEqual( Task.objects.count(), 0 )
         # create first task
         response = c.post( reverse_lazy('project:task_add', args = (test_project_1.id,) ), { 'fullname' : TEST_TASK_FULLNAME, } )
         # we are redirected to new task page

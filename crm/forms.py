@@ -5,11 +5,12 @@ from crm.models import Contract
 
 from django.forms.widgets import HiddenInput
 
-from bootstrap3_datetime.widgets import DateTimePicker
+from commons.editors import DateTime_Field, TextEditor_Field
 
 class ContractForm(forms.ModelForm):
-    start_date = forms.DateField( required = False, widget=DateTimePicker(options={"format": "YYYY-MM-DD", "pickTime": False}))
-    end_date   = forms.DateField( required = False, widget=DateTimePicker(options={"format": "YYYY-MM-DD", "pickTime": False}))
+    description = TextEditor_Field()
+    start_date = DateTime_Field()
+    end_date   = DateTime_Field()
 
     class Meta:
         model = Contract

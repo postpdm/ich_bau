@@ -1,5 +1,11 @@
 from django import forms
-from pagedown.widgets import PagedownWidget
 
-def MarkDownEditor_Field(arg_required=False):
-    return forms.CharField(required=arg_required, widget=PagedownWidget())
+from bootstrap3_datetime.widgets import DateTimePicker
+
+from django_summernote.widgets import SummernoteWidget, SummernoteInplaceWidget
+
+def TextEditor_Field(arg_required=False):
+    return forms.CharField(required=arg_required, widget=SummernoteWidget())
+
+def DateTime_Field(arg_required=False):
+    return forms.DateField( required = False, widget=DateTimePicker(options={"format": "YYYY-MM-DD", "pickTime": False}))

@@ -11,7 +11,7 @@ TEST_USER_NAME_NOT_MEMBER = 'user is not a member'
 TEST_PROJECT_PUBLIC_NAME = 'test project name public'
 TEST_PROJECT_PRIVATE_NAME = 'test project name private'
 TEST_PROJECT_TASK_FULLNAME        = 'Test project task'
-TEST_PROJECT_TASK_DESCRIPTION_MKDN = '**A**'
+TEST_PROJECT_TASK_DESCRIPTION = '<strong>A</strong>'
 
 def get_public_project():
     return Project.objects.get(fullname=TEST_PROJECT_PUBLIC_NAME)
@@ -28,7 +28,7 @@ def get_user_not_member():
 def create_task():
     test_project = get_public_project()
     user_creator = get_creator_user()
-    task = Task( project=test_project, fullname=TEST_PROJECT_TASK_FULLNAME, description = TEST_PROJECT_TASK_DESCRIPTION_MKDN )
+    task = Task( project=test_project, fullname=TEST_PROJECT_TASK_FULLNAME, description = TEST_PROJECT_TASK_DESCRIPTION )
     task.set_change_user(user_creator)
     task.save()
     return task
@@ -128,9 +128,9 @@ class Project_Test(TestCase):
         test_task = create_task()
         self.assertEqual( test_task.state, TASK_STATE_NEW )
 
-    def test_Create_Task_check_Markdown_Description( self ):
+    def test_Create_Task_check_Description( self ):
         test_task = create_task()
-        self.assertEqual( test_task.description_html(), '<p><strong>A</strong></p>' )
+        self.assertEqual( test_task.description_html(), TEST_PROJECT_TASK_DESCRIPTION )
 
     def test_task_Add_Comment( self ):
         test_task = create_task()
@@ -164,3 +164,11 @@ class Project_Test(TestCase):
         self.assertIsNone( test_task.finished_fact_at )
         self.assertTrue( test_task.get_opened() )
         self.assertEqual( test_task.get_state_name(), 'New' )
+
+    def test_assignee( self ):
+        t = Get_User_Tasks( None )
+        self.assertEqual( t.count(), 0 )
+        test_task = create_task()
+        test_task.assignee__user = get_creator_user()
+        test_task.save()
+        self.assertEqual( t.count(), 1 )

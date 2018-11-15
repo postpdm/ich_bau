@@ -44,8 +44,6 @@ def avatar_upload(instance, filename):
     filename = "%s.%s" % (uuid.uuid4(), ext)
     return os.path.join("avatars", filename)
 
-import markdown
-
 PROFILE_TYPE_BOT = 0
 PROFILE_TYPE_USER = 1
 PROFILE_TYPE_PEOPLE = 2 # without accunt
@@ -98,9 +96,8 @@ class Profile(models.Model):
         return reverse_lazy('profiles_detail', kwargs={ 'pk': self.id} )
 
     @property
-    def is_user(self):
-        print( self.profile_type, PROFILE_TYPE_USER )
-        return self.profile_type == PROFILE_TYPE_USER
+    def has_account(self):
+        return ( self.profile_type in ( PROFILE_TYPE_USER, PROFILE_TYPE_BOT ) )
 
     @property
     def display_name(self):
@@ -122,7 +119,7 @@ class Profile(models.Model):
         return Profile.objects.all().exclude( id = self.id ).exclude( sub_profile__main_profile_id = self.id )
 
     def description_html(self):
-        return markdown.markdown(self.description)
+        return self.description
 
 # датасет профилей, принадлежащих юзерам
 def Get_Users_Profiles():

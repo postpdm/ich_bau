@@ -5,20 +5,18 @@ from project.models import Project, Task, TaskComment, Milestone, Member, TaskLi
 
 from django.forms.widgets import HiddenInput
 
-from bootstrap3_datetime.widgets import DateTimePicker
-
-from commons.editors import MarkDownEditor_Field
+from commons.editors import DateTime_Field, TextEditor_Field
 
 class ProjectForm(forms.ModelForm):
-    description = MarkDownEditor_Field(arg_required=False)
+    description = TextEditor_Field(arg_required=False)
 
     class Meta:
         model = Project
         fields = ['fullname', 'private_flag', 'active_flag', 'description' ]
 
 class MilestoneForm(forms.ModelForm):
-    planned_at = forms.DateField( required = False, widget=DateTimePicker(options={"format": "YYYY-MM-DD", "pickTime": False}))
-    finished_at = forms.DateField( required = False, widget=DateTimePicker(options={"format": "YYYY-MM-DD", "pickTime": False}))
+    planned_at = DateTime_Field( False )
+    finished_at = DateTime_Field( False )
 
     class Meta:
         model = Milestone
@@ -41,7 +39,7 @@ class MemberForm(forms.ModelForm):
             self.fields['member_profile'].queryset = Get_Users_Profiles().exclude( member_profile__project_id = p.id )
 
 class TaskForm(forms.ModelForm):
-    description = MarkDownEditor_Field(arg_required=False)
+    description = TextEditor_Field(arg_required=False)
 
     class Meta:
         model = Task
@@ -90,7 +88,7 @@ class TaskLinkedForm(forms.ModelForm):
         fields = ['subtask']
 
 class TaskCommentForm(forms.ModelForm):
-    comment = MarkDownEditor_Field()
+    comment = TextEditor_Field()
 
     class Meta:
         model = TaskComment
