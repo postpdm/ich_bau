@@ -4,6 +4,9 @@ from .models import *
 from django.test import TestCase
 from .messages import *
 
+TEST_USER_NAME = 'USER'
+TEST_USER_PW = 'USER_PW'
+
 class Message_Test(TestCase):
     def test_Encode_Decode_Project_MSG(self):
         s = project_msg2json_str( MSG_NOTIFY_TYPE_PROJECT_CHANGED_ID, arg_project_name = 'some project' )
@@ -16,3 +19,6 @@ class Message_Test(TestCase):
 
     def test_Get_Users_Profiles(self):
         self.assertEqual( Get_Users_Profiles().count(), 0 )
+        test_user = User.objects.create_user( username = TEST_USER_NAME, password = TEST_USER_PW )
+        self.assertEqual( Get_Users_Profiles().count(), 1 )
+
