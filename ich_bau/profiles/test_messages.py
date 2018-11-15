@@ -1,9 +1,9 @@
 from django.contrib.auth.models import User
-from .models import *
-
 from django.test import TestCase
+
+from .models import *
 from .messages import *
-from notification_helper import *
+from .notification_helper import *
 
 TEST_USER_NAME = 'USER'
 TEST_USER_PW = 'USER_PW'
