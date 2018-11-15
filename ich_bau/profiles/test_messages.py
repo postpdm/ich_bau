@@ -22,3 +22,9 @@ class Message_Test(TestCase):
         self.assertEqual( Get_Users_Profiles().count(), 0 )
         test_user = User.objects.create_user( username = TEST_USER_NAME, password = TEST_USER_PW )
         self.assertEqual( Get_Users_Profiles().count(), 1 )
+
+    def test_Send_Notification(self):
+        test_user = User.objects.create_user( username = TEST_USER_NAME, password = TEST_USER_PW )
+        self.assertEqual( GetUserNoticationsQ( test_user, True).count(), 0 )
+        Send_Notification( test_user, test_user, 'Arg_MsgTxt', 'Arg_Url' )
+        self.assertEqual( GetUserNoticationsQ( test_user, True).count(), 1 )
