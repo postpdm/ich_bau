@@ -1,5 +1,5 @@
 ﻿from project.models import *
-from project.forms import ProjectForm, TaskForm, TaskCommentForm, MilestoneForm, MemberForm, TaskLinkedForm, TaskEditTargetDateForm, TaskCheckListForm
+from project.forms import ProjectForm, TaskForm, TaskCommentForm, MilestoneForm, MemberForm, TaskLinkedForm, TaskCheckListForm
 
 from django.forms.models import modelformset_factory
 
@@ -699,30 +699,6 @@ def task_checklist(request, task_id):
 
     # Рендерить ответ
     return render( request, 'project/task_checklist.html', context_dict )
-
-@login_required
-def edit_task_target_date(request, pk):
-    context = RequestContext(request)
-    task = get_object_or_404( Task, pk=pk )
-    if request.method == 'POST':
-        form = TaskEditTargetDateForm(request.POST, instance=task)
-
-        if form.is_valid():
-            task.set_change_user(request.user)
-            with transaction.atomic(), reversion.create_revision():
-                reversion.set_user(request.user)
-                form.save()
-
-            # перебросить пользователя на просмотр изделия
-            messages.success(request, "You successfully updated this task target date!")
-            return HttpResponseRedirect( task.get_absolute_url() )
-        else:
-            print( form.errors )
-    else:
-        form = TaskEditTargetDateForm( instance=task )
-
-    return render( request, 'project/task_edit_targed_date_form.html',
-            {'form': form, 'task':task} )
 
 @login_required
 def edit_task_comment(request, task_comment_id):
