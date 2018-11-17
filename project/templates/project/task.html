@@ -7,59 +7,58 @@
 
 {% block body %}
     <div class="row">
-        <div class="col-md-12">  
+        <div class="col-md-12">
 
 <div class="panel panel-default">
- 
+
 <ol class="breadcrumb">
 <li>  <a href="{% url 'project:index' %}">Projects</a></li></li>
 <li>  <a href="{{ task.project.get_absolute_url }}">{{ task.project }}</a></li>
 {% if task.milestone %}<li> <a href="{{task.milestone.get_absolute_url}}">{{task.milestone}}</a> </li>{% endif %}
 </ol>
-  
+
   <div class="panel-heading"><strong>{{task}}</strong>
-  
+
   {% if task.important %}
     <i class="fa fa-exclamation-triangle" style="color:red"></i>
     {% endif %}
-  
-   
+
+
    {% if task.milestone %} targeted to <a href="{{task.milestone.get_absolute_url}}">{{task.milestone}}</a> milestone {% endif %}
-   {% if task.target_date_at %} special target date is {{task.target_date_at|date}} {% endif %}
-   
+
    {% if not task.get_opened %}
    <span class="label label-primary">{{task.get_state_name}}</span>
    {% endif %}
   </div>
-  
+
   <div class="panel-body">
   {% if task.description %}
-  <p>{{ task.description_html|safe }}</p>  
+  <p>{{ task.description_html|safe }}</p>
   {% endif %}
 
   <td>{% if task.holder %}<p>Holder: {{task.holder}}</p>{% endif %}</td>
   {% if task.assignee %}<p>Assignee: {{task.assignee}} </p>{% endif %}
-  
+
   <p class="text-right">
-  
+
   {% if user_can_work and task.get_opened %}
   <a class="btn btn-default" href="{{ task.get_absolute_url }}edit"><i class="fa fa-pencil-square-o"></i> Edit task</a>
-  
+
  {%comment%}
   <a class="btn btn-default" href="{{ task.get_absolute_url }}edit_target_date"><i class="fa fa-clock-o"></i> Edit target date</a>
  {%endcomment%}
 
-  {% endif %}  
+  {% endif %}
 {% if task.created_at == task.modified_at %}
 no history to view
 
 {% else %}
 <a href="{{task.get_absolute_url}}history">History</a>
-{% endif %}  
-  <br>  
+{% endif %}
+  <br>
   <small>{{task.created_at}} by <a href="{% url 'profiles_detail' pk=task.created_user.profile.id %}">{{task.created_user}}</a></small></p>
   </div>
-  
+
 <ul class="list-group">
 <li class="list-group-item">
   {% if maintasks %}
@@ -73,7 +72,7 @@ no history to view
   {% endfor %}
   </ul>
   {% endif %}
-  
+
   {% if subtasks %}
   <p><i class="fa fa-arrow-down"> </i><strong>Sub tasks</strong></p>
   <ul>
@@ -88,22 +87,22 @@ no history to view
   {% endfor %}
   </ul>
   {% endif %}
-  
+
   {% if user.is_authenticated and user_can_work and task.get_opened %}
 <p class="text-right">
   <a class="btn btn-default" href="/project/add_linked/{{task.id}}/"><i class="fa fa-plus"></i> Add sub task</a>
 </p>
   {% endif %}
 
-</li>                         
+</li>
 
 <li class="list-group-item"><p><strong>Check list</strong>
 
 
 
               {% if user_can_work and task.get_opened %}
-<a class="btn btn-default" href="{{task.get_absolute_url}}checklist">Edit check list</a>                
-              {% endif %}  
+<a class="btn btn-default" href="{{task.get_absolute_url}}checklist">Edit check list</a>
+              {% endif %}
 
 </p>
 {% if task_checklist %}
@@ -133,15 +132,15 @@ no history to view
 <p>{{c.comment_html|safe}}</p>
 
 <p class="text-right">
- {% ifequal c.created_user request.user %}  
+ {% ifequal c.created_user request.user %}
  <a class="btn btn-default" href="{{ c.get_absolute_url }}edit"><i class="fa fa-pencil-square-o"></i> Edit comment</a>
- 
+
 {% if c.created_at == c.modified_at %}
 {% else %}
 <a href="{{c.get_absolute_url}}history">History</a>
 {% endif %}
- 
-  <br>  
+
+  <br>
  {% endifequal %}
 <small>{{c.created_at}} by <a href="{% url 'profiles_detail' pk=c.created_user.profile.pk %}">{{c.created_user}}</a></small></p>
 
@@ -149,8 +148,8 @@ no history to view
 {% endfor %}
 {% endif %}
   </ul>
-</div>        
-          
+</div>
+
     {% if task_comment_form and user_can_comment%}
 
 {{ task_comment_form.media }}
@@ -160,12 +159,12 @@ no history to view
             {% for hidden in task_comment_form.hidden_fields %}
                 {{ hidden }}
             {% endfor %}
-            
+
             {% for field in task_comment_form.visible_fields %}
 
                 {{ field|bootstrap }}
             {% endfor %}
-            
+
             {% if task.get_opened %}
             <button class="btn btn-primary" type="submit" name="submit">Post comment</button>
             &nbsp;&nbsp;&nbsp;&nbsp;
@@ -175,21 +174,21 @@ no history to view
             {% else %}
               {% if user_can_work %}
                 <button class="btn btn-primary" type="submit" name="submit_and_reopen">Reopen task</button>
-              {% endif %}  
+              {% endif %}
             {% endif %}
-        </form>    
-    
+        </form>
+
     {% else %}
         {% if not user.is_authenticated %}
             <p class="bg-warning">Please, log in to post comments!</p>
         {% endif %}
-            
+
     {% endif %}
-    
-    
+
+
 </div>
 </div>
 
 <small>This page was last modified on {{ task.modified_at }}</small>
-    
+
 {% endblock %}

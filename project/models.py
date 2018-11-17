@@ -287,12 +287,11 @@ class Task(BaseStampedModel):
     state = models.PositiveSmallIntegerField( blank=False, null=False, default = TASK_STATE_NEW )
     # 0 - новая задача
     milestone = models.ForeignKey(Milestone, on_delete=models.PROTECT, blank=True, null=True )
-    target_date_at = models.DateTimeField( blank=True, null=True )
     finished_fact_at = models.DateTimeField( blank=True, null=True )
     important = models.BooleanField(blank=True, default=False)
 
     class Meta:
-        ordering = ['-important', 'target_date_at']
+        ordering = ['-important']
 
     def set_task_state(self, argUser, argWantedState):
         if ( argWantedState != self.state ):
