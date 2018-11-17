@@ -7,6 +7,8 @@ from django.urls import reverse_lazy
 
 from .models import Project, Task, Milestone
 
+from ich_bau.profiles.models import GetUserNoticationsQ
+
 TEST_ADMIN_USER_NAME  = 'test_admin_user'
 TEST_ADMIN_USER_EMAIL = 'test_admin_user@nothere.com'
 TEST_ADMIN_USER_PW    = 'test_admin_user_pw'
@@ -45,11 +47,16 @@ class Project_Collaboration_View_Test_Client(TestCase):
             test_worker_user = User.objects.create_user( username = TEST_WORKER_USER_NAME, password = TEST_WORKER_USER_PW )
 
         self.assertEqual( test_project_1.is_member(test_worker_user), False )
+        self.assertEqual( GetUserNoticationsQ( test_worker_user, True).count(), 0 )
 
-        #c_w = Client()
-        #res = c_w.login( username = TEST_WORKER_USER_NAME, password = TEST_WORKER_USER_PW )
-        #self.assertTrue( res )
+        c_w = Client()
+        res = c_w.login( username = TEST_WORKER_USER_NAME, password = TEST_WORKER_USER_PW )
+        self.assertTrue( res )
 
-        #response = c_a.post( reverse_lazy('project:member_add', args = (test_project_1.id,)  ), { } )
-        # we are redirected to new project page
-        #self.assertEqual( response.status_code, 302 )
+        response = c_a.post( reverse_lazy('project:member_add', args = (test_project_1.id,)  ), { 'member_profile' : test_worker_user.profile.id } )
+        # we are redirected to project page
+        self.assertEqual( response.status_code, 302 )
+        # worker is still not a member
+        self.assertEqual( test_project_1.is_member(test_worker_user), False )
+        # but worker get the notification
+        self.assertEqual( GetUserNoticationsQ( test_worker_user, True).count(), 1 )
