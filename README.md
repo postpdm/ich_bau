@@ -45,7 +45,7 @@ manage.py runserver
 
 | Setting name | Sample     |               Description               |
 |--------------|------------|:---------------------------------------:|
-| MAIN_MESSAGE | Debig mode | Some test massage as alert at each page |
+| MAIN_MESSAGE | Debug mode | Some test massage as alert at each page |
 |              |            |                                         |
 |              |            |                                         |
 
