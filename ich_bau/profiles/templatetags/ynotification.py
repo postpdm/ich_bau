@@ -5,6 +5,7 @@ register = template.Library()
 from ich_bau.profiles.models import Notification, GetUserNoticationsQ
 
 from django.utils.html import format_html
+from django.conf import settings
 
 # подсчитать кол-во уведомлений пользователю
 @register.simple_tag(name='unread_notification_count', takes_context=True)
@@ -26,10 +27,8 @@ def unread_notification_count(context):
 
 @register.simple_tag(name='main_message', takes_context=False)
 def main_message():
-    from django.conf import settings
-
     mm = settings.MAIN_MESSAGE
     if mm:
         return format_html('<div class="alert alert-info" role="alert">' + mm + '</div>')
     else:
-        return None
+        return ''
