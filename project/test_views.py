@@ -16,6 +16,8 @@ TEST_PROJECT_DESCRIPTION_2 = 'Second description'
 
 TEST_TASK_FULLNAME = 'TEST TASK #1 FULL NAME'
 
+TEST_TASK_IN_MILESTONE_FULLNAME = 'TEST TASK #2 IN MILESTONE FULL NAME'
+
 TEST_MILESTONE_FULLNAME = 'TEST MILESTONE #1 FULL NAME'
 TEST_MILESTONE_FULLNAME_2 = 'TEST MILESTONE #1 NEW FULL NAME'
 
@@ -192,3 +194,11 @@ class Project_View_Test_Client(TestCase):
         # task_checklist
         response = c.get( reverse_lazy('project:task_checklist', args = (0,) ) )
         self.assertEqual( response.status_code, 404 )
+
+        # create task from milestone
+        response = c.post( reverse_lazy('project:task_add_to_milestone', args = (test_ms_1.id, ) ), { 'fullname' : TEST_TASK_IN_MILESTONE_FULLNAME, 'milestone' : test_ms_1.id } )
+        # we are redirected to new task page
+        self.assertEqual( response.status_code, 302 )
+
+        test_task_2 = Task.objects.get(fullname=TEST_TASK_IN_MILESTONE_FULLNAME)
+        self.assertEqual( test_task_2.milestone.id, test_ms_1.id )
