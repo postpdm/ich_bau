@@ -30,6 +30,8 @@ TEST_PROJECT_DESCRIPTION_1 = 'Project for collaboration'
 TEST_TASK_FIRST_COMMENT = 'Hloo!'
 TEST_TASK_FIRST_COMMENT_2 = 'Hello!'
 
+TEST_TASK_SECOND_COMMENT = 'I''m here!'
+
 class Project_Collaboration_View_Test_Client(TestCase):
     def test_Project_Collaboration(self):
         if not User.objects.filter( username = TEST_ADMIN_USER_NAME ).exists():
@@ -185,3 +187,15 @@ class Project_Collaboration_View_Test_Client(TestCase):
         self.assertEqual( response.status_code, 302 )
         comment_1.refresh_from_db()
         self.assertEqual( comment_1.comment, TEST_TASK_FIRST_COMMENT_2 )
+
+        self.assertEqual( GetUserNoticationsQ( test_admin_user, True).count(), 0 )
+        self.assertEqual( GetUserNoticationsQ( test_worker_user, True).count(), 0 )
+        self.assertEqual( GetUserNoticationsQ( test_self_worker_user, True).count(), 0 )
+
+        response = c_w.post( reverse_lazy('project:task_view', args = (test_task_1.id,) ), { 'submit' : 'submit', 'comment' : TEST_TASK_SECOND_COMMENT } )
+        self.assertEqual( response.status_code, 302 )
+        self.assertEqual( TaskComment.objects.filter( parenttask = test_task_1 ).count(), 2 )
+
+        self.assertEqual( GetUserNoticationsQ( test_admin_user, True).count(), 1 )
+        self.assertEqual( GetUserNoticationsQ( test_worker_user, True).count(), 0 )
+        self.assertEqual( GetUserNoticationsQ( test_self_worker_user, True).count(), 0 )
