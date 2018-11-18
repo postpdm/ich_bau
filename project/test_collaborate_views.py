@@ -5,7 +5,7 @@ from django.test import TestCase, Client
 
 from django.urls import reverse_lazy
 
-from .models import Project, Task, Milestone
+from .models import Project, Task, Milestone, TaskComment
 
 from ich_bau.profiles.models import GetUserNoticationsQ
 
@@ -16,6 +16,10 @@ TEST_ADMIN_USER_PW    = 'test_admin_user_pw'
 TEST_WORKER_USER_NAME  = 'test_worker_user'
 TEST_WORKER_USER_EMAIL = 'test_worker_user@nothere.com'
 TEST_WORKER_USER_PW    = 'test_worker_user_pw'
+
+TEST_SELF_WORKER_USER_NAME  = 'test_self_worker_user'
+TEST_SELF_WORKER_USER_EMAIL = 'test_self_worker_user@nothere.com'
+TEST_SELF_WORKER_USER_PW    = 'test_self_worker_user_pw'
 
 TEST_PROJECT_FULLNAME = 'TEST PROJECT FOR COLLABORATION #1 FULL NAME'
 
@@ -53,6 +57,7 @@ class Project_Collaboration_View_Test_Client(TestCase):
         response = c_w.login( username = TEST_WORKER_USER_NAME, password = TEST_WORKER_USER_PW )
         self.assertTrue( response )
 
+        # add new user
         response = c_a.post( reverse_lazy('project:member_add', args = (test_project_1.id,)  ), { 'member_profile' : test_worker_user.profile.id } )
         # we are redirected to project page
         self.assertEqual( response.status_code, 302 )
@@ -67,13 +72,100 @@ class Project_Collaboration_View_Test_Client(TestCase):
         self.assertEqual( notification.reciever_user, test_worker_user)
         self.assertEqual( notification.msg_url, test_project_1.get_absolute_url() )
 
+        # visit the notification link
+        response = c_w.get( reverse_lazy('notification_read', args = (notification.id,)  ) )
+        self.assertEqual( response.status_code, 302 )
+        self.assertEqual( GetUserNoticationsQ( test_worker_user, True).count(), 0 )
+
         # member record 0 should not exist
         response = c_w.get( reverse_lazy('project:member_accept', args = (0,)  ) )
         self.assertEqual( response.status_code, 404 )
         member_id = test_project_1.GetMemberList().get( member_profile = test_worker_user.profile ).id
         self.assertEqual( member_id, 2 )
-        
+
         response = c_w.get( reverse_lazy('project:member_accept', args = (member_id,)  ) )
         self.assertEqual( response.status_code, 302 )
-        
+
         self.assertEqual( test_project_1.is_member(test_worker_user), True )
+
+        # new user want to join
+        if not User.objects.filter( username = TEST_SELF_WORKER_USER_NAME ).exists():
+            test_self_worker_user = User.objects.create_user( username = TEST_SELF_WORKER_USER_NAME, password = TEST_SELF_WORKER_USER_PW )
+
+        self.assertEqual( test_project_1.is_member(test_self_worker_user), False )
+        self.assertEqual( GetUserNoticationsQ( test_self_worker_user, True).count(), 0 )
+
+        c_sw = Client()
+        response = c_sw.login( username = TEST_SELF_WORKER_USER_NAME, password = TEST_SELF_WORKER_USER_PW )
+        self.assertTrue( response )
+
+        self.assertEqual( GetUserNoticationsQ( test_admin_user, True).count(), 0 )
+
+        response = c_sw.post( reverse_lazy('project:member_want_join', args = (test_project_1.id,)  ) )
+        # we are redirected to project page
+        self.assertEqual( response.status_code, 302 )
+        # self worker is still not a member
+        self.assertEqual( test_project_1.is_member(test_self_worker_user), False )
+
+        # self worker get NO notification
+        self.assertEqual( GetUserNoticationsQ( test_self_worker_user, True).count(), 0 )
+        # check the admin notification
+        self.assertEqual( GetUserNoticationsQ( test_admin_user, True).count(), 1 )
+
+        notification = GetUserNoticationsQ( test_admin_user, True).first()
+        self.assertEqual( notification.sender_user, test_self_worker_user )
+        self.assertEqual( notification.reciever_user, test_admin_user)
+        self.assertEqual( notification.msg_url, test_project_1.get_absolute_url() )
+
+        # visit the notification link
+        response = c_a.get( reverse_lazy('notification_read', args = (notification.id,)  ) )
+        self.assertEqual( response.status_code, 302 )
+        self.assertEqual( GetUserNoticationsQ( test_admin_user, True).count(), 0 )
+
+        # accept the self joined
+
+        member_id = test_project_1.GetMemberList().get( member_profile = test_self_worker_user.profile ).id
+        self.assertEqual( member_id, 3 )
+
+        # try to accept new member from non admin user
+        response = c_w.get( reverse_lazy('project:team_accept', args = (member_id,)  ) )
+        # non admin user is not allowed to accept the members
+        self.assertEqual( response.status_code, 403 )
+
+        self.assertEqual( test_project_1.is_member(test_self_worker_user), False )
+
+        # try to accept new member from  admin user
+        response = c_a.get( reverse_lazy('project:team_accept', args = (member_id,)  ) )
+        # admin user is  allowed to accept the members
+        self.assertEqual( response.status_code, 302 )
+        # done - self joined user is accpeted
+        self.assertEqual( test_project_1.is_member(test_self_worker_user), True )
+
+        # create first task
+        self.assertEqual( Task.objects.count(), 0 )
+        # create first task
+        response = c_a.post( reverse_lazy('project:task_add', args = (test_project_1.id,) ), { 'fullname' : TEST_TASK_FULLNAME, } )
+        # we are redirected to new task page
+        self.assertEqual( response.status_code, 302 )
+
+        self.assertEqual( Task.objects.count(), 1 )
+        # get object
+        test_task_1 = Task.objects.get(id=1)
+        # check url
+        self.assertEqual( response.url, test_task_1.get_absolute_url() )
+        # check name
+        self.assertEqual( test_task_1.fullname, TEST_TASK_FULLNAME )
+        # check task is in project
+        self.assertEqual( test_task_1.project, test_project_1 )
+
+        # check the task comments count - 0
+        self.assertEqual( TaskComment.objects.filter( parenttask = test_task_1 ).count(), 0 )
+
+        # post new comments from admin to unexisted task
+        response = c_a.post( reverse_lazy('project:task_view', args = (0,) ), { 'submit' : 'submit', 'comment' : 'sss' } )
+        self.assertEqual( response.status_code, 404 )
+
+        # post new comments from admin
+        response = c_a.post( reverse_lazy('project:task_view', args = (test_task_1.id,) ), { 'submit' : 'submit', 'comment' : 'sss' } )
+        self.assertEqual( response.status_code, 302 )
+        self.assertEqual( TaskComment.objects.filter( parenttask = test_task_1 ).count(), 1 )
