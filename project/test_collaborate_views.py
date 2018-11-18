@@ -161,6 +161,10 @@ class Project_Collaboration_View_Test_Client(TestCase):
         # check the task comments count - 0
         self.assertEqual( TaskComment.objects.filter( parenttask = test_task_1 ).count(), 0 )
 
+        # post new comments from admin to unexisted task
+        response = c_a.post( reverse_lazy('project:task_view', args = (0,) ), { 'submit' : 'submit', 'comment' : 'sss' } )
+        self.assertEqual( response.status_code, 404 )
+
         # post new comments from admin
         response = c_a.post( reverse_lazy('project:task_view', args = (test_task_1.id,) ), { 'submit' : 'submit', 'comment' : 'sss' } )
         self.assertEqual( response.status_code, 302 )
