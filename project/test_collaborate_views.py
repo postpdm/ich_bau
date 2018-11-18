@@ -60,3 +60,9 @@ class Project_Collaboration_View_Test_Client(TestCase):
         self.assertEqual( test_project_1.is_member(test_worker_user), False )
         # but worker get the notification
         self.assertEqual( GetUserNoticationsQ( test_worker_user, True).count(), 1 )
+
+        # check the notification
+        notification = GetUserNoticationsQ( test_worker_user, True).first()
+        self.assertEqual( notification.sender_user, test_admin_user)
+        self.assertEqual( notification.reciever_user, test_worker_user)
+        self.assertEqual( notification.msg_url, test_project_1.get_absolute_url() )
