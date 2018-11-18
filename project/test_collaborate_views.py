@@ -176,7 +176,11 @@ class Project_Collaboration_View_Test_Client(TestCase):
         comment_1 = TaskComment.objects.filter( parenttask = test_task_1 ).first()
         self.assertEqual( comment_1.comment, TEST_TASK_FIRST_COMMENT )
 
-        # edit comment
+        # edit comment from another user
+        response = c_w.post( reverse_lazy('project:edit_task_comment', args = (comment_1.id,) ), { 'submit' : 'submit', 'comment' : TEST_TASK_FIRST_COMMENT_2 } )
+        self.assertEqual( response.status_code, 404 )
+
+        # edit comment from author
         response = c_a.post( reverse_lazy('project:edit_task_comment', args = (comment_1.id,) ), { 'submit' : 'submit', 'comment' : TEST_TASK_FIRST_COMMENT_2 } )
         self.assertEqual( response.status_code, 302 )
         comment_1.refresh_from_db()
