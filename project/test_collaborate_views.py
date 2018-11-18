@@ -94,14 +94,20 @@ class Project_Collaboration_View_Test_Client(TestCase):
         response = c_sw.login( username = TEST_SELF_WORKER_USER_NAME, password = TEST_SELF_WORKER_USER_PW )
         self.assertTrue( response )
 
+        self.assertEqual( GetUserNoticationsQ( test_admin_user, True).count(), 0 )
+
         response = c_sw.post( reverse_lazy('project:member_want_join', args = (test_project_1.id,)  ) )
         # we are redirected to project page
         self.assertEqual( response.status_code, 302 )
         # self worker is still not a member
         self.assertEqual( test_project_1.is_member(test_self_worker_user), False )
+
         # self worker get NO notification
         self.assertEqual( GetUserNoticationsQ( test_self_worker_user, True).count(), 0 )
+        # check the admin notification
+        self.assertEqual( GetUserNoticationsQ( test_admin_user, True).count(), 1 )
 
-        # check the notification
-
-        
+        notification = GetUserNoticationsQ( test_admin_user, True).first()
+        self.assertEqual( notification.sender_user, test_self_worker_user )
+        self.assertEqual( notification.reciever_user, test_admin_user)
+        self.assertEqual( notification.msg_url, test_project_1.get_absolute_url() )
