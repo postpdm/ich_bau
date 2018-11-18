@@ -5,7 +5,7 @@ from django.test import TestCase, Client
 
 from django.urls import reverse_lazy
 
-from .models import Project, Task, Milestone
+from .models import Project, Task, Milestone, TaskComment
 
 from ich_bau.profiles.models import GetUserNoticationsQ
 
@@ -130,13 +130,38 @@ class Project_Collaboration_View_Test_Client(TestCase):
         # try to accept new member from non admin user
         response = c_w.get( reverse_lazy('project:team_accept', args = (member_id,)  ) )
         # non admin user is not allowed to accept the members
-        self.assertEqual( response.status_code, 403 ) 
+        self.assertEqual( response.status_code, 403 )
 
         self.assertEqual( test_project_1.is_member(test_self_worker_user), False )
 
         # try to accept new member from  admin user
         response = c_a.get( reverse_lazy('project:team_accept', args = (member_id,)  ) )
         # admin user is  allowed to accept the members
-        self.assertEqual( response.status_code, 302 ) 
+        self.assertEqual( response.status_code, 302 )
         # done - self joined user is accpeted
         self.assertEqual( test_project_1.is_member(test_self_worker_user), True )
+
+        # create first task
+        self.assertEqual( Task.objects.count(), 0 )
+        # create first task
+        response = c_a.post( reverse_lazy('project:task_add', args = (test_project_1.id,) ), { 'fullname' : TEST_TASK_FULLNAME, } )
+        # we are redirected to new task page
+        self.assertEqual( response.status_code, 302 )
+
+        self.assertEqual( Task.objects.count(), 1 )
+        # get object
+        test_task_1 = Task.objects.get(id=1)
+        # check url
+        self.assertEqual( response.url, test_task_1.get_absolute_url() )
+        # check name
+        self.assertEqual( test_task_1.fullname, TEST_TASK_FULLNAME )
+        # check task is in project
+        self.assertEqual( test_task_1.project, test_project_1 )
+
+        # check the task comments count - 0
+        self.assertEqual( TaskComment.objects.filter( parenttask = test_task_1 ).count(), 0 )
+
+        # post new comments from admin
+        response = c_a.post( reverse_lazy('project:task_view', args = (test_task_1.id,) ), { 'submit' : 'submit', 'comment' : 'sss' } )
+        self.assertEqual( response.status_code, 302 )
+        self.assertEqual( TaskComment.objects.filter( parenttask = test_task_1 ).count(), 1 )
