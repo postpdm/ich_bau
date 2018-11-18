@@ -41,6 +41,14 @@ manage.py createsuperuser
 manage.py runserver
 ```
 
+### Settings
+
+| Setting name | Sample     |               Description               |
+|--------------|------------|:---------------------------------------:|
+| MAIN_MESSAGE | Debug mode | Some test massage as alert at each page |
+|              |            |                                         |
+|              |            |                                         |
+
 ### Testing file repo functions
 
 For testing file repo functions you need actual version of Apache Subversion client and server.

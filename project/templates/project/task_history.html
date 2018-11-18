@@ -38,7 +38,6 @@
         <td>{{v.field_dict.assigned_user}}</td>
         <td>{{v.field_dict.state}}</td>
         <td>{{v.field_dict.milestone}}</td>
-        <td>{{v.field_dict.target_date_at|date}}</td>
         <td>{{v.field_dict.finished_fact_at|date}}</td>
         <td>{% if v.field_dict.important %}<i class="fa fa-exclamation-triangle" style="color:red"></i>{%endif%}</td>
         <td><a href="{% url 'profiles_detail' pk=v.revision.user.profile.id %}">{{v.revision.user.profile}}</a></td>

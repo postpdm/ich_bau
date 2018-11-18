@@ -36,7 +36,6 @@
     {% if table_mode != 'milestone' %}
     <td>{% if t.milestone %} Milestone - <a href="{{t.milestone.get_absolute_url}}">{{t.milestone}} {% if t.milestone.planned_at %} {{ t.milestone.planned_at|date }} {% endif %} </a>{% endif %}
     {% endif %}
-    <div {% if t.target_date_at > t.milestone.planned_at %} class="bg-danger" {% endif %} > {% if t.target_date_at %}Target date - {{t.target_date_at|date}} {% endif %}</div></td>
     <td>{% if t.holder %} {{t.holder}}{% endif %}</td>
     <td>{% if t.assignee %} {{t.assignee}} {% endif %}</td>
     <td>{{t.get_state_name}}</td>

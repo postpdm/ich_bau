@@ -31,7 +31,6 @@ urlpatterns = [
     url(r'^task_add/(?P<project_id>\w+)/$', views.TaskCreateView.as_view(), name='task_add'),
     url(r'^task_add_to_milestone/(?P<milestone_id>\w+)/$', views.TaskCreateView.as_view(), name='task_add_to_milestone'),
     url(r'^task/(?P<pk>\w+)/edit/$', views.TaskUpdateView.as_view(), name='task_edit'),
-    url(r'^task/(?P<pk>\w+)/edit_target_date/$', views.edit_task_target_date, name='edit_task_target_date'),
     url(r'^task/(?P<task_id>\w+)/checklist/$', views.task_checklist, name='task_checklist'),
     url(r'^task/(?P<task_id>\w+)/$', views.task_view, name='task_view'),
     url(r'^task/(?P<task_id>\w+)/history/$', views.task_history, name='task_history'),

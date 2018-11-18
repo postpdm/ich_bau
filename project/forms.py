@@ -62,16 +62,6 @@ class TaskForm(forms.ModelForm):
             self.fields['holder'].queryset = list
             self.fields['assignee'].queryset = list
 
-class TaskEditTargetDateForm(forms.ModelForm):
-    #target_date_at = forms.DateField( required = False,
-    #    widget=DateTimePicker(options={"format": "YYYY-MM-DD",
-    #                                   "pickTime": False}))
-
-    class Meta:
-        model = Task
-        fields = ['target_date_at',
-        ]
-
 class TaskLinkedForm(forms.ModelForm):
     subtask=forms.ModelChoiceField( Task.objects, help_text="subtask", required=True )
 
