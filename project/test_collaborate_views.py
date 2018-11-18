@@ -72,6 +72,11 @@ class Project_Collaboration_View_Test_Client(TestCase):
         self.assertEqual( notification.reciever_user, test_worker_user)
         self.assertEqual( notification.msg_url, test_project_1.get_absolute_url() )
 
+        # visit the notification link
+        response = c_w.get( reverse_lazy('notification_read', args = (notification.id,)  ) )
+        self.assertEqual( response.status_code, 302 )
+        self.assertEqual( GetUserNoticationsQ( test_worker_user, True).count(), 0 )
+
         # member record 0 should not exist
         response = c_w.get( reverse_lazy('project:member_accept', args = (0,)  ) )
         self.assertEqual( response.status_code, 404 )
@@ -111,3 +116,8 @@ class Project_Collaboration_View_Test_Client(TestCase):
         self.assertEqual( notification.sender_user, test_self_worker_user )
         self.assertEqual( notification.reciever_user, test_admin_user)
         self.assertEqual( notification.msg_url, test_project_1.get_absolute_url() )
+
+        # visit the notification link
+        response = c_a.get( reverse_lazy('notification_read', args = (notification.id,)  ) )
+        self.assertEqual( response.status_code, 302 )
+        self.assertEqual( GetUserNoticationsQ( test_admin_user, True).count(), 0 )
