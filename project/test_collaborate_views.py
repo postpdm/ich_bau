@@ -126,3 +126,17 @@ class Project_Collaboration_View_Test_Client(TestCase):
 
         member_id = test_project_1.GetMemberList().get( member_profile = test_self_worker_user.profile ).id
         self.assertEqual( member_id, 3 )
+
+        # try to accept new member from non admin user
+        response = c_w.get( reverse_lazy('project:team_accept', args = (member_id,)  ) )
+        # non admin user is not allowed to accept the members
+        self.assertEqual( response.status_code, 403 ) 
+
+        self.assertEqual( test_project_1.is_member(test_self_worker_user), False )
+
+        # try to accept new member from  admin user
+        response = c_a.get( reverse_lazy('project:team_accept', args = (member_id,)  ) )
+        # admin user is  allowed to accept the members
+        self.assertEqual( response.status_code, 302 ) 
+        # done - self joined user is accpeted
+        self.assertEqual( test_project_1.is_member(test_self_worker_user), True )
