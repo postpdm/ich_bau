@@ -27,6 +27,9 @@ TEST_TASK_FULLNAME = 'TEST TASK FOR COLLABORATION #1 FULL NAME'
 
 TEST_PROJECT_DESCRIPTION_1 = 'Project for collaboration'
 
+TEST_TASK_FIRST_COMMENT = 'Hloo!'
+TEST_TASK_FIRST_COMMENT_2 = 'Hello!'
+
 class Project_Collaboration_View_Test_Client(TestCase):
     def test_Project_Collaboration(self):
         if not User.objects.filter( username = TEST_ADMIN_USER_NAME ).exists():
@@ -166,6 +169,19 @@ class Project_Collaboration_View_Test_Client(TestCase):
         self.assertEqual( response.status_code, 404 )
 
         # post new comments from admin
-        response = c_a.post( reverse_lazy('project:task_view', args = (test_task_1.id,) ), { 'submit' : 'submit', 'comment' : 'sss' } )
+        response = c_a.post( reverse_lazy('project:task_view', args = (test_task_1.id,) ), { 'submit' : 'submit', 'comment' : TEST_TASK_FIRST_COMMENT } )
         self.assertEqual( response.status_code, 302 )
         self.assertEqual( TaskComment.objects.filter( parenttask = test_task_1 ).count(), 1 )
+
+        comment_1 = TaskComment.objects.filter( parenttask = test_task_1 ).first()
+        self.assertEqual( comment_1.comment, TEST_TASK_FIRST_COMMENT )
+
+        # edit comment from another user
+        response = c_w.post( reverse_lazy('project:edit_task_comment', args = (comment_1.id,) ), { 'submit' : 'submit', 'comment' : TEST_TASK_FIRST_COMMENT_2 } )
+        self.assertEqual( response.status_code, 404 )
+
+        # edit comment from author
+        response = c_a.post( reverse_lazy('project:edit_task_comment', args = (comment_1.id,) ), { 'submit' : 'submit', 'comment' : TEST_TASK_FIRST_COMMENT_2 } )
+        self.assertEqual( response.status_code, 302 )
+        comment_1.refresh_from_db()
+        self.assertEqual( comment_1.comment, TEST_TASK_FIRST_COMMENT_2 )
