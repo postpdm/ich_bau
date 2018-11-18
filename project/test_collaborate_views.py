@@ -121,3 +121,8 @@ class Project_Collaboration_View_Test_Client(TestCase):
         response = c_a.get( reverse_lazy('notification_read', args = (notification.id,)  ) )
         self.assertEqual( response.status_code, 302 )
         self.assertEqual( GetUserNoticationsQ( test_admin_user, True).count(), 0 )
+
+        # accept the self joined
+
+        member_id = test_project_1.GetMemberList().get( member_profile = test_self_worker_user.profile ).id
+        self.assertEqual( member_id, 3 )
