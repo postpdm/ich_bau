@@ -171,7 +171,7 @@ class Project_Collaboration_View_Test_Client(TestCase):
         self.assertEqual( Version.objects.get_for_object( test_task_1 ).count(), 1 )
 
         # check the task comments count - 0
-        self.assertEqual( TaskComment.objects.filter( parenttask = test_task_1 ).count(), 0 )
+        self.assertEqual( test_task_1.get_comments().count(), 0 )
 
         # post new comments from admin to unexisted task
         response = c_a.post( reverse_lazy('project:task_view', args = (0,) ), { 'submit' : 'submit', 'comment' : 'sss' } )
@@ -180,9 +180,9 @@ class Project_Collaboration_View_Test_Client(TestCase):
         # post new comments from admin
         response = c_a.post( reverse_lazy('project:task_view', args = (test_task_1.id,) ), { 'submit' : 'submit', 'comment' : TEST_TASK_FIRST_COMMENT } )
         self.assertEqual( response.status_code, 302 )
-        self.assertEqual( TaskComment.objects.filter( parenttask = test_task_1 ).count(), 1 )
+        self.assertEqual( test_task_1.get_comments().count(), 1 )
 
-        comment_1 = TaskComment.objects.filter( parenttask = test_task_1 ).first()
+        comment_1 = test_task_1.get_comments().first()
         self.assertEqual( comment_1.comment, TEST_TASK_FIRST_COMMENT )
         self.assertEqual( Version.objects.get_for_object( comment_1 ).count(), 1 )
 
@@ -207,7 +207,7 @@ class Project_Collaboration_View_Test_Client(TestCase):
 
         response = c_w.post( reverse_lazy('project:task_view', args = (test_task_1.id,) ), { 'submit' : 'submit', 'comment' : TEST_TASK_SECOND_COMMENT } )
         self.assertEqual( response.status_code, 302 )
-        self.assertEqual( TaskComment.objects.filter( parenttask = test_task_1 ).count(), 2 )
+        self.assertEqual( test_task_1.get_comments().count(), 2 )
 
         self.assertEqual( GetUserNoticationsQ( test_admin_user, True).count(), 1 )
         self.assertEqual( GetUserNoticationsQ( test_worker_user, True).count(), 0 )

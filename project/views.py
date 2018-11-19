@@ -596,7 +596,7 @@ def task_view(request, task_id):
                     if ual == PROJECT_ACCESS_VIEW and task.get_opened() and request.user.is_authenticated:
                         user_can_comment = True
 
-        comments = TaskComment.objects.filter( parenttask = task )
+        comments = task.get_comments()
         subtasks = TaskLink.objects.filter(maintask=task)
         maintasks = TaskLink.objects.filter(subtask=task)
         task_checklist = TaskCheckList.objects.filter( parenttask = task )
