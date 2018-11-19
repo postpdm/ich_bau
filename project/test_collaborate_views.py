@@ -162,6 +162,9 @@ class Project_Collaboration_View_Test_Client(TestCase):
         self.assertEqual( test_task_1.fullname, TEST_TASK_FULLNAME )
         # check task is in project
         self.assertEqual( test_task_1.project, test_project_1 )
+        # check task history
+        response = c_a.get( reverse_lazy('project:task_history', args = (test_task_1.id,) ) )
+        self.assertContains(response, TEST_TASK_FULLNAME, status_code=200 )
 
         # check the task comments count - 0
         self.assertEqual( TaskComment.objects.filter( parenttask = test_task_1 ).count(), 0 )
