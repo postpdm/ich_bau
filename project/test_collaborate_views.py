@@ -7,6 +7,8 @@ from django.urls import reverse_lazy
 
 from .models import Project, Task, Milestone, TaskComment
 
+from reversion.models import Version
+
 from ich_bau.profiles.models import GetUserNoticationsQ
 
 TEST_ADMIN_USER_NAME  = 'test_admin_user'
@@ -164,7 +166,9 @@ class Project_Collaboration_View_Test_Client(TestCase):
         self.assertEqual( test_task_1.project, test_project_1 )
         # check task history
         response = c_a.get( reverse_lazy('project:task_history', args = (test_task_1.id,) ) )
+        # check history records count
         self.assertContains(response, TEST_TASK_FULLNAME, status_code=200 )
+        self.assertEqual( Version.objects.get_for_object( test_task_1 ).count(), 0 )
 
         # check the task comments count - 0
         self.assertEqual( TaskComment.objects.filter( parenttask = test_task_1 ).count(), 0 )
