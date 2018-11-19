@@ -342,6 +342,9 @@ class Task(BaseStampedModel):
     def description_html(self):
         return self.description
 
+    def get_comments(self):
+        return TaskComment.objects.filter( parenttask = self )
+
 # связи между задачами
 class TaskLink(models.Model):
     maintask=models.ForeignKey( Task, on_delete=models.PROTECT, related_name = 'main' )

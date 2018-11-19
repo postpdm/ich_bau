@@ -7,6 +7,8 @@ from django.urls import reverse_lazy
 
 from .models import Project, Task, Milestone, TaskComment
 
+from reversion.models import Version
+
 from ich_bau.profiles.models import GetUserNoticationsQ
 
 TEST_ADMIN_USER_NAME  = 'test_admin_user'
@@ -29,6 +31,8 @@ TEST_PROJECT_DESCRIPTION_1 = 'Project for collaboration'
 
 TEST_TASK_FIRST_COMMENT = 'Hloo!'
 TEST_TASK_FIRST_COMMENT_2 = 'Hello!'
+
+TEST_TASK_SECOND_COMMENT = 'I''m here!'
 
 class Project_Collaboration_View_Test_Client(TestCase):
     def test_Project_Collaboration(self):
@@ -160,28 +164,51 @@ class Project_Collaboration_View_Test_Client(TestCase):
         self.assertEqual( test_task_1.fullname, TEST_TASK_FULLNAME )
         # check task is in project
         self.assertEqual( test_task_1.project, test_project_1 )
+        # check task history
+        response = c_a.get( reverse_lazy('project:task_history', args = (test_task_1.id,) ) )
+        # check history records count
+        self.assertContains(response, TEST_TASK_FULLNAME, status_code=200 )
+        self.assertEqual( Version.objects.get_for_object( test_task_1 ).count(), 1 )
 
         # check the task comments count - 0
-        self.assertEqual( TaskComment.objects.filter( parenttask = test_task_1 ).count(), 0 )
+        self.assertEqual( test_task_1.get_comments().count(), 0 )
 
         # post new comments from admin to unexisted task
         response = c_a.post( reverse_lazy('project:task_view', args = (0,) ), { 'submit' : 'submit', 'comment' : 'sss' } )
-        self.assertEqual( response.status_code, 404 )
+        self.assertEqual( response.status_code, 404 ) # should fail
 
         # post new comments from admin
         response = c_a.post( reverse_lazy('project:task_view', args = (test_task_1.id,) ), { 'submit' : 'submit', 'comment' : TEST_TASK_FIRST_COMMENT } )
         self.assertEqual( response.status_code, 302 )
-        self.assertEqual( TaskComment.objects.filter( parenttask = test_task_1 ).count(), 1 )
+        self.assertEqual( test_task_1.get_comments().count(), 1 )
 
-        comment_1 = TaskComment.objects.filter( parenttask = test_task_1 ).first()
+        comment_1 = test_task_1.get_comments().first()
         self.assertEqual( comment_1.comment, TEST_TASK_FIRST_COMMENT )
+        self.assertEqual( Version.objects.get_for_object( comment_1 ).count(), 1 )
 
         # edit comment from another user
         response = c_w.post( reverse_lazy('project:edit_task_comment', args = (comment_1.id,) ), { 'submit' : 'submit', 'comment' : TEST_TASK_FIRST_COMMENT_2 } )
         self.assertEqual( response.status_code, 404 )
-
         # edit comment from author
         response = c_a.post( reverse_lazy('project:edit_task_comment', args = (comment_1.id,) ), { 'submit' : 'submit', 'comment' : TEST_TASK_FIRST_COMMENT_2 } )
         self.assertEqual( response.status_code, 302 )
         comment_1.refresh_from_db()
         self.assertEqual( comment_1.comment, TEST_TASK_FIRST_COMMENT_2 )
+        self.assertEqual( Version.objects.get_for_object( comment_1 ).count(), 2 )
+
+        # check comment history
+        response = c_a.get( reverse_lazy('project:task_comment_history', args = (comment_1.id,) ) )
+        self.assertContains(response, TEST_TASK_FIRST_COMMENT, status_code=200 )
+        self.assertEqual( Version.objects.get_for_object( comment_1 ).count(), 2 )
+
+        self.assertEqual( GetUserNoticationsQ( test_admin_user, True).count(), 0 )
+        self.assertEqual( GetUserNoticationsQ( test_worker_user, True).count(), 0 )
+        self.assertEqual( GetUserNoticationsQ( test_self_worker_user, True).count(), 0 )
+
+        response = c_w.post( reverse_lazy('project:task_view', args = (test_task_1.id,) ), { 'submit' : 'submit', 'comment' : TEST_TASK_SECOND_COMMENT } )
+        self.assertEqual( response.status_code, 302 )
+        self.assertEqual( test_task_1.get_comments().count(), 2 )
+
+        self.assertEqual( GetUserNoticationsQ( test_admin_user, True).count(), 1 )
+        self.assertEqual( GetUserNoticationsQ( test_worker_user, True).count(), 0 )
+        self.assertEqual( GetUserNoticationsQ( test_self_worker_user, True).count(), 0 )
