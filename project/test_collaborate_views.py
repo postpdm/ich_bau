@@ -189,11 +189,11 @@ class Project_Collaboration_View_Test_Client(TestCase):
         response = c_a.post( reverse_lazy('project:edit_task_comment', args = (comment_1.id,) ), { 'submit' : 'submit', 'comment' : TEST_TASK_FIRST_COMMENT_2 } )
         self.assertEqual( response.status_code, 302 )
         comment_1.refresh_from_db()
-        self.assertEqual( comment_1.comment, TEST_TASK_FIRST_COMMENT )
+        self.assertEqual( comment_1.comment, TEST_TASK_FIRST_COMMENT_2 )
 
         # check comment history
         response = c_a.get( reverse_lazy('project:task_comment_history', args = (comment_1.id,) ) )
-        self.assertContains(response, TEST_TASK_FULLNAME, status_code=200 )
+        self.assertContains(response, TEST_TASK_FIRST_COMMENT, status_code=200 )
 
         self.assertEqual( GetUserNoticationsQ( test_admin_user, True).count(), 0 )
         self.assertEqual( GetUserNoticationsQ( test_worker_user, True).count(), 0 )
