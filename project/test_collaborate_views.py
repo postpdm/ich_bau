@@ -168,7 +168,7 @@ class Project_Collaboration_View_Test_Client(TestCase):
         response = c_a.get( reverse_lazy('project:task_history', args = (test_task_1.id,) ) )
         # check history records count
         self.assertContains(response, TEST_TASK_FULLNAME, status_code=200 )
-        self.assertEqual( Version.objects.get_for_object( test_task_1 ).count(), 0 )
+        self.assertEqual( Version.objects.get_for_object( test_task_1 ).count(), 1 )
 
         # check the task comments count - 0
         self.assertEqual( TaskComment.objects.filter( parenttask = test_task_1 ).count(), 0 )
