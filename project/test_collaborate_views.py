@@ -73,6 +73,9 @@ class Project_Collaboration_View_Test_Client(TestCase):
         # but worker get the notification
         self.assertEqual( GetUserNoticationsQ( test_worker_user, True).count(), 1 )
 
+        response = c_w.get( reverse_lazy('unread_notifications_view' ) )
+        self.assertContains(response, test_project_1.fullname, status_code=200 )
+
         # check the notification
         notification = GetUserNoticationsQ( test_worker_user, True).first()
         self.assertEqual( notification.sender_user, test_admin_user)
