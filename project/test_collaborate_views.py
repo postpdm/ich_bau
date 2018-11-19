@@ -198,6 +198,7 @@ class Project_Collaboration_View_Test_Client(TestCase):
         # check comment history
         response = c_a.get( reverse_lazy('project:task_comment_history', args = (comment_1.id,) ) )
         self.assertContains(response, TEST_TASK_FIRST_COMMENT, status_code=200 )
+        self.assertEqual( Version.objects.get_for_object( comment_1 ).count(), 1 )
 
         self.assertEqual( GetUserNoticationsQ( test_admin_user, True).count(), 0 )
         self.assertEqual( GetUserNoticationsQ( test_worker_user, True).count(), 0 )
