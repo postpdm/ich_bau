@@ -47,7 +47,7 @@ manage.py runserver
 |--------------|------------------------|:---------------------------------------:|
 | MAIN_MESSAGE | Debug mode             | Some test massage as alert at each page |
 | DATABASES    | Database configuration | Standard Django configuration. `dj_database_url` is supported |
-|              |                        |                                         |
+| REPO_SVN     | SVN file repo          |                                         |
 
 ### Testing file repo functions
 
