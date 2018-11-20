@@ -26,6 +26,7 @@ TEST_SELF_WORKER_USER_PW    = 'test_self_worker_user_pw'
 TEST_PROJECT_FULLNAME = 'TEST PROJECT FOR COLLABORATION #1 FULL NAME'
 
 TEST_TASK_FULLNAME = 'TEST TASK FOR COLLABORATION #1 FULL NAME'
+TEST_TASK_FULLNAME_ASSIGNED = 'TEST TASK FOR COLLABORATION #1 FULL NAME - WORKER ASSIGNED'
 
 TEST_PROJECT_DESCRIPTION_1 = 'Project for collaboration'
 
@@ -215,3 +216,15 @@ class Project_Collaboration_View_Test_Client(TestCase):
         self.assertEqual( GetUserNoticationsQ( test_admin_user, True).count(), 1 )
         self.assertEqual( GetUserNoticationsQ( test_worker_user, True).count(), 0 )
         self.assertEqual( GetUserNoticationsQ( test_self_worker_user, True).count(), 0 )
+
+        # edit task
+        self.assertEqual( Task.objects.count(), 1 )
+        self.assertIsNone( test_task_1.assignee )
+        response = c_a.post( reverse_lazy('project:task_edit', args = (test_task_1.id,) ), { 'fullname' : TEST_TASK_FULLNAME_ASSIGNED, 'assignee' : test_worker_user.profile.id, } )
+        # we are redirected to task page
+        self.assertEqual( response.status_code, 302 )
+
+        test_task_1.refresh_from_db()
+        self.assertEqual( Task.objects.count(), 1 )
+        self.assertEqual( test_task_1.fullname, TEST_TASK_FULLNAME_ASSIGNED )
+        self.assertEqual( test_task_1.assignee, test_worker_user.profile )
