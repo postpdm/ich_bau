@@ -98,6 +98,7 @@ class SVN_Wrapper_Temp_Dir_Test(TestCase):
         self.assertTrue(os.path.exists( path ))
         
         self.assertTrue(os.path.exists( path + '/conf' ))
+        self.assertTrue(os.path.isfile( path + '/conf/authz' ))
         
         
 
