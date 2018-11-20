@@ -43,11 +43,11 @@ manage.py runserver
 
 ### Settings
 
-| Setting name | Sample     |               Description               |
-|--------------|------------|:---------------------------------------:|
-| MAIN_MESSAGE | Debug mode | Some test massage as alert at each page |
-|              |            |                                         |
-|              |            |                                         |
+| Setting name | Sample                 |               Description               |
+|--------------|------------------------|:---------------------------------------:|
+| MAIN_MESSAGE | Debug mode             | Some test massage as alert at each page |
+| DATABASES    | Database configuration | Standard Django configuration. `dj_database_url` is supported |
+|              |                        |                                         |
 
 ### Testing file repo functions
 
