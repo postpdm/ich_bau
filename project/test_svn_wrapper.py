@@ -100,7 +100,7 @@ class SVN_Wrapper_Temp_Dir_Test(TestCase):
         self.assertTrue(os.path.exists( path + '/conf' ))
         self.assertTrue(os.path.isfile( path + '/conf/authz' ))
 
-        f = open( fn )
+        f = open( path + '/conf/authz' )
 
         self.assertEqual(f.read(), '[users]')
 
