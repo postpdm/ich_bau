@@ -2,6 +2,8 @@ from project.repo_wrapper import *
 
 from unittest import TestCase
 import shutil, tempfile
+import svn.remote
+import svn.admin
 
 class SVN_Wrapper_Abstract_Test(TestCase):
     def test_Get_Info(self):
@@ -83,12 +85,15 @@ class SVN_Wrapper_Temp_Dir_Test(TestCase):
         f.close()
 
     def test_SVN_Client(self):
-        import svn.remote
-        import svn.admin
         path = self.test_temp_dir + '/test_repo_name'
         print(path)
+        import os
+        print(os.path.isdir( path ))
+        print(os.path.exists( path ))
+        self.assertFalse(os.path.exists( path ))
         a = svn.admin.Admin( )
         a.create( path )
+        self.assertTrue(os.path.exists( path ))
         #r = svn.remote.RemoteClient( path, '', '' )
         #print( r.info() )
         #self.assertIsNone( r.info() )
