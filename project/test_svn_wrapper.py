@@ -96,11 +96,15 @@ class SVN_Wrapper_Temp_Dir_Test(TestCase):
         print(os.path.isdir( path ))
         print(os.path.exists( path ))
         self.assertTrue(os.path.exists( path ))
+        
+        self.assertTrue(os.path.exists( path + '/conf' ))
+        
+        
 
-        try:
-            r = svn.remote.RemoteClient( path, 'u', 'p' )
-        except Exception as e:
-            print( e )
+        # try:
+            # r = svn.remote.RemoteClient( path, 'u', 'p' )
+        # except Exception as e:
+            # print( e )
 
-        print( r.info() )
-        self.assertIsNone( r.info() )
+        # print( r.info() )
+        # self.assertIsNone( r.info() )
