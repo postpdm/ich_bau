@@ -96,9 +96,9 @@ class SVN_Wrapper_Temp_Dir_Test(TestCase):
         print(os.path.isdir( path ))
         print(os.path.exists( path ))
         self.assertTrue(os.path.exists( path ))
-        
+
         try:
-            r = svn.remote.RemoteClient( path, '', '' )
+            r = svn.remote.RemoteClient( path, 'u', 'p' )
         except Exception as e:
             print( e )
 
