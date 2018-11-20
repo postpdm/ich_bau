@@ -217,6 +217,12 @@ class Project_Collaboration_View_Test_Client(TestCase):
         self.assertEqual( GetUserNoticationsQ( test_worker_user, True).count(), 0 )
         self.assertEqual( GetUserNoticationsQ( test_self_worker_user, True).count(), 0 )
 
+        # visit the notification link
+        notification = GetUserNoticationsQ( test_admin_user, True).first()
+        response = c_a.get( reverse_lazy('notification_read', args = (notification.id,)  ) )
+        self.assertEqual( response.status_code, 302 )
+        self.assertEqual( GetUserNoticationsQ( test_admin_user, True).count(), 0 )
+
         # edit task
         self.assertEqual( Task.objects.count(), 1 )
         self.assertIsNone( test_task_1.assignee )
@@ -228,3 +234,7 @@ class Project_Collaboration_View_Test_Client(TestCase):
         self.assertEqual( Task.objects.count(), 1 )
         self.assertEqual( test_task_1.fullname, TEST_TASK_FULLNAME_ASSIGNED )
         self.assertEqual( test_task_1.assignee, test_worker_user.profile )
+
+        self.assertEqual( GetUserNoticationsQ( test_admin_user, True).count(), 0 )
+        self.assertEqual( GetUserNoticationsQ( test_worker_user, True).count(), 1 )
+        self.assertEqual( GetUserNoticationsQ( test_self_worker_user, True).count(), 0 )
