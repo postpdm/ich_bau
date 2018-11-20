@@ -85,6 +85,9 @@ class SVN_Wrapper_Temp_Dir_Test(TestCase):
     def test_SVN_Client(self):
         import svn.remote
         import svn.admin
-        r = svn.remote.RemoteClient( self.test_temp_dir + '/test_repo_name', '', '' )
+        path = self.test_temp_dir + '/test_repo_name'
+        a = svn.admin.Admin( )
+        a.create( path )
+        r = svn.remote.RemoteClient( path, '', '' )
         print( r.info() )
         self.assertIsNone( r.info() )
