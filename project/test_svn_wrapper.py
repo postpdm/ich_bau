@@ -96,11 +96,14 @@ class SVN_Wrapper_Temp_Dir_Test(TestCase):
         print(os.path.isdir( path ))
         print(os.path.exists( path ))
         self.assertTrue(os.path.exists( path ))
-        
+
         self.assertTrue(os.path.exists( path + '/conf' ))
         self.assertTrue(os.path.isfile( path + '/conf/authz' ))
-        
-        
+
+        f = open( fn )
+
+        self.assertEqual(f.read(), '[users]')
+
 
         # try:
             # r = svn.remote.RemoteClient( path, 'u', 'p' )
