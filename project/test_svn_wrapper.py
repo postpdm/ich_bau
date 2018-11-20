@@ -81,3 +81,10 @@ class SVN_Wrapper_Temp_Dir_Test(TestCase):
         f = open( fn )
         self.assertEqual(f.read(), '[some_section]\noption = value\n\n')
         f.close()
+
+    def test_SVN_Client(self):
+        import svn.remote
+        import svn.admin
+        r = svn.remote.RemoteClient( test_temp_dir + 'test_repo_name', '', '' )
+        print( r.info() )
+        self.assertIsNone( r.info() )
