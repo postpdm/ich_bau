@@ -102,7 +102,7 @@ class SVN_Wrapper_Temp_Dir_Test(TestCase):
 
         f = open( path + '/conf/authz' )
 
-        self.assertContains(f.read(), '[users]')
+        self.assertIn(f.read(), '[users]')
 
         try:
             r = svn.remote.RemoteClient( 'file://' + path, 'u', 'p' )
