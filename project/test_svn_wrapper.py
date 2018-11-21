@@ -109,5 +109,5 @@ class SVN_Wrapper_Temp_Dir_Test(TestCase):
         except Exception as e:
             print( e )
 
-        print( r.info() )
-        self.assertIsNone( r.info() )
+        #print( r.info() )
+        self.assertIn( path, r.info()['url'] )
