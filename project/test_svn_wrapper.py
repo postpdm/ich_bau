@@ -105,10 +105,10 @@ class SVN_Wrapper_Temp_Dir_Test(TestCase):
         self.assertEqual(f.read(), '[users]')
 
 
-        # try:
-            # r = svn.remote.RemoteClient( path, 'u', 'p' )
-        # except Exception as e:
-            # print( e )
+        try:
+            r = svn.remote.RemoteClient( 'file://' + path, 'u', 'p' )
+        except Exception as e:
+            print( e )
 
-        # print( r.info() )
-        # self.assertIsNone( r.info() )
+        print( r.info() )
+        self.assertIsNone( r.info() )
