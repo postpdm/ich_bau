@@ -5,6 +5,10 @@ import shutil, tempfile
 import svn.remote
 import svn.admin
 
+import os
+import pathlib
+
+
 class SVN_Wrapper_Abstract_Test(TestCase):
     def test_Get_Info(self):
         res = Get_Info_For_Repo_Name( 'some wrong repo' )
@@ -86,15 +90,9 @@ class SVN_Wrapper_Temp_Dir_Test(TestCase):
 
     def test_SVN_Client(self):
         path = self.test_temp_dir + '/test_repo_name'
-        print(path)
-        import os
-        print(os.path.isdir( path ))
-        print(os.path.exists( path ))
         self.assertFalse(os.path.exists( path ))
         a = svn.admin.Admin( )
         a.create( path )
-        print(os.path.isdir( path ))
-        print(os.path.exists( path ))
         self.assertTrue(os.path.exists( path ))
 
         self.assertTrue(os.path.exists( path + '/conf' ))
@@ -103,11 +101,12 @@ class SVN_Wrapper_Temp_Dir_Test(TestCase):
         f = open( path + '/conf/authz' )
 
         self.assertIn( '[groups]', f.read() )
+        f.close()
 
-        try:
-            r = svn.remote.RemoteClient( 'file://' + path, 'u', 'p' )
-        except Exception as e:
-            print( e )
+        # convert file path to file:// url
+        file_path_ulr = pathlib.Path(path).as_uri()
+        r = svn.remote.RemoteClient( file_path_ulr, 'u', 'p' )
 
-        #print( r.info() )
-        self.assertIn( path, r.info()['url'] )
+        self.assertEqual( file_path_ulr, r.info()['url'] )
+        self.assertEqual( '^/', r.info()['relative_url'] )
+        r = None
