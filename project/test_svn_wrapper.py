@@ -55,7 +55,7 @@ class SVN_Wrapper_Temp_Dir_Test(TestCase):
     def tearDown(self):
         # Remove the directory after the test
         if self.test_temp_dir:
-            shutil.rmtree(self.test_temp_dir)
+            shutil.rmtree(self.test_temp_dir, True )
             self.test_temp_dir = None
 
     def test_Repo_Users_In_Temp_Dir(self):
