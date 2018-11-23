@@ -11,15 +11,6 @@ import os
 
 from ich_bau.repo_settings_const import *
 
-REPO_TYPE              = settings.REPO_SVN["REPO_TYPE"]
-REPO_BASE_URL          = settings.REPO_SVN["REPO_BASE_URL"]
-REPO_LOCAL_ROOT        = settings.REPO_SVN["REPO_LOCAL_ROOT"]
-
-SVN_ADMIN_USER         = settings.REPO_SVN["SVN_ADMIN_USER"]
-SVN_ADMIN_PASSWORD     = settings.REPO_SVN["SVN_ADMIN_PASSWORD"]
-
-SVN_ADMIN_FULL_PATH    = settings.REPO_SVN["SVN_ADMIN_FULL_PATH"]
-
 # codes
 
 VCS_REPO_SUCCESS = 0
@@ -28,7 +19,8 @@ VCS_REPO_FAIL_CALL = 2
 
 # return True if yes
 def VCS_Configured():
-    if ( REPO_TYPE in KNOWN_REPO_TYPES ) and ( REPO_BASE_URL and REPO_LOCAL_ROOT and SVN_ADMIN_USER and SVN_ADMIN_PASSWORD and SVN_ADMIN_FULL_PATH ):
+    # SVN_ADMIN_FULL_PATH could be empty (svnadmin is added in the env path) - do not check it
+    if ( settings.REPO_SVN.get('REPO_TYPE') in KNOWN_REPO_TYPES ) and ( settings.REPO_SVN.get('REPO_BASE_URL') and settings.REPO_SVN.get('REPO_LOCAL_ROOT') and settings.REPO_SVN.get('SVN_ADMIN_USER') and settings.REPO_SVN.get('SVN_ADMIN_PASSWORD') ):
         return True
     else:
         return False
@@ -37,7 +29,7 @@ def VCS_Configured():
 def Get_Info_For_Repo_Name( arg_repo_name, username=None, password=None, arg_echo = False ):
     if VCS_Configured():
         try:
-            r = svn.remote.RemoteClient( REPO_BASE_URL + arg_repo_name, username, password )
+            r = svn.remote.RemoteClient( settings.REPO_SVN.get('REPO_BASE_URL') + arg_repo_name, username, password )
             return ( VCS_REPO_SUCCESS, r.info() )
         except Exception as e:
             if arg_echo:
@@ -81,7 +73,7 @@ def Write_Ini_for_CFG( arg_fn, arg_section_name, arg_dict ):
         config.write(configfile)
 
 def Add_User_To_Main_PassFile( arg_pass_file, arg_dict ):
-    if REPO_TYPE == svn_serve:
+    if settings.REPO_SVN.get('REPO_TYPE') == svn_serve:
         section_name = 'users'
         delimiter = '='
     else:
@@ -110,10 +102,10 @@ def Add_User_To_Main_PassFile( arg_pass_file, arg_dict ):
 
 # const names
 authz_fn  = 'authz'
-if REPO_TYPE == svn_serve:
+if settings.REPO_SVN.get('REPO_TYPE') == svn_serve:
     passwd_fn = 'passwd'
 else:
-    if REPO_TYPE == svn_apache:
+    if settings.REPO_SVN.get('REPO_TYPE') == svn_apache:
         passwd_fn = 'htpasswd'
 
 svnserve_conf_fn = 'svnserve.conf'
@@ -150,20 +142,27 @@ def Add_User_Info_to_Repo_CFG( arg_repo_file_paths, arg_user_and_pw_dict ): # ar
 def Write_Ini_For_New_Repo( arg_repo_root_path, arg_repo_name ):
     file_names = Repo_File_Paths( arg_repo_root_path, arg_repo_name )
 
-    if REPO_TYPE == svn_serve:
+    if settings.REPO_SVN.get('REPO_TYPE') == svn_serve:
         Write_Ini_for_CFG( file_names.svnserve_conf_full_name(), 'general', { 'anon-access' : 'none', 'auth-access' : 'write', 'password-db' : two_folders_up + passwd_fn, 'authz-db' : authz_fn, } )
-    Add_User_Info_to_Repo_CFG( file_names, { SVN_ADMIN_USER : SVN_ADMIN_PASSWORD } )
+    Add_User_Info_to_Repo_CFG( file_names, { settings.REPO_SVN.get('SVN_ADMIN_USER') : settings.REPO_SVN.get('SVN_ADMIN_PASSWORD') } )
 
 # return (code, str)
 def Create_New_Repo( ):
     if VCS_Configured():
         try:
             repo_guid_name = uuid.uuid4().hex
-            a = svn.admin.Admin( svnadmin_filepath = SVN_ADMIN_FULL_PATH )
-            a.create( REPO_LOCAL_ROOT + repo_guid_name, svnadmin_filepath = SVN_ADMIN_FULL_PATH )
-            Write_Ini_For_New_Repo( REPO_LOCAL_ROOT, repo_guid_name )
+            if settings.REPO_SVN.get('SVN_ADMIN_FULL_PATH'):
+                a = svn.admin.Admin( svnadmin_filepath = settings.REPO_SVN.get('SVN_ADMIN_FULL_PATH') )
+            else:
+                a = svn.admin.Admin()
+
+            new_repo_name = settings.REPO_SVN.get('REPO_LOCAL_ROOT') + repo_guid_name
+            print( new_repo_name )
+            a.create( new_repo_name )
+            Write_Ini_For_New_Repo( settings.REPO_SVN.get('REPO_LOCAL_ROOT'), repo_guid_name )
             return ( VCS_REPO_SUCCESS, repo_guid_name )
-        except:
+        except Exception as e:
+            print(e)
             return ( VCS_REPO_FAIL_CALL, '' )
     else:
         return ( VCS_REPO_FAIL_NOT_CONFIGURED, None )
