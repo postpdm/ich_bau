@@ -157,12 +157,10 @@ def Create_New_Repo( ):
                 a = svn.admin.Admin()
 
             new_repo_name = settings.REPO_SVN.get('REPO_LOCAL_ROOT') + repo_guid_name
-            print( new_repo_name )
             a.create( new_repo_name )
             Write_Ini_For_New_Repo( settings.REPO_SVN.get('REPO_LOCAL_ROOT'), repo_guid_name )
             return ( VCS_REPO_SUCCESS, repo_guid_name )
-        except Exception as e:
-            print(e)
+        except:
             return ( VCS_REPO_FAIL_CALL, '' )
     else:
         return ( VCS_REPO_FAIL_NOT_CONFIGURED, None )
