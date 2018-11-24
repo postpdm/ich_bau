@@ -147,7 +147,7 @@ class SVN_Wrapper_Client_Test(SimpleTestCase):
             self.test_temp_dir = None
 
     def test_SVN_Wrapper(self):
-        path = self.test_temp_dir + '\\'
+        path = os.path.join(self.test_temp_dir, '' )
         with self.settings( REPO_SVN = {
             "REPO_TYPE" : svn_file,
             "REPO_BASE_URL" : pathlib.Path( path ).as_uri(),
