@@ -158,6 +158,8 @@ class SVN_Wrapper_Client_Test(SimpleTestCase):
 
             "SVN_ADMIN_FULL_PATH" : None, } ):
 
+            print( settings.REPO_SVN )
             repo = Create_New_Repo()
+            print(repo)
             self.assertTrue( repo[0] == 0 )
             self.assertTrue(os.path.exists( path + '\\' + repo[1] ))
