@@ -162,4 +162,4 @@ class SVN_Wrapper_Client_Test(SimpleTestCase):
             repo = Create_New_Repo()
             print(repo)
             self.assertTrue( repo[0] == 0 )
-            self.assertTrue(os.path.exists( path + '\\' + repo[1] ))
+            self.assertTrue(os.path.exists( os.path.join( path , repo[1] ) ) )
