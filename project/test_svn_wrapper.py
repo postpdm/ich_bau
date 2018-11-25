@@ -118,6 +118,7 @@ class SVN_Wrapper_Overwrite_Settings(SimpleTestCase):
             self.assertTrue( settings.REPO_SVN.get('REPO_TYPE') == None )
             self.assertFalse( VCS_Configured() )
             self.assertTrue( Get_Info_For_Repo_Name( 'meaningless name' )[0] == VCS_REPO_FAIL_NOT_CONFIGURED )
+            self.assertTrue( Get_Log_For_Repo_Name( 'meaningless name' )[0] == VCS_REPO_FAIL_NOT_CONFIGURED )
 
     def test_Overwrite_Settings_File_Protocol(self):
         path =  tempfile.gettempdir()
