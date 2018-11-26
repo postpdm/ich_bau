@@ -117,6 +117,7 @@ class SVN_Wrapper_Overwrite_Settings(SimpleTestCase):
         with self.settings( REPO_SVN = {} ):
             self.assertTrue( settings.REPO_SVN.get('REPO_TYPE') == None )
             self.assertFalse( VCS_Configured() )
+            self.assertTrue( Create_New_Repo()[0] == VCS_REPO_FAIL_NOT_CONFIGURED )
             self.assertTrue( Get_Info_For_Repo_Name( 'meaningless name' )[0] == VCS_REPO_FAIL_NOT_CONFIGURED )
             self.assertTrue( Get_Log_For_Repo_Name( 'meaningless name' )[0] == VCS_REPO_FAIL_NOT_CONFIGURED )
             self.assertTrue( Get_List_For_Repo_Name( 'meaningless name', 'meaningless path' )[0] == VCS_REPO_FAIL_NOT_CONFIGURED )
