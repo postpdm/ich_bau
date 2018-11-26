@@ -120,10 +120,10 @@ class Repo_File_Paths():
     def __init__( self, arg_repo_root_path, arg_repo_name ):
         # trailing slash
         self._repo_root_path = os.path.join( arg_repo_root_path, '' )
-        self._repo_path = os.path.join( self._repo_root_path + arg_repo_name, '' )
+        self._repo_path = os.path.join( self._repo_root_path, arg_repo_name, '' )
 
     def conf_folder(self):
-        return os.path.join( self._repo_path + conf_folder_fn, '' )
+        return os.path.join( self._repo_path, conf_folder_fn, '' )
 
     def auth_full_name( self ):
         return self.conf_folder() + authz_fn
@@ -156,7 +156,7 @@ def Create_New_Repo( ):
             else:
                 a = svn.admin.Admin()
 
-            new_repo_name = settings.REPO_SVN.get('REPO_LOCAL_ROOT') + repo_guid_name
+            new_repo_name = os.path.join( settings.REPO_SVN.get('REPO_LOCAL_ROOT'), repo_guid_name )
             a.create( new_repo_name )
             Write_Ini_For_New_Repo( settings.REPO_SVN.get('REPO_LOCAL_ROOT'), repo_guid_name )
             return ( VCS_REPO_SUCCESS, repo_guid_name )
