@@ -11,6 +11,9 @@ from reversion.models import Version
 
 from ich_bau.profiles.models import GetUserNoticationsQ
 
+from .test_svn_wrapper_consts import get_TEST_REPO_SVN_FILE
+import shutil, tempfile, os
+
 TEST_ADMIN_USER_NAME  = 'test_admin_user'
 TEST_ADMIN_USER_EMAIL = 'test_admin_user@nothere.com'
 TEST_ADMIN_USER_PW    = 'test_admin_user_pw'
@@ -36,6 +39,19 @@ TEST_TASK_FIRST_COMMENT_2 = 'Hello!'
 TEST_TASK_SECOND_COMMENT = 'I''m here!'
 
 class Project_Collaboration_View_Test_Client(TestCase):
+    test_temp_dir = None
+
+    def setUp(self):
+        # Create a temporary directory
+        if not self.test_temp_dir:
+            self.test_temp_dir = tempfile.mkdtemp()
+
+    def tearDown(self):
+        # Remove the directory after the test
+        if self.test_temp_dir:
+            shutil.rmtree(self.test_temp_dir, True )
+            self.test_temp_dir = None
+
     def test_Project_Collaboration(self):
         if not User.objects.filter( username = TEST_ADMIN_USER_NAME ).exists():
             test_admin_user = User.objects.create_user( username = TEST_ADMIN_USER_NAME, password = TEST_ADMIN_USER_PW )
@@ -240,4 +256,8 @@ class Project_Collaboration_View_Test_Client(TestCase):
         self.assertEqual( GetUserNoticationsQ( test_self_worker_user, True).count(), 0 )
 
         # test repo creation
-        
+        path = os.path.join(self.test_temp_dir, '' )
+        with self.settings( REPO_SVN = get_TEST_REPO_SVN_FILE( path ) ):
+            self.assertEqual( test_project_1.repo_name, None )
+            #response = c_a.get( reverse_lazy('project_create_repo', args = (test_project_1.id,)  ) )
+            #self.assertEqual( response.status_code, 302 )
