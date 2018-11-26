@@ -165,3 +165,12 @@ class SVN_Wrapper_Client_Test(SimpleTestCase):
             repo = Create_New_Repo()
             self.assertTrue( repo[0] == 0 )
             self.assertTrue(os.path.exists( os.path.join( path , repo[1] ) ) )
+
+            info = Get_Info_For_Repo_Name( repo[1] )
+            self.assertTrue( info[0] == VCS_REPO_SUCCESS )
+
+            log = Get_Log_For_Repo_Name( repo[1], arg_echo = True )
+            self.assertTrue( log[0] == VCS_REPO_SUCCESS )
+
+            list = Get_List_For_Repo_Name( repo[1], '' )
+            self.assertTrue( list[0] == VCS_REPO_SUCCESS )

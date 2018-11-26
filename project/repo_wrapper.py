@@ -29,7 +29,7 @@ def VCS_Configured():
 def Get_Info_For_Repo_Name( arg_repo_name, username=None, password=None, arg_echo = False ):
     if VCS_Configured():
         try:
-            r = svn.remote.RemoteClient( settings.REPO_SVN.get('REPO_BASE_URL') + arg_repo_name, username, password )
+            r = svn.remote.RemoteClient( os.path.join( settings.REPO_SVN.get('REPO_BASE_URL'), arg_repo_name ), username, password )
             return ( VCS_REPO_SUCCESS, r.info() )
         except Exception as e:
             if arg_echo:
@@ -43,7 +43,7 @@ def Get_Info_For_Repo_Name( arg_repo_name, username=None, password=None, arg_ech
 def Get_Log_For_Repo_Name( arg_repo_name, username=None, password=None, arg_echo = False, rev_num=None ):
     if VCS_Configured():
         try:
-            r = svn.remote.RemoteClient( REPO_BASE_URL + arg_repo_name, username, password )
+            r = svn.remote.RemoteClient( os.path.join( settings.REPO_SVN.get('REPO_BASE_URL' ), arg_repo_name ), username, password )
             # log() is a lazy generator, it doesn't fetch data immediately. We need to convert it to real list to gain the connection error if exist
             return ( VCS_REPO_SUCCESS, list( r.log_default(revision_from=rev_num, revision_to=rev_num, changelist=True) ) )
 
@@ -181,7 +181,7 @@ def Add_User_to_Repo( arg_repo_name, arg_user_and_pw_dict ):
 def Get_List_For_Repo_Name( arg_repo_name, arg_rel_path, username=None, password=None, arg_echo = False ):
     if VCS_Configured():
         try:
-            r = svn.remote.RemoteClient( REPO_BASE_URL + arg_repo_name, username, password )
+            r = svn.remote.RemoteClient( os.path.join( settings.REPO_SVN.get('REPO_BASE_URL'), arg_repo_name), username, password )
             # list() is a lazy generator, it doesn't fetch data immediately. We need to convert it to real list to gain the connection error if exist
             return ( VCS_REPO_SUCCESS, list( r.list( extended = True, rel_path = arg_rel_path ) ) )
         except Exception as e:
