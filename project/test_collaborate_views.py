@@ -238,3 +238,6 @@ class Project_Collaboration_View_Test_Client(TestCase):
         self.assertEqual( GetUserNoticationsQ( test_admin_user, True).count(), 0 )
         self.assertEqual( GetUserNoticationsQ( test_worker_user, True).count(), 1 )
         self.assertEqual( GetUserNoticationsQ( test_self_worker_user, True).count(), 0 )
+
+        # test repo creation
+        

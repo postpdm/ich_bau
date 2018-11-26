@@ -9,6 +9,7 @@ import svn.admin
 import os
 import pathlib
 
+from .test_svn_wrapper_consts import get_TEST_REPO_SVN_FILE
 
 class SVN_Wrapper_Abstract_Test(TestCase):
     def test_Get_Info(self):
@@ -152,15 +153,7 @@ class SVN_Wrapper_Client_Test(SimpleTestCase):
 
     def test_SVN_Wrapper(self):
         path = os.path.join(self.test_temp_dir, '' )
-        with self.settings( REPO_SVN = {
-            "REPO_TYPE" : svn_file,
-            "REPO_BASE_URL" : pathlib.Path( path ).as_uri(),
-            "REPO_LOCAL_ROOT" : path,
-
-            "SVN_ADMIN_USER" : "test_svn_admin",
-            "SVN_ADMIN_PASSWORD" : "test_key",
-
-            "SVN_ADMIN_FULL_PATH" : None, } ):
+        with self.settings( REPO_SVN = get_TEST_REPO_SVN_FILE( path ) ):
 
             repo = Create_New_Repo()
             self.assertTrue( repo[0] == 0 )
