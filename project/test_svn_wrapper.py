@@ -81,7 +81,6 @@ class SVN_Wrapper_Temp_Dir_Test(TestCase):
         t = Repo_File_Paths( repo_root, repo_name )
         fn = t.svnserve_conf_full_name()
 
-        import os
         os.makedirs( t.conf_folder() ) # force path to cfg
 
         Write_Ini_for_CFG( fn, 'some_section', { 'option' : 'value' } )
