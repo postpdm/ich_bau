@@ -235,10 +235,10 @@ def get_project_view(request, project_id, arg_task_filter = TASK_FILTER_OPEN, ar
 
             if project.have_repo():
                 s = project.repo_name
-                res_info = Get_Info_For_Repo_Name( s, SVN_ADMIN_USER, SVN_ADMIN_PASSWORD )
+                res_info = Get_Info_For_Repo_Name( s, settings.REPO_SVN.get('SVN_ADMIN_USER'), settings.REPO_SVN.get('SVN_ADMIN_PASSWORD') )
                 if res_info[0] == VCS_REPO_SUCCESS:
                     repo_info = res_info[1]
-                    res_list = Get_List_For_Repo_Name( s, repo_rel_path, SVN_ADMIN_USER, SVN_ADMIN_PASSWORD )
+                    res_list = Get_List_For_Repo_Name( s, repo_rel_path, settings.REPO_SVN.get('SVN_ADMIN_USER'), settings.REPO_SVN.get('SVN_ADMIN_PASSWORD' ) )
                     if res_list[0] == VCS_REPO_SUCCESS:
                         repo_list = res_list[1]
                     # после обращения - добавим / для построения списка нижележащих путей
@@ -304,7 +304,7 @@ def project_view_file_commit_view(request, project_id, rev_id):
         if project.have_repo():
             s = project.repo_name
             try:
-                res_info = Get_Log_For_Repo_Name( s, SVN_ADMIN_USER, SVN_ADMIN_PASSWORD, rev_num=rev_id )
+                res_info = Get_Log_For_Repo_Name( s, settings.REPO_SVN.get('SVN_ADMIN_USER'), settings.REPO_SVN.get('SVN_ADMIN_PASSWORD'), rev_num=rev_id )
                 if res_info[0] == VCS_REPO_SUCCESS:
                     rev_info = res_info[1][0]
                 else:
