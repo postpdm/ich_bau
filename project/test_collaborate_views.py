@@ -2,6 +2,7 @@
 from django.contrib.auth.models import User
 
 from django.test import TestCase, Client
+from django.test.testcases import SimpleTestCase
 
 from django.urls import reverse_lazy
 
@@ -13,6 +14,7 @@ from ich_bau.profiles.models import GetUserNoticationsQ
 
 from .test_svn_wrapper_consts import get_TEST_REPO_SVN_FILE
 import shutil, tempfile, os
+from project.repo_wrapper import *
 
 TEST_ADMIN_USER_NAME  = 'test_admin_user'
 TEST_ADMIN_USER_EMAIL = 'test_admin_user@nothere.com'
@@ -39,19 +41,6 @@ TEST_TASK_FIRST_COMMENT_2 = 'Hello!'
 TEST_TASK_SECOND_COMMENT = 'I''m here!'
 
 class Project_Collaboration_View_Test_Client(TestCase):
-    test_temp_dir = None
-
-    def setUp(self):
-        # Create a temporary directory
-        if not self.test_temp_dir:
-            self.test_temp_dir = tempfile.mkdtemp()
-
-    def tearDown(self):
-        # Remove the directory after the test
-        if self.test_temp_dir:
-            shutil.rmtree(self.test_temp_dir, True )
-            self.test_temp_dir = None
-
     def test_Project_Collaboration(self):
         if not User.objects.filter( username = TEST_ADMIN_USER_NAME ).exists():
             test_admin_user = User.objects.create_user( username = TEST_ADMIN_USER_NAME, password = TEST_ADMIN_USER_PW )
@@ -255,9 +244,27 @@ class Project_Collaboration_View_Test_Client(TestCase):
         self.assertEqual( GetUserNoticationsQ( test_worker_user, True).count(), 1 )
         self.assertEqual( GetUserNoticationsQ( test_self_worker_user, True).count(), 0 )
 
+
+class SVN_Repo_Client_Test(SimpleTestCase):
+    test_temp_dir = None
+
+    def setUp(self):
+        # Create a temporary directory
+        if not self.test_temp_dir:
+            self.test_temp_dir = tempfile.mkdtemp()
+
+    def tearDown(self):
+        # Remove the directory after the test
+        if self.test_temp_dir:
+            shutil.rmtree(self.test_temp_dir, True )
+            self.test_temp_dir = None
+
+    def test_SVN_repo_collaboration(self):
         # test repo creation
         path = os.path.join(self.test_temp_dir, '' )
+
         with self.settings( REPO_SVN = get_TEST_REPO_SVN_FILE( path ) ):
-            self.assertEqual( test_project_1.repo_name, None )
-            #response = c_a.get( reverse_lazy('project_create_repo', args = (test_project_1.id,)  ) )
-            #self.assertEqual( response.status_code, 302 )
+            self.assertTrue( settings.REPO_SVN.get('REPO_TYPE') == svn_file )
+            c = Client()
+            response = c.get( reverse_lazy('project:project_create_repo', args = (0,)  ) )
+            self.assertEqual( response.status_code, 302 )

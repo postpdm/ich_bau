@@ -124,15 +124,7 @@ class SVN_Wrapper_Overwrite_Settings(SimpleTestCase):
 
     def test_Overwrite_Settings_File_Protocol(self):
         path =  tempfile.gettempdir()
-        with self.settings( REPO_SVN = {
-            "REPO_TYPE" : svn_file,
-            "REPO_BASE_URL" : pathlib.Path( path ).as_uri(),
-            "REPO_LOCAL_ROOT" : path,
-
-            "SVN_ADMIN_USER" : "svn_admin",
-            "SVN_ADMIN_PASSWORD" : "key",
-
-            "SVN_ADMIN_FULL_PATH" : "", } ):
+        with self.settings( REPO_SVN = get_TEST_REPO_SVN_FILE( path ) ):
 
             self.assertTrue( settings.REPO_SVN.get('REPO_TYPE') == svn_file )
             self.assertTrue( settings.REPO_SVN.get('REPO_LOCAL_ROOT') == path )
