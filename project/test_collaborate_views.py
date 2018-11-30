@@ -289,3 +289,8 @@ class SVN_Repo_Client_Test(TransactionTestCase):
 
             response = c_a.get( reverse_lazy('project:project_create_repo', args = (0,)  ) )
             self.assertEqual( response.status_code, 404 )
+
+            response = c_a.get( reverse_lazy('project:project_create_repo', args = (test_project_1.id,)  ) )
+            self.assertEqual( response.status_code, 302 )
+            test_project_1.refresh_from_db()
+            self.assertTrue( test_project_1.have_repo )

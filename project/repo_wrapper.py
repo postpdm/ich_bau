@@ -174,7 +174,7 @@ def Gen_Repo_User_PW( arg_test_pw = None ):
     return pw
 
 def Add_User_to_Repo( arg_repo_name, arg_user_and_pw_dict ):
-    file_names = Repo_File_Paths( REPO_LOCAL_ROOT, arg_repo_name )
+    file_names = Repo_File_Paths( settings.REPO_SVN.get('REPO_LOCAL_ROOT'), arg_repo_name )
     Add_User_Info_to_Repo_CFG( file_names, arg_user_and_pw_dict )
 
 # return (code, str)
