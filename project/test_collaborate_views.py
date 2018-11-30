@@ -2,7 +2,7 @@
 from django.contrib.auth.models import User
 
 from django.test import TestCase, Client
-from django.test.testcases import SimpleTestCase
+from django.test.testcases import SimpleTestCase, TransactionTestCase
 
 from django.urls import reverse_lazy
 
@@ -245,7 +245,7 @@ class Project_Collaboration_View_Test_Client(TestCase):
         self.assertEqual( GetUserNoticationsQ( test_self_worker_user, True).count(), 0 )
 
 
-class SVN_Repo_Client_Test(SimpleTestCase):
+class SVN_Repo_Client_Test(TransactionTestCase):
     test_temp_dir = None
 
     def setUp(self):
@@ -265,6 +265,27 @@ class SVN_Repo_Client_Test(SimpleTestCase):
 
         with self.settings( REPO_SVN = get_TEST_REPO_SVN_FILE( path ) ):
             self.assertTrue( settings.REPO_SVN.get('REPO_TYPE') == svn_file )
+            # user not logged in - project_create_repo is not called
             c = Client()
             response = c.get( reverse_lazy('project:project_create_repo', args = (0,)  ) )
             self.assertEqual( response.status_code, 302 )
+
+            if not User.objects.filter( username = TEST_ADMIN_USER_NAME ).exists():
+                test_admin_user = User.objects.create_user( username = TEST_ADMIN_USER_NAME, password = TEST_ADMIN_USER_PW )
+
+            c_a = Client()
+            response = c_a.login( username = TEST_ADMIN_USER_NAME, password = TEST_ADMIN_USER_PW )
+            self.assertTrue( response )
+
+            response = c_a.post( reverse_lazy('project:project_add'), { 'fullname' : TEST_PROJECT_FULLNAME, 'description' : TEST_PROJECT_DESCRIPTION_1, } )
+            # we are redirected to new project page
+            self.assertEqual( response.status_code, 302 )
+
+            # check project is created
+            self.assertEqual( Project.objects.count(), 1 )
+            test_project_1 = Project.objects.get(id=1)
+
+            self.assertEqual( test_project_1.is_member(test_admin_user), True )
+
+            response = c_a.get( reverse_lazy('project:project_create_repo', args = (0,)  ) )
+            self.assertEqual( response.status_code, 404 )
