@@ -154,8 +154,10 @@ class Project(BaseStampedModel):
         # дать доступ к repo
         if self.have_repo():
             # дать доступ по всему списку членов проекта
-            user_dict = { SVN_ADMIN_USER : SVN_ADMIN_PASSWORD }
+            user_dict = { settings.REPO_SVN.get('SVN_ADMIN_USER') : settings.REPO_SVN.get('SVN_ADMIN_PASSWORD') }
+
             member_profiles = self.GetFullMemberProfiles()
+
             for mp in member_profiles:
                 user_dict[ mp.user.username ] = mp.repo_pw
 

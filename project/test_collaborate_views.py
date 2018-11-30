@@ -2,6 +2,7 @@
 from django.contrib.auth.models import User
 
 from django.test import TestCase, Client
+from django.test.testcases import SimpleTestCase, TransactionTestCase
 
 from django.urls import reverse_lazy
 
@@ -10,6 +11,10 @@ from .models import Project, Task, Milestone, TaskComment
 from reversion.models import Version
 
 from ich_bau.profiles.models import GetUserNoticationsQ
+
+from .test_svn_wrapper_consts import get_TEST_REPO_SVN_FILE
+import shutil, tempfile, os
+from project.repo_wrapper import *
 
 TEST_ADMIN_USER_NAME  = 'test_admin_user'
 TEST_ADMIN_USER_EMAIL = 'test_admin_user@nothere.com'
@@ -26,6 +31,7 @@ TEST_SELF_WORKER_USER_PW    = 'test_self_worker_user_pw'
 TEST_PROJECT_FULLNAME = 'TEST PROJECT FOR COLLABORATION #1 FULL NAME'
 
 TEST_TASK_FULLNAME = 'TEST TASK FOR COLLABORATION #1 FULL NAME'
+TEST_TASK_FULLNAME_ASSIGNED = 'TEST TASK FOR COLLABORATION #1 FULL NAME - WORKER ASSIGNED'
 
 TEST_PROJECT_DESCRIPTION_1 = 'Project for collaboration'
 
@@ -72,6 +78,9 @@ class Project_Collaboration_View_Test_Client(TestCase):
         self.assertEqual( test_project_1.is_member(test_worker_user), False )
         # but worker get the notification
         self.assertEqual( GetUserNoticationsQ( test_worker_user, True).count(), 1 )
+
+        response = c_w.get( reverse_lazy('unread_notifications_view' ) )
+        self.assertContains(response, test_project_1.fullname, status_code=200 )
 
         # check the notification
         notification = GetUserNoticationsQ( test_worker_user, True).first()
@@ -212,3 +221,79 @@ class Project_Collaboration_View_Test_Client(TestCase):
         self.assertEqual( GetUserNoticationsQ( test_admin_user, True).count(), 1 )
         self.assertEqual( GetUserNoticationsQ( test_worker_user, True).count(), 0 )
         self.assertEqual( GetUserNoticationsQ( test_self_worker_user, True).count(), 0 )
+
+        # visit the notification link
+        notification = GetUserNoticationsQ( test_admin_user, True).first()
+        response = c_a.get( reverse_lazy('notification_read', args = (notification.id,)  ) )
+        self.assertEqual( response.status_code, 302 )
+        self.assertEqual( GetUserNoticationsQ( test_admin_user, True).count(), 0 )
+
+        # edit task
+        self.assertEqual( Task.objects.count(), 1 )
+        self.assertIsNone( test_task_1.assignee )
+        response = c_a.post( reverse_lazy('project:task_edit', args = (test_task_1.id,) ), { 'fullname' : TEST_TASK_FULLNAME_ASSIGNED, 'assignee' : test_worker_user.profile.id, } )
+        # we are redirected to task page
+        self.assertEqual( response.status_code, 302 )
+
+        test_task_1.refresh_from_db()
+        self.assertEqual( Task.objects.count(), 1 )
+        self.assertEqual( test_task_1.fullname, TEST_TASK_FULLNAME_ASSIGNED )
+        self.assertEqual( test_task_1.assignee, test_worker_user.profile )
+
+        self.assertEqual( GetUserNoticationsQ( test_admin_user, True).count(), 0 )
+        self.assertEqual( GetUserNoticationsQ( test_worker_user, True).count(), 1 )
+        self.assertEqual( GetUserNoticationsQ( test_self_worker_user, True).count(), 0 )
+
+
+class SVN_Repo_Client_Test(TransactionTestCase):
+    test_temp_dir = None
+
+    def setUp(self):
+        # Create a temporary directory
+        if not self.test_temp_dir:
+            self.test_temp_dir = tempfile.mkdtemp()
+
+    def tearDown(self):
+        # Remove the directory after the test
+        if self.test_temp_dir:
+            shutil.rmtree(self.test_temp_dir, True )
+            self.test_temp_dir = None
+
+    def test_SVN_repo_collaboration(self):
+        # test repo creation
+        path = os.path.join(self.test_temp_dir, '' )
+
+        with self.settings( REPO_SVN = get_TEST_REPO_SVN_FILE( path ) ):
+            self.assertTrue( settings.REPO_SVN.get('REPO_TYPE') == svn_file )
+            # user not logged in - project_create_repo is not called
+            c = Client()
+            response = c.get( reverse_lazy('project:project_create_repo', args = (0,)  ) )
+            self.assertEqual( response.status_code, 302 )
+
+            if not User.objects.filter( username = TEST_ADMIN_USER_NAME ).exists():
+                test_admin_user = User.objects.create_user( username = TEST_ADMIN_USER_NAME, password = TEST_ADMIN_USER_PW )
+
+            c_a = Client()
+            response = c_a.login( username = TEST_ADMIN_USER_NAME, password = TEST_ADMIN_USER_PW )
+            self.assertTrue( response )
+
+            response = c_a.post( reverse_lazy('project:project_add'), { 'fullname' : TEST_PROJECT_FULLNAME, 'description' : TEST_PROJECT_DESCRIPTION_1, } )
+            # we are redirected to new project page
+            self.assertEqual( response.status_code, 302 )
+
+            # check project is created
+            self.assertEqual( Project.objects.count(), 1 )
+            test_project_1 = Project.objects.get(id=1)
+
+            self.assertEqual( test_project_1.is_member(test_admin_user), True )
+
+            response = c_a.get( reverse_lazy('project:project_create_repo', args = (0,)  ) )
+            self.assertEqual( response.status_code, 404 )
+
+            response = c_a.get( reverse_lazy('project:project_create_repo', args = (test_project_1.id,)  ) )
+            self.assertEqual( response.status_code, 302 )
+            test_project_1.refresh_from_db()
+            self.assertTrue( test_project_1.have_repo() )
+            
+            response = c_a.get( reverse_lazy('project:project_view_file_commit_view', args = (test_project_1.id, 0, )  ) )
+            self.assertEqual( response.status_code, 200 )
