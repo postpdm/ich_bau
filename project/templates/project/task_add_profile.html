@@ -1,0 +1,45 @@
+{% extends 'site_base.html' %}
+
+{% load bootstrap %}
+
+{% block body_class %}profile{% endblock %}
+
+{% block head_title %}
+{% if profile.pk %}
+Edit profile link
+{% else %}
+Create profile link
+{% endif %}        
+
+{% endblock %}
+
+{% block body %}
+<div class="row">
+<div class="col-md-9">
+
+{{ form.media }}
+
+        <form class="span6" id="profile_link_form" method="post" action="" enctype="multipart/form-data">
+        
+                {% if profile.pk %}
+                    <legend>Edit profile link</legend>
+                {% else %}
+                    <legend>Add profile link</legend>
+                {% endif %}        
+        
+            {% csrf_token %}
+            {% for hidden in form.hidden_fields %}
+                {{ hidden }}
+            {% endfor %}
+            
+            {% for field in form.visible_fields %}
+
+                {{ field|bootstrap }}
+            {% endfor %}
+            
+
+            <button class="btn btn-primary" type="submit" name="submit">Save</button>
+        </form>
+</div>        
+</div>
+{% endblock %}

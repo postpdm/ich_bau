@@ -39,6 +39,13 @@
   <td>{% if task.holder %}<p>Holder: {{task.holder}}</p>{% endif %}</td>
   {% if task.assignee %}<p>Assignee: {{task.assignee}} </p>{% endif %}
 
+  {% if profiles %}
+    {% for p in profiles %}
+    {{p.profile}}<br>
+    {% endfor %}
+  {% endif %}
+  <a class="btn btn-default" href="/project/add_profile/{{task.id}}/"><i class="fa fa-plus"></i> Add profile</a>
+
   <p class="text-right">
 
   {% if user_can_work and task.get_opened %}

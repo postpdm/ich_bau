@@ -65,6 +65,8 @@ PROFILE_TYPE_CHOICES = (
   ( PROFILE_TYPE_USER, 'User' ),
 ) + PROFILE_TYPE_CHOICES_EDITOR
 
+PROFILE_TYPE_FOR_TASK = ( PROFILE_TYPE_PEOPLE, PROFILE_TYPE_DEPARTAMENT, PROFILE_TYPE_ORG, PROFILE_TYPE_RESOURCE )
+
 class Profile(models.Model):
     profile_type = models.PositiveSmallIntegerField( blank=False, null=False, default = PROFILE_TYPE_USER )
     user = models.OneToOneField(User, on_delete=models.PROTECT, blank=True, null=True, related_name="profile")
