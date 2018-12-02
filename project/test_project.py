@@ -172,3 +172,8 @@ class Project_Test(TestCase):
         test_task.assignee__user = get_creator_user()
         test_task.save()
         self.assertEqual( t.count(), 1 )
+
+    def test_linked_resource(self):
+        test_task = create_task()
+        self.assertEqual( test_task.get_profiles().count(), 0 ) # new task has no profiles linked
+        self.assertEqual( Get_Profiles_Available2Task( test_task.id ).count(), 0 ) # no profiles is available
