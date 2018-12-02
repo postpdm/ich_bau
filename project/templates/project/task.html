@@ -39,13 +39,6 @@
   <td>{% if task.holder %}<p>Holder: {{task.holder}}</p>{% endif %}</td>
   {% if task.assignee %}<p>Assignee: {{task.assignee}} </p>{% endif %}
 
-  {% if profiles %}
-    {% for p in profiles %}
-    {{p.profile}}<br>
-    {% endfor %}
-  {% endif %}
-  <a class="btn btn-default" href="/project/add_profile/{{task.id}}/"><i class="fa fa-plus"></i> Add profile</a>
-
   <p class="text-right">
 
   {% if user_can_work and task.get_opened %}
@@ -103,12 +96,30 @@ no history to view
 
 </li>
 
+<li class="list-group-item">
+
+  {% if profiles %}
+  <p><strong>Linked profiles</strong></p>
+  <ul>
+  {% for p in profiles %}
+  <li>{{p.profile}}
+  </li>
+  {% endfor %}
+  </ul>
+  {% endif %}
+
+  {% if user.is_authenticated and user_can_work and task.get_opened %}
+    <p class="text-right">
+        <a class="btn btn-default" href="/project/add_profile/{{task.id}}/"><i class="fa fa-plus"></i> Add profile</a>
+    </p>
+  {% endif %}
+</li>
+
+
 <li class="list-group-item"><p><strong>Check list</strong>
 
-
-
               {% if user_can_work and task.get_opened %}
-<a class="btn btn-default" href="{{task.get_absolute_url}}checklist">Edit check list</a>
+                <a class="btn btn-default" href="{{task.get_absolute_url}}checklist">Edit check list</a>
               {% endif %}
 
 </p>
