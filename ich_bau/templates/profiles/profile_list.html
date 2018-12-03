@@ -10,31 +10,36 @@
     <div class="row">
         <div class="col-md-12">
             <h1>People, bots and orgs
-            
             <a class="btn btn-default" href="{% url 'profile_create' %}"><i class="fa fa-plus"></i>Create profile</a>
             </h1>
         </div>
     </div>
+
+{% regroup profiles|dictsort:"profile_type" by profile_type as profile_list %}
+
+{% for profile in profile_list %}
+<h2>{% profile_type_name profile.grouper %}</h2>
+
     <div class="row">
-        {% for profile in profiles %}
+        {% for p in profile.list %}
             <div class="col-md-3">
                 <div class="media" style="margin-bottom: 16px;">
-                    {% if profile.avatar %}
-                        <img width="72" height="72" class="media-object pull-left" src="{% thumbnail profile.avatar 72x72 crop %}" alt="{{ profile.name|default:user.username }}">
+                    {% if p.avatar %}
+                        <img width="72" height="72" class="media-object pull-left" src="{% thumbnail p.avatar 72x72 crop %}" alt="{{ p.name|default:user.username }}">
                     {% else %}
                         <div class="default-avatar media-object pull-left">
-                            {% fa_profile_icon profile.profile_type %}                            
+                            {% fa_profile_icon p.profile_type %}
                         </div>
                     {% endif %}
 
                     <div class="media-body">
-                        <h4 class="media-heading"><a href="{% url 'profiles_detail' pk=profile.id %}">{{ profile.display_name }}</a></h4>
-                    {% if profile.location %}
+                        <h4 class="media-heading"><a href="{% url 'profiles_detail' pk=p.id %}">{{ p.display_name }}</a></h4>
+                    {% if p.location %}
                         <div>
                             <span class="dim">
                                 <i class="fa fa-map-marker"></i>
                             </span>
-                            {{ profile.location }}
+                            {{ p.location }}
                         </div>
                     {% endif %}
                     </div>
@@ -42,4 +47,23 @@
             </div>
         {% endfor %}
     </div>
+
+
+
+{% endfor %}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 {% endblock %}
