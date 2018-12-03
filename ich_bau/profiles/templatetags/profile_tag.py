@@ -17,7 +17,10 @@ PROFILE_TYPE_ICONS = (
 
 @register.simple_tag(name='fa_profile_icon', takes_context=True)
 def fa_profile_icon(context, arg):
-    return format_html('<i class="fa ' + PROFILE_TYPE_ICONS[ arg ][1] + ' fa-4x"></i>')
+    try:
+        return format_html('<i class="fa ' + PROFILE_TYPE_ICONS[ arg ][1] + ' fa-4x"></i>')
+    except:
+        return None
 
 @register.simple_tag(name='profile_type_name', takes_context=True)
 def profile_type_name(context, arg):
