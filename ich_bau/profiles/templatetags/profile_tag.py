@@ -21,4 +21,7 @@ def fa_profile_icon(context, arg):
 
 @register.simple_tag(name='profile_type_name', takes_context=True)
 def profile_type_name(context, arg):
-    return PROFILE_TYPE_CHOICES[arg][1]
+    try:
+        return PROFILE_TYPE_CHOICES[arg][1]
+    except:
+        return None
