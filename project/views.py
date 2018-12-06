@@ -1,5 +1,5 @@
 ﻿from project.models import *
-from project.forms import ProjectForm, TaskForm, TaskCommentForm, MilestoneForm, MemberForm, TaskLinkedForm, TaskCheckListForm
+from project.forms import ProjectForm, TaskForm, TaskCommentForm, MilestoneForm, MemberForm, TaskLinkedForm, TaskProfileForm, TaskCheckListForm
 
 from django.forms.models import modelformset_factory
 
@@ -600,6 +600,7 @@ def task_view(request, task_id):
         subtasks = TaskLink.objects.filter(maintask=task)
         maintasks = TaskLink.objects.filter(subtask=task)
         task_checklist = TaskCheckList.objects.filter( parenttask = task )
+        profiles = task.get_profiles()
 
         # доступ списку коментов открыт, а форму показывать не надо
         if request.user.is_authenticated:
@@ -641,6 +642,7 @@ def task_view(request, task_id):
         context_dict = { 'task': task,
                          'comments': comments,
                          'subtasks' : subtasks,
+                         'profiles' : profiles,
                          'maintasks' : maintasks,
                          'task_checklist' : task_checklist,
                          'task_comment_form': task_comment_form,
@@ -760,7 +762,7 @@ def add_linked(request, task_id):
     else:
         form = TaskLinkedForm( argmaintaskid = task_id )
 
-    return render( request, 'project/add_link.html',
+    return render( request, 'project/task_add_link.html',
             {'task_id': task_id,
              'form': form} )
 
@@ -776,6 +778,28 @@ def task_unlink(request, tasklink_id):
         return HttpResponseRedirect( maintask.get_absolute_url() )
     except:
         raise Http404()
+
+@login_required
+def add_profile(request, task_id):
+    context = RequestContext(request)
+
+    if request.method == 'POST':
+        form = TaskProfileForm(request.POST, argmaintaskid = task_id )
+
+        if form.is_valid():
+            tl = form.save(commit=False)
+            tl.parenttask=Task.objects.get(id=task_id)
+            tl.save()
+            # перебросить пользователя на задание
+            return HttpResponseRedirect('/project/task/' + task_id )
+        else:
+            print( form.errors )
+    else:
+        form = TaskProfileForm( argmaintaskid = task_id )
+
+    return render( request, 'project/task_add_profile.html',
+            {'task_id': task_id,
+             'form': form} )
 
 @login_required
 def task_check_switch(request, task_check_id):

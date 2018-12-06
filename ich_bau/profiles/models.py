@@ -46,7 +46,7 @@ def avatar_upload(instance, filename):
 
 PROFILE_TYPE_BOT = 0
 PROFILE_TYPE_USER = 1
-PROFILE_TYPE_PEOPLE = 2 # without accunt
+PROFILE_TYPE_PEOPLE = 2 # without account
 PROFILE_TYPE_DEPARTAMENT = 3
 PROFILE_TYPE_ORG = 4
 PROFILE_TYPE_RESOURCE = 5
@@ -64,6 +64,8 @@ PROFILE_TYPE_CHOICES = (
   ( PROFILE_TYPE_BOT, 'Bot' ),
   ( PROFILE_TYPE_USER, 'User' ),
 ) + PROFILE_TYPE_CHOICES_EDITOR
+
+PROFILE_TYPE_FOR_TASK = ( PROFILE_TYPE_PEOPLE, PROFILE_TYPE_DEPARTAMENT, PROFILE_TYPE_ORG, PROFILE_TYPE_RESOURCE )
 
 class Profile(models.Model):
     profile_type = models.PositiveSmallIntegerField( blank=False, null=False, default = PROFILE_TYPE_USER )

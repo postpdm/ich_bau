@@ -290,10 +290,18 @@ class SVN_Repo_Client_Test(TransactionTestCase):
             response = c_a.get( reverse_lazy('project:project_create_repo', args = (0,)  ) )
             self.assertEqual( response.status_code, 404 )
 
+            # check - project search view files page is available
+            response = c.get( reverse_lazy('project:project_view_files', args = (test_project_1.id,) ) )
+            self.assertContains(response, TEST_PROJECT_FULLNAME, status_code=200 )
+
             response = c_a.get( reverse_lazy('project:project_create_repo', args = (test_project_1.id,)  ) )
             self.assertEqual( response.status_code, 302 )
             test_project_1.refresh_from_db()
             self.assertTrue( test_project_1.have_repo() )
+            
+            # check - project search view files page is available
+            response = c.get( reverse_lazy('project:project_view_files', args = (test_project_1.id,) ) )
+            self.assertContains(response, TEST_PROJECT_FULLNAME, status_code=200 )
             
             response = c_a.get( reverse_lazy('project:project_view_file_commit_view', args = (test_project_1.id, 0, )  ) )
             self.assertEqual( response.status_code, 200 )

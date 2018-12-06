@@ -96,12 +96,29 @@ no history to view
 
 </li>
 
+<li class="list-group-item">
+  <p><strong>Linked profiles</strong></p>
+  {% if profiles %}
+  <ul>
+  {% for p in profiles %}
+  <li>{{p.profile}}
+  </li>
+  {% endfor %}
+  </ul>
+  {% endif %}
+
+  {% if user.is_authenticated and user_can_work and task.get_opened %}
+    <p class="text-right">
+        <a class="btn btn-default" href="/project/add_profile/{{task.id}}/"><i class="fa fa-plus"></i> Add profile</a>
+    </p>
+  {% endif %}
+</li>
+
+
 <li class="list-group-item"><p><strong>Check list</strong>
 
-
-
               {% if user_can_work and task.get_opened %}
-<a class="btn btn-default" href="{{task.get_absolute_url}}checklist">Edit check list</a>
+                <a class="btn btn-default" href="{{task.get_absolute_url}}checklist">Edit check list</a>
               {% endif %}
 
 </p>

@@ -35,6 +35,7 @@ urlpatterns = [
     url(r'^task/(?P<task_id>\w+)/$', views.task_view, name='task_view'),
     url(r'^task/(?P<task_id>\w+)/history/$', views.task_history, name='task_history'),
     url(r'^add_linked/(?P<task_id>\w+)/$', views.add_linked, name='add_linked'),
+    url(r'^add_profile/(?P<task_id>\w+)/$', views.add_profile, name='add_profile'),
 
     url(r'^task_link/(?P<tasklink_id>\w+)/unlink/$', views.task_unlink, name='task_unlink'),
 

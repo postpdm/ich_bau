@@ -4,7 +4,8 @@ from django.test import TestCase, Client
 
 from django.urls import reverse_lazy
 
-from .models import Project, Task, Milestone
+from .models import Project, Task, Milestone, Get_Profiles_Available2Task
+from ich_bau.profiles.models import Profile, PROFILE_TYPE_RESOURCE
 
 TEST_USER_NAME  = 'test_user'
 TEST_USER_EMAIL = 'test_user@nothere.com'
@@ -202,3 +203,21 @@ class Project_View_Test_Client(TestCase):
 
         test_task_2 = Task.objects.get(fullname=TEST_TASK_IN_MILESTONE_FULLNAME)
         self.assertEqual( test_task_2.milestone.id, test_ms_1.id )
+
+        # profiles
+        avail_profiles = Get_Profiles_Available2Task( test_task_2.id )
+        self.assertEqual( avail_profiles.count(), 0 )
+
+        self.assertEqual( test_task_2.get_profiles().count(), 0 )
+
+        new_resource = Profile( profile_type = PROFILE_TYPE_RESOURCE, name = 'Resource' )
+        new_resource.save()
+        self.assertEqual( avail_profiles.count(), 1 )
+
+        response = c.post( reverse_lazy('project:add_profile', args = (test_task_2.id, ) ), { 'profile' : new_resource.id, } )
+        # we are redirected to new task page
+        self.assertEqual( response.status_code, 302 )
+
+        self.assertEqual( test_task_2.get_profiles().count(), 1 )
+        #avail_profiles.refresh()
+        self.assertEqual( avail_profiles.count(), 0 )

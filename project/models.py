@@ -10,7 +10,7 @@ from django.db import transaction
 import reversion
 
 from ich_bau.profiles.notification_helper import Send_Notification
-from ich_bau.profiles.models import Profile
+from ich_bau.profiles.models import Profile, PROFILE_TYPE_FOR_TASK
 from ich_bau.profiles.messages import *
 
 from project.repo_wrapper import *
@@ -347,6 +347,9 @@ class Task(BaseStampedModel):
     def get_comments(self):
         return TaskComment.objects.filter( parenttask = self )
 
+    def get_profiles(self):
+        return TaskProfile.objects.filter( parenttask = self )
+
 # связи между задачами
 class TaskLink(models.Model):
     maintask=models.ForeignKey( Task, on_delete=models.PROTECT, related_name = 'main' )
@@ -443,3 +446,13 @@ def taskcomment_post_save_Notifier_Composer(sender, instance, **kwargs):
 
 def Get_User_Tasks( arg_user ):
     return Task.objects.filter( state = TASK_STATE_NEW, assignee__user = arg_user )
+
+# участники-ресурсы на задачу
+class TaskProfile(models.Model):
+    parenttask=models.ForeignKey( Task, on_delete=models.PROTECT, related_name = 'profile2task' )
+    profile=models.ForeignKey( Profile, on_delete=models.PROTECT, related_name = 'task2profile' )
+    class Meta:
+        unique_together = ("parenttask", "profile")
+
+def Get_Profiles_Available2Task( arg_task_id ):
+    return Profile.objects.filter( profile_type__in = PROFILE_TYPE_FOR_TASK ).exclude( task2profile__parenttask = arg_task_id )

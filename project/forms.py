@@ -1,7 +1,7 @@
 ﻿# project forms
 
 from django import forms
-from project.models import Project, Task, TaskComment, Milestone, Member, TaskLink, TaskCheckList
+from project.models import Project, Task, TaskComment, Milestone, Member, TaskLink, TaskProfile, TaskCheckList, Get_Profiles_Available2Task
 
 from django.forms.widgets import HiddenInput
 
@@ -76,6 +76,21 @@ class TaskLinkedForm(forms.ModelForm):
     class Meta:
         model = TaskLink
         fields = ['subtask']
+
+class TaskProfileForm(forms.ModelForm):
+    profile=forms.ModelChoiceField( Profile.objects, help_text="profile", required=True )
+
+    def __init__(self, *args, **kwargs):
+        argmaintaskid = kwargs.pop('argmaintaskid', None)
+        super(TaskProfileForm, self).__init__(*args, **kwargs)
+
+        if (argmaintaskid != "" ):
+            main_task = Task.objects.get( id = argmaintaskid )
+            self.fields['profile'].queryset = Get_Profiles_Available2Task( argmaintaskid )
+
+    class Meta:
+        model = TaskProfile
+        fields = ['profile']
 
 class TaskCommentForm(forms.ModelForm):
     comment = TextEditor_Field()
