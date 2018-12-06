@@ -207,6 +207,17 @@ class Project_View_Test_Client(TestCase):
         # profiles
         avail_profiles = Get_Profiles_Available2Task( test_task_2.id )
         self.assertEqual( avail_profiles.count(), 0 )
+
+        self.assertEqual( test_task_2.get_profiles().count(), 0 )
+
         new_resource = Profile( profile_type = PROFILE_TYPE_RESOURCE, name = 'Resource' )
         new_resource.save()
         self.assertEqual( avail_profiles.count(), 1 )
+
+        response = c.post( reverse_lazy('project:add_profile', args = (test_task_2.id, ) ), { 'profile' : new_resource.id, } )
+        # we are redirected to new task page
+        self.assertEqual( response.status_code, 302 )
+
+        self.assertEqual( test_task_2.get_profiles().count(), 1 )
+        #avail_profiles.refresh()
+        self.assertEqual( avail_profiles.count(), 0 )
