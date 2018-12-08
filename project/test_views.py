@@ -4,7 +4,7 @@ from django.test import TestCase, Client
 
 from django.urls import reverse_lazy
 
-from .models import Project, Task, Milestone, Get_Profiles_Available2Task, TaskCheckList
+from .models import Project, Task, Milestone, Get_Profiles_Available2Task, TaskCheckList, TaskLink
 from ich_bau.profiles.models import Profile, PROFILE_TYPE_RESOURCE
 
 TEST_USER_NAME  = 'test_user'
@@ -244,3 +244,15 @@ class Project_View_Test_Client(TestCase):
         checks = TaskCheckList.objects.filter( parenttask = test_task_2  )
         self.assertEqual( checks.first().checkname, TASK_CHECK_CAPTION )
         self.assertFalse( checks.first().check_flag )
+
+        # add_linked
+
+        self.assertEqual( TaskLink.objects.filter( maintask = test_task_1 ).count(), 0 )
+        self.assertEqual( TaskLink.objects.filter( maintask = test_task_2 ).count(), 0 )
+
+        response = c.post( reverse_lazy('project:add_linked', args = (test_task_1.id, ) ), { 'subtask' : test_task_2.id }, )
+
+        self.assertEqual( response.status_code, 302 )
+
+        self.assertEqual( TaskLink.objects.filter( maintask = test_task_1 ).count(), 1 )
+        self.assertEqual( TaskLink.objects.filter( maintask = test_task_2 ).count(), 0 )
