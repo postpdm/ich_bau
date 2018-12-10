@@ -256,3 +256,15 @@ class Project_View_Test_Client(TestCase):
 
         self.assertEqual( TaskLink.objects.filter( maintask = test_task_1 ).count(), 1 )
         self.assertEqual( TaskLink.objects.filter( maintask = test_task_2 ).count(), 0 )
+
+        # task_unlink
+
+        # wrong link id raise 404
+        response = c.post( reverse_lazy('project:task_unlink', args = (0, ) ) )
+        self.assertEqual( response.status_code, 404 )
+
+        # unlink previously created link
+        response = c.post( reverse_lazy('project:task_unlink', args = (TaskLink.objects.first().id, ) ) )
+        self.assertEqual( response.status_code, 302 )
+        self.assertEqual( TaskLink.objects.filter( maintask = test_task_1 ).count(), 0 )
+        self.assertEqual( TaskLink.objects.filter( maintask = test_task_2 ).count(), 0 )
