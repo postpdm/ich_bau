@@ -226,6 +226,9 @@ class Project_View_Test_Client(TestCase):
 
         self.assertEqual( Get_Profile_Tasks( new_resource ).count(), 1 )
 
+        response = c.get( reverse_lazy('profiles_detail', args = (new_resource.id, ) ) )
+        self.assertContains(response, test_task_2.fullname, status_code=200 )
+
 
         # task check list
         # test wrong task id
