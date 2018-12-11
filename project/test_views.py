@@ -245,6 +245,17 @@ class Project_View_Test_Client(TestCase):
         self.assertEqual( checks.first().checkname, TASK_CHECK_CAPTION )
         self.assertFalse( checks.first().check_flag )
 
+        # switch check item
+
+        check_item = checks.first()
+        check_item.refresh_from_db()
+        self.assertEqual( check_item.checkname, TASK_CHECK_CAPTION )
+        self.assertFalse( check_item.check_flag )
+        response = c.get( reverse_lazy('project:task_check_switch', args = (check_item.id, ) ) )
+        check_item.refresh_from_db()
+        self.assertEqual( check_item.checkname, TASK_CHECK_CAPTION )
+        self.assertTrue( check_item.check_flag )
+
         # add_linked
 
         self.assertEqual( TaskLink.objects.filter( maintask = test_task_1 ).count(), 0 )
