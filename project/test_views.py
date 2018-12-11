@@ -4,7 +4,7 @@ from django.test import TestCase, Client
 
 from django.urls import reverse_lazy
 
-from .models import Project, Task, Milestone, Get_Profiles_Available2Task, TaskCheckList, TaskLink
+from .models import Project, Task, Milestone, Get_Profiles_Available2Task, Get_Profile_Tasks, TaskCheckList, TaskLink
 from ich_bau.profiles.models import Profile, PROFILE_TYPE_RESOURCE
 
 TEST_USER_NAME  = 'test_user'
@@ -215,14 +215,17 @@ class Project_View_Test_Client(TestCase):
         new_resource = Profile( profile_type = PROFILE_TYPE_RESOURCE, name = 'Resource' )
         new_resource.save()
         self.assertEqual( avail_profiles.count(), 1 )
+        self.assertEqual( Get_Profile_Tasks( new_resource ).count(), 0 )
 
         response = c.post( reverse_lazy('project:add_profile', args = (test_task_2.id, ) ), { 'profile' : new_resource.id, } )
         # we are redirected to new task page
         self.assertEqual( response.status_code, 302 )
 
         self.assertEqual( test_task_2.get_profiles().count(), 1 )
-        #avail_profiles.refresh()
         self.assertEqual( avail_profiles.count(), 0 )
+
+        self.assertEqual( Get_Profile_Tasks( new_resource ).count(), 1 )
+
 
         # task check list
         # test wrong task id

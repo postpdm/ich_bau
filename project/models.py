@@ -456,3 +456,6 @@ class TaskProfile(models.Model):
 
 def Get_Profiles_Available2Task( arg_task_id ):
     return Profile.objects.filter( profile_type__in = PROFILE_TYPE_FOR_TASK ).exclude( task2profile__parenttask = arg_task_id )
+
+def Get_Profile_Tasks( arg_profile ):
+    return Task.objects.filter( profile2task__profile = arg_profile )

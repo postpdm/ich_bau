@@ -13,7 +13,7 @@ from .models import *
 from account.decorators import login_required
 from reversion.models import Version
 from django.http import HttpResponseRedirect, Http404
-from project.models import Get_User_Tasks
+from project.models import Get_User_Tasks, Get_Profile_Tasks
 
 class ProfileEditView(LoginRequiredMixin, UpdateView):
 
@@ -50,6 +50,10 @@ class ProfileDetailView(DetailView):
         if ( current_profile.profile_type == PROFILE_TYPE_USER ) and ( not( current_profile.user is None ) ):
             context['controlled_profiles'] = Profile_Control_User.objects.filter( control_user = current_profile.user )
             context['user_tasks'] = Get_User_Tasks( current_profile.user )
+        else:
+            if ( current_profile.profile_type in PROFILE_TYPE_FOR_TASK ):
+                context['profile_tasks'] = Get_Profile_Tasks( current_profile )
+
         context['controlled_by_user'] = Profile_Control_User.objects.filter( controlled_profile = current_profile )
 
         return context
