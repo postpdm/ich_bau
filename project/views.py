@@ -201,6 +201,8 @@ def get_project_view(request, project_id, arg_task_filter = TASK_FILTER_OPEN, ar
     user_can_admin = False
     user_can_join = False
 
+    show_file_page = VCS_Configured()
+
     ual = project.user_access_level( request.user )
     if ual == PROJECT_ACCESS_NONE:
         raise Http404()
@@ -287,6 +289,7 @@ def get_project_view(request, project_id, arg_task_filter = TASK_FILTER_OPEN, ar
                      'repo_info' : repo_info,
                      'repo_list' : repo_list,
                      'repo_rel_path' : repo_rel_path,
+                     'show_file_page' : show_file_page,
                          }
 
     # Рендерить ответ

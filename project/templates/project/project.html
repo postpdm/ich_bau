@@ -22,7 +22,9 @@
 
 <ul class="nav nav-tabs">
   <li role="presentation" {% if show_page == 'title' %} class="active" {% endif %}><a href="{{project.get_absolute_url}}">{% trans "Project" %}</a></li>
-  <li role="presentation" {% if show_page == 'files' %} class="active" {% endif %}><a href="{% url 'project:project_view_files' project_id=project.pk %}">{% trans "Files" %}</a></li>
+  {% if show_file_page %}
+    <li role="presentation" {% if show_page == 'files' %} class="active" {% endif %}><a href="{% url 'project:project_view_files' project_id=project.pk %}">{% trans "Files" %}</a></li>
+  {% endif %}
   <li role="presentation" {% if show_page == 'milestones' %} class="active" {% endif %}><a href="{{project.get_absolute_url}}milestones/">{% trans "Milestones" %}</a></li>
 </ul>
 
