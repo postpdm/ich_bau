@@ -106,4 +106,13 @@
             </div>
         </div >
     {% endif %}
+    
+    {% if profile_tasks %}
+        <div class="row">
+            <div class="col-md-12">
+                <h3>Profile tasks</h3>
+                {% include "project/task_list.html" with table_mode='index' tasks=profile_tasks %}
+            </div>
+        </div >
+    {%  endif %}
 {% endblock %}

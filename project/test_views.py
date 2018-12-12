@@ -4,7 +4,7 @@ from django.test import TestCase, Client
 
 from django.urls import reverse_lazy
 
-from .models import Project, Task, Milestone, Get_Profiles_Available2Task
+from .models import Project, Task, Milestone, Get_Profiles_Available2Task, Get_Profile_Tasks, TaskCheckList, TaskLink
 from ich_bau.profiles.models import Profile, PROFILE_TYPE_RESOURCE
 
 TEST_USER_NAME  = 'test_user'
@@ -21,6 +21,8 @@ TEST_TASK_IN_MILESTONE_FULLNAME = 'TEST TASK #2 IN MILESTONE FULL NAME'
 
 TEST_MILESTONE_FULLNAME = 'TEST MILESTONE #1 FULL NAME'
 TEST_MILESTONE_FULLNAME_2 = 'TEST MILESTONE #1 NEW FULL NAME'
+
+TASK_CHECK_CAPTION = 'Do it!'
 
 class Project_View_Test_Client(TestCase):
     def test_Project_All_Public(self):
@@ -213,11 +215,73 @@ class Project_View_Test_Client(TestCase):
         new_resource = Profile( profile_type = PROFILE_TYPE_RESOURCE, name = 'Resource' )
         new_resource.save()
         self.assertEqual( avail_profiles.count(), 1 )
+        self.assertEqual( Get_Profile_Tasks( new_resource ).count(), 0 )
 
         response = c.post( reverse_lazy('project:add_profile', args = (test_task_2.id, ) ), { 'profile' : new_resource.id, } )
         # we are redirected to new task page
         self.assertEqual( response.status_code, 302 )
 
         self.assertEqual( test_task_2.get_profiles().count(), 1 )
-        #avail_profiles.refresh()
         self.assertEqual( avail_profiles.count(), 0 )
+
+        self.assertEqual( Get_Profile_Tasks( new_resource ).count(), 1 )
+
+        response = c.get( reverse_lazy('profiles_detail', args = (new_resource.id, ) ) )
+        self.assertContains(response, test_task_2.fullname, status_code=200 )
+
+
+        # task check list
+        # test wrong task id
+        response = c.post( reverse_lazy('project:task_checklist', args = (0, ) ) )
+        self.assertEqual( response.status_code, 404 )
+
+        # test check list is empty
+        self.assertEqual( TaskCheckList.objects.filter( parenttask = test_task_2  ).count(), 0 )
+
+        # create one item in the check list
+        response = c.post( reverse_lazy('project:task_checklist', args = (test_task_2.id, ) ),
+            { 'form-TOTAL_FORMS': 3,
+              'form-INITIAL_FORMS': 0 ,
+              'form-0-checkname' : TASK_CHECK_CAPTION, } )
+
+        self.assertEqual( response.status_code, 302 )
+
+        self.assertEqual( TaskCheckList.objects.filter( parenttask = test_task_2 ).count(), 1 )
+        checks = TaskCheckList.objects.filter( parenttask = test_task_2  )
+        self.assertEqual( checks.first().checkname, TASK_CHECK_CAPTION )
+        self.assertFalse( checks.first().check_flag )
+
+        # switch check item
+
+        check_item = checks.first()
+        check_item.refresh_from_db()
+        self.assertEqual( check_item.checkname, TASK_CHECK_CAPTION )
+        self.assertFalse( check_item.check_flag )
+        response = c.get( reverse_lazy('project:task_check_switch', args = (check_item.id, ) ) )
+        check_item.refresh_from_db()
+        self.assertEqual( check_item.checkname, TASK_CHECK_CAPTION )
+        self.assertTrue( check_item.check_flag )
+
+        # add_linked
+
+        self.assertEqual( TaskLink.objects.filter( maintask = test_task_1 ).count(), 0 )
+        self.assertEqual( TaskLink.objects.filter( maintask = test_task_2 ).count(), 0 )
+
+        response = c.post( reverse_lazy('project:add_linked', args = (test_task_1.id, ) ), { 'subtask' : test_task_2.id }, )
+
+        self.assertEqual( response.status_code, 302 )
+
+        self.assertEqual( TaskLink.objects.filter( maintask = test_task_1 ).count(), 1 )
+        self.assertEqual( TaskLink.objects.filter( maintask = test_task_2 ).count(), 0 )
+
+        # task_unlink
+
+        # wrong link id raise 404
+        response = c.post( reverse_lazy('project:task_unlink', args = (0, ) ) )
+        self.assertEqual( response.status_code, 404 )
+
+        # unlink previously created link
+        response = c.post( reverse_lazy('project:task_unlink', args = (TaskLink.objects.first().id, ) ) )
+        self.assertEqual( response.status_code, 302 )
+        self.assertEqual( TaskLink.objects.filter( maintask = test_task_1 ).count(), 0 )
+        self.assertEqual( TaskLink.objects.filter( maintask = test_task_2 ).count(), 0 )
