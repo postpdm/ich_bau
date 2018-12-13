@@ -9,6 +9,11 @@ BOT_TEST_NAME = 'BOT TEST NAME'
 TEST_USER_NAME = 'USER'
 TEST_USER_PW = 'USER_PW'
 
+TEST_USER_NEW_DESCRIPTION = 'My new profile description'
+
+NEW_PEOPLE_PROFILE_NAME = 'SOME PEOPLE'
+NEW_PEOPLE_PROFILE__EDITED_DESCRIPTION = 'SOME NEW DESCRIPTION'
+
 class Profile_Test(TestCase):
     def setUp(self):
         if not User.objects.filter( username = 'bot' ).exists():
@@ -76,8 +81,49 @@ class Profile_Test_Client(TestCase):
         u = User.objects.all()
 
         c = Client()
+
+        response = c.get( reverse_lazy('my_profile_view') )
+        self.assertEqual( response.status_code, 302 )
+
         res = c.login(username=TEST_USER_NAME, password=TEST_USER_PW )
         self.assertTrue( res )
 
         response = c.get( reverse_lazy('my_profile_view'), follow=True )
         self.assertEqual( response.status_code, 200 )
+
+    def test_Edit_My_Profile( self ):
+       c = Client()
+       response = c.post( reverse_lazy('profiles_edit'), {  } )
+       self.assertEqual( response.status_code, 302 )
+
+       res = c.login(username=TEST_USER_NAME, password=TEST_USER_PW )
+       self.assertTrue( res )
+
+       user_profile = User.objects.get( username = TEST_USER_NAME ).profile
+       self.assertEqual( user_profile.description, '' )
+
+       response = c.post( reverse_lazy('profiles_edit'), { 'description' : TEST_USER_NEW_DESCRIPTION } )
+       self.assertEqual( response.status_code, 302 )
+       user_profile.refresh_from_db()
+       self.assertEqual( user_profile.description, TEST_USER_NEW_DESCRIPTION  )
+
+    def test_profile_create_and_edit(self):
+        self.assertEqual( Profile.objects.count(), 2 )
+        self.assertEqual( Profile.objects.filter( profile_type__in = PROFILE_TYPE_FOR_TASK ).count(), 0 )
+
+        c = Client()
+        res = c.login(username=TEST_USER_NAME, password=TEST_USER_PW )
+
+        self.assertTrue( res )
+
+        response = c.post( reverse_lazy('profile_create'), { 'profile_type' : PROFILE_TYPE_PEOPLE, 'name' : NEW_PEOPLE_PROFILE_NAME,  } )
+        self.assertEqual( response.status_code, 302 )
+        self.assertEqual( Profile.objects.filter( profile_type__in = PROFILE_TYPE_FOR_TASK ).count(), 1 )
+        new_people = Profile.objects.get( name = NEW_PEOPLE_PROFILE_NAME )
+        self.assertEqual( new_people.profile_type, PROFILE_TYPE_PEOPLE )
+        self.assertEqual( new_people.description, '' )
+
+        response = c.post( reverse_lazy('profile_update', args = (new_people.id,) ), { 'profile_type' : PROFILE_TYPE_PEOPLE, 'name' : NEW_PEOPLE_PROFILE_NAME, 'description' : NEW_PEOPLE_PROFILE__EDITED_DESCRIPTION } )
+        self.assertEqual( response.status_code, 302 )
+        new_people.refresh_from_db()
+        self.assertEqual( new_people.description, NEW_PEOPLE_PROFILE__EDITED_DESCRIPTION  )
