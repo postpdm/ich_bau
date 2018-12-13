@@ -9,6 +9,8 @@ BOT_TEST_NAME = 'BOT TEST NAME'
 TEST_USER_NAME = 'USER'
 TEST_USER_PW = 'USER_PW'
 
+TEST_USER_NEW_DESCRIPTION = 'My new profile description'
+
 NEW_PEOPLE_PROFILE_NAME = 'SOME PEOPLE'
 NEW_PEOPLE_PROFILE__EDITED_DESCRIPTION = 'SOME NEW DESCRIPTION'
 
@@ -79,11 +81,31 @@ class Profile_Test_Client(TestCase):
         u = User.objects.all()
 
         c = Client()
+
+        response = c.get( reverse_lazy('my_profile_view') )
+        self.assertEqual( response.status_code, 302 )
+
         res = c.login(username=TEST_USER_NAME, password=TEST_USER_PW )
         self.assertTrue( res )
 
         response = c.get( reverse_lazy('my_profile_view'), follow=True )
         self.assertEqual( response.status_code, 200 )
+
+    def test_Edit_My_Profile( self ):
+       c = Client()
+       response = c.post( reverse_lazy('profiles_edit'), {  } )
+       self.assertEqual( response.status_code, 302 )
+
+       res = c.login(username=TEST_USER_NAME, password=TEST_USER_PW )
+       self.assertTrue( res )
+
+       user_profile = User.objects.get( username = TEST_USER_NAME ).profile
+       self.assertEqual( user_profile.description, '' )
+
+       response = c.post( reverse_lazy('profiles_edit'), { 'description' : TEST_USER_NEW_DESCRIPTION } )
+       self.assertEqual( response.status_code, 302 )
+       user_profile.refresh_from_db()
+       self.assertEqual( user_profile.description, TEST_USER_NEW_DESCRIPTION  )
 
     def test_profile_create_and_edit(self):
         self.assertEqual( Profile.objects.count(), 2 )
