@@ -81,3 +81,14 @@ class Profile_Test_Client(TestCase):
 
         response = c.get( reverse_lazy('my_profile_view'), follow=True )
         self.assertEqual( response.status_code, 200 )
+
+    def test_profile_create_and_edit(self):
+        self.assertEqual( Profile.objects.count(), 2 )
+        self.assertEqual( Profile.objects.filter( profile_type__in = PROFILE_TYPE_FOR_TASK ).count(), 0 )
+
+        c = Client()
+        res = c.login(username=TEST_USER_NAME, password=TEST_USER_PW )
+
+        self.assertTrue( res )
+
+
