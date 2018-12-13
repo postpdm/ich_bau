@@ -9,6 +9,8 @@ BOT_TEST_NAME = 'BOT TEST NAME'
 TEST_USER_NAME = 'USER'
 TEST_USER_PW = 'USER_PW'
 
+NEW_PEOPLE_PROFILE_NAME = 'SOME PEOPLE'
+
 class Profile_Test(TestCase):
     def setUp(self):
         if not User.objects.filter( username = 'bot' ).exists():
@@ -90,5 +92,9 @@ class Profile_Test_Client(TestCase):
         res = c.login(username=TEST_USER_NAME, password=TEST_USER_PW )
 
         self.assertTrue( res )
+
+        response = c.post( reverse_lazy('profile_create'), { 'profile_type' : PROFILE_TYPE_PEOPLE, 'name' : NEW_PEOPLE_PROFILE_NAME,  } )
+        self.assertEqual( response.status_code, 302 )
+        self.assertEqual( Profile.objects.filter( profile_type__in = PROFILE_TYPE_FOR_TASK ).count(), 1 )
 
 
