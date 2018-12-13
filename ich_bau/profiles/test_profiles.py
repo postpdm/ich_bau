@@ -10,6 +10,7 @@ TEST_USER_NAME = 'USER'
 TEST_USER_PW = 'USER_PW'
 
 NEW_PEOPLE_PROFILE_NAME = 'SOME PEOPLE'
+NEW_PEOPLE_PROFILE__EDITED_DESCRIPTION = 'SOME NEW DESCRIPTION'
 
 class Profile_Test(TestCase):
     def setUp(self):
@@ -96,5 +97,11 @@ class Profile_Test_Client(TestCase):
         response = c.post( reverse_lazy('profile_create'), { 'profile_type' : PROFILE_TYPE_PEOPLE, 'name' : NEW_PEOPLE_PROFILE_NAME,  } )
         self.assertEqual( response.status_code, 302 )
         self.assertEqual( Profile.objects.filter( profile_type__in = PROFILE_TYPE_FOR_TASK ).count(), 1 )
+        new_people = Profile.objects.get( name = NEW_PEOPLE_PROFILE_NAME )
+        self.assertEqual( new_people.profile_type, PROFILE_TYPE_PEOPLE )
+        self.assertEqual( new_people.description, '' )
 
-
+        response = c.post( reverse_lazy('profile_update', args = (new_people.id,) ), { 'profile_type' : PROFILE_TYPE_PEOPLE, 'name' : NEW_PEOPLE_PROFILE_NAME, 'description' : NEW_PEOPLE_PROFILE__EDITED_DESCRIPTION } )
+        self.assertEqual( response.status_code, 302 )
+        new_people.refresh_from_db()
+        self.assertEqual( new_people.description, NEW_PEOPLE_PROFILE__EDITED_DESCRIPTION  )
