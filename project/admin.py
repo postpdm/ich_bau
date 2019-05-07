@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import Project, Task, Milestone
+from .models import Project, Task, Milestone, TaskLink
 
 admin.site.register(
     Project,
@@ -20,4 +20,8 @@ admin.site.register(
 
 admin.site.register(
     Milestone,
+    )
+
+admin.site.register(
+    TaskLink,
     )
