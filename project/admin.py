@@ -24,4 +24,7 @@ admin.site.register(
 
 admin.site.register(
     TaskLink,
-    )
+    list_display=[
+        "maintask", 
+        "subtask",
+    ], )
