@@ -3,7 +3,7 @@
 from django import forms
 from project.models import Project, Task, TaskComment, Milestone, Member, TaskLink, TaskProfile, TaskCheckList, Get_Profiles_Available2Task
 
-from django.forms.widgets import HiddenInput
+from django.forms.widgets import HiddenInput, CheckboxSelectMultiple
 
 from commons.editors import DateTime_Field, TextEditor_Field
 
@@ -63,7 +63,7 @@ class TaskForm(forms.ModelForm):
             self.fields['assignee'].queryset = list
 
 class TaskLinkedForm(forms.ModelForm):
-    subtask=forms.ModelChoiceField( Task.objects, help_text="subtask", required=True )
+    subtasks=forms.ModelMultipleChoiceField( Task.objects, help_text="subtask", required=True, widget=CheckboxSelectMultiple() )
 
     def __init__(self, *args, **kwargs):
         argmaintaskid = kwargs.pop('argmaintaskid', None)
@@ -71,11 +71,11 @@ class TaskLinkedForm(forms.ModelForm):
 
         if (argmaintaskid != "" ):
             main_task = Task.objects.get( id = argmaintaskid )
-            self.fields['subtask'].queryset = main_task.project.Get_Tasks( True ).exclude(id=argmaintaskid).exclude( sub__maintask = argmaintaskid )
+            self.fields['subtasks'].queryset = main_task.project.Get_Tasks( True ).exclude(id=argmaintaskid).exclude( sub__maintask = argmaintaskid )
 
     class Meta:
         model = TaskLink
-        fields = ['subtask']
+        fields = ['subtasks']
 
 class TaskProfileForm(forms.ModelForm):
     profile=forms.ModelChoiceField( Profile.objects, help_text="profile", required=True )
