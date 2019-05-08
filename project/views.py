@@ -755,9 +755,12 @@ def add_linked(request, task_id):
         form = TaskLinkedForm(request.POST, argmaintaskid = task_id )
 
         if form.is_valid():
-            tl = form.save(commit=False)
-            tl.maintask=Task.objects.get(id=task_id)
-            tl.save()
+            for st in form.cleaned_data['subtasks']:
+                tl = TaskLink()
+                tl.maintask=Task.objects.get(id=task_id)
+                tl.subtask = st
+                tl.save()
+
             # перебросить пользователя на задание
             return HttpResponseRedirect('/project/task/' + task_id )
         else:
@@ -767,7 +770,7 @@ def add_linked(request, task_id):
 
     return render( request, 'project/task_add_link.html',
             {'task_id': task_id,
-             'form': form} )
+             'form': form, } )
 
 @login_required
 def task_unlink(request, tasklink_id):

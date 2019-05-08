@@ -1,7 +1,7 @@
 from django.contrib.auth.models import User
 from .models import *
 
-from django.test import TestCase
+from django.test import TestCase, Client
 
 TEST_MAIN_ORG_NAME = 'Main org'
 
@@ -48,3 +48,49 @@ class Profile_Test(TestCase):
 
     def test_list_of_avail_for_affiliate(self):
         self.assertEqual( self.main_org_profile.list_of_avail_for_affiliate().count(), 0 )
+
+# test view for profile affiliations
+
+TEST_USER_NAME = 'USER'
+TEST_USER_PW = 'USER_PW'
+
+NEW_PEOPLE_PROFILE_NAME = 'NEW PEOPLE PROFILE NAME'
+NEW_ORG_PROFILE_NAME = 'NEW ORG PROFILE NAME'
+
+class Profile_Relation_Client_Test(TestCase):
+    def setUp(self):
+        if not User.objects.filter( username = TEST_USER_NAME ).exists():
+            u = User.objects.create_user( username = TEST_USER_NAME, password = TEST_USER_PW )
+            u.save()
+
+    def test_profile_relation_view(self):
+        self.assertEqual( Profile.objects.count(), 1 )
+        self.assertEqual( Profile.objects.filter( profile_type__in = PROFILE_TYPE_FOR_TASK ).count(), 0 )
+
+        c = Client()
+        res = c.login(username=TEST_USER_NAME, password=TEST_USER_PW )
+
+        self.assertTrue( res )
+
+        response = c.post( reverse_lazy('profile_create'), { 'profile_type' : PROFILE_TYPE_PEOPLE, 'name' : NEW_PEOPLE_PROFILE_NAME,  } )
+        self.assertEqual( response.status_code, 302 )
+        self.assertEqual( Profile.objects.filter( profile_type__in = PROFILE_TYPE_FOR_TASK ).count(), 1 )
+        new_people = Profile.objects.get( name = NEW_PEOPLE_PROFILE_NAME )
+        self.assertEqual( new_people.profile_type, PROFILE_TYPE_PEOPLE )
+
+        response = c.post( reverse_lazy('profile_create'), { 'profile_type' : PROFILE_TYPE_ORG, 'name' : NEW_ORG_PROFILE_NAME,  } )
+        self.assertEqual( response.status_code, 302 )
+        self.assertEqual( Profile.objects.filter( profile_type__in = PROFILE_TYPE_FOR_TASK ).count(), 2 )
+
+        new_org = Profile.objects.get( name = NEW_ORG_PROFILE_NAME )
+        self.assertEqual( new_org.profile_type, PROFILE_TYPE_ORG )
+
+        self.assertEqual( Profile_Affiliation.objects.count(), 0 )
+        response = c.post( reverse_lazy('profile_add_sub', args = (new_org.id,) ), { 'sub_profile' : new_people.id, } )
+        self.assertEqual( response.status_code, 302 )
+        self.assertEqual( Profile_Affiliation.objects.count(), 1 )
+
+        self.assertEqual( new_people.sub_profiles().count(), 0 )
+        self.assertEqual( new_people.main_profiles().count(), 1 )
+        self.assertEqual( new_org.sub_profiles().count(), 1 )
+        self.assertEqual( new_org.main_profiles().count(), 0 )

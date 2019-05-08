@@ -298,10 +298,19 @@ class SVN_Repo_Client_Test(TransactionTestCase):
             self.assertEqual( response.status_code, 302 )
             test_project_1.refresh_from_db()
             self.assertTrue( test_project_1.have_repo() )
-            
+
             # check - project search view files page is available
             response = c.get( reverse_lazy('project:project_view_files', args = (test_project_1.id,) ) )
             self.assertContains(response, TEST_PROJECT_FULLNAME, status_code=200 )
-            
+
             response = c_a.get( reverse_lazy('project:project_view_file_commit_view', args = (test_project_1.id, 0, )  ) )
             self.assertEqual( response.status_code, 200 )
+
+            # check - try to create repo for project already has one
+            response = c_a.get( reverse_lazy('project:project_create_repo', args = (test_project_1.id,) ), follow = True )
+            # https://stackoverflow.com/questions/16143149/django-testing-check-messages-for-a-view-that-redirects
+            self.assertEqual( response.status_code, 200 )
+            self.assertRedirects(response, test_project_1.get_absolute_url() + 'files/')
+            msg = list(response.context.get('messages'))[0]
+            self.assertEqual( msg.tags, "error" )
+            self.assertEqual( msg.message, "Project already have a repo!" )
