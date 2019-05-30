@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import Project, Task, Milestone, TaskLink
+from .models import Project, Member, Task, Milestone, TaskLink
 
 admin.site.register(
     Project,
@@ -15,6 +15,15 @@ admin.site.register(
     ],)
 
 admin.site.register(
+    Member,
+    list_display=[
+        "member_profile",
+        "project",
+        "admin_flag",
+        ]
+    )
+
+admin.site.register(
     Task,
     )
 
@@ -25,6 +34,6 @@ admin.site.register(
 admin.site.register(
     TaskLink,
     list_display=[
-        "maintask", 
+        "maintask",
         "subtask",
     ], )
