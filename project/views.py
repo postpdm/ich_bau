@@ -18,6 +18,8 @@ from django.template import RequestContext
 
 #from django.contrib.auth.decorators import login_required
 from account.decorators import login_required
+from account.utils import handle_redirect_to_login
+from django.contrib.auth import REDIRECT_FIELD_NAME
 
 from django.db import transaction
 import reversion
@@ -585,7 +587,11 @@ def task_view(request, task_id):
 
         ual = task.project.user_access_level( request.user )
         if ual == PROJECT_ACCESS_NONE:
-            raise Http404()
+            # если пользователь не авторизован, то доступ только к открытым проектам и только на просмотр
+            if ( request.user is None ) or ( not request.user.is_authenticated ):
+                return handle_redirect_to_login( request, redirect_field_name=REDIRECT_FIELD_NAME, login_url=None )
+            else:
+                raise Http404()
         else:
             if ual == PROJECT_ACCESS_WORK:
                 user_can_work = True
