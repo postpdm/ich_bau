@@ -27,7 +27,7 @@ class TaskFilter(django_filters.FilterSet):
 
 def user_projects(request):
     if request is None:
-        return Project.objects.filter(id=3)
+        return Project.objects.none()
 
     return GetMemberedProjectList( request.user )
 
