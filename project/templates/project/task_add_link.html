@@ -29,8 +29,8 @@ Create link
 </div>
 </div>
 
-{{ form.media }}
-
+{% if task_filter.qs.count %}
+        {{ form.media }}
         <form class="span6" id="link_form" method="post" action="" enctype="multipart/form-data">
 
                 {% if link.pk %}
@@ -52,6 +52,10 @@ Create link
 
             <button class="btn btn-primary" type="submit" name="submit">Save</button>
         </form>
+{% else %}
+    <p>No tasks found.</p>
+{% endif %}
+
 </div>
 </div>
 {% endblock %}
