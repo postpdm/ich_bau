@@ -1,6 +1,6 @@
 ﻿import django_filters
 
-from project.models import Project, Task, TASK_STATE_LIST_CHOICES
+from project.models import Project, Task, GetMemberedProjectList, TASK_STATE_LIST_CHOICES
 
 
 # https://django-filter.readthedocs.io/en/latest/guide/usage.html
@@ -24,9 +24,17 @@ class TaskFilter(django_filters.FilterSet):
         model = Task
         fields = ['fullname', 'description', 'state', 'milestone', 'assignee', 'holder' ]
 
+
+def user_projects(request):
+    if request is None:
+        return Project.objects.filter(id=3)
+
+    return GetMemberedProjectList( request.user )
+
 class TaskFilter_for_Linking(django_filters.FilterSet):
     fullname = django_filters.CharFilter(lookup_expr='icontains')
-    state = django_filters.ChoiceFilter(choices=TASK_STATE_LIST_CHOICES, initial = 0)
+    state = django_filters.ChoiceFilter(choices=TASK_STATE_LIST_CHOICES )
+    project = django_filters.ModelChoiceFilter( queryset= user_projects )
 
     class Meta:
         model = Task

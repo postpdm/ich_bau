@@ -752,7 +752,8 @@ def add_linked(request, task_id):
     context = RequestContext(request)
 
     main_task = get_object_or_404( Task, pk=task_id )
-    task_filter = TaskFilter_for_Linking( request.GET, queryset= Task.objects.all().exclude(id=task_id).exclude( sub__maintask = task_id ) )
+    task_filter = TaskFilter_for_Linking( data = request.GET, request=request, queryset= Task.objects.filter(project__in=GetMemberedProjectList(request.user)).exclude(id=task_id).exclude( sub__maintask = task_id ) )
+
 
     if request.method == 'POST':
         form = TaskLinkedForm( request.POST, arg_qs = task_filter.qs )
