@@ -23,7 +23,7 @@ from django.db import transaction
 import reversion
 from reversion.models import Version
 
-from project.filters import ProjectFilter, TaskFilter
+from project.filters import ProjectFilter, TaskFilter, TaskFilter_for_Linking
 
 from project.repo_wrapper import *
 
@@ -751,26 +751,30 @@ def task_comment_history(request, task_comment_id):
 def add_linked(request, task_id):
     context = RequestContext(request)
 
-    if request.method == 'POST':
-        form = TaskLinkedForm(request.POST, argmaintaskid = task_id )
+    main_task = get_object_or_404( Task, pk=task_id )
+    task_filter = TaskFilter_for_Linking( request.GET, queryset= Task.objects.all().exclude(id=task_id).exclude( sub__maintask = task_id ) )
 
+    if request.method == 'POST':
+        form = TaskLinkedForm( request.POST, arg_qs = task_filter.qs )
         if form.is_valid():
             for st in form.cleaned_data['subtasks']:
                 tl = TaskLink()
-                tl.maintask=Task.objects.get(id=task_id)
+                tl.maintask=main_task
                 tl.subtask = st
                 tl.save()
-
             # перебросить пользователя на задание
             return HttpResponseRedirect('/project/task/' + task_id )
         else:
             print( form.errors )
     else:
-        form = TaskLinkedForm( argmaintaskid = task_id )
+        form = TaskLinkedForm( arg_qs = task_filter.qs )
 
     return render( request, 'project/task_add_link.html',
             {'task_id': task_id,
-             'form': form, } )
+              'main_task' : main_task,
+             'form': form,
+             'task_filter' : task_filter,
+             } )
 
 @login_required
 def task_unlink(request, tasklink_id):

@@ -24,3 +24,11 @@ class TaskFilter(django_filters.FilterSet):
         model = Task
         fields = ['fullname', 'description', 'state', 'milestone', 'assignee', 'holder' ]
 
+class TaskFilter_for_Linking(django_filters.FilterSet):
+    fullname = django_filters.CharFilter(lookup_expr='icontains')
+    state = django_filters.ChoiceFilter(choices=TASK_STATE_LIST_CHOICES, initial = 0)
+
+    class Meta:
+        model = Task
+        fields = ['fullname', 'state', 'project' ]
+

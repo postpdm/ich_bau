@@ -66,12 +66,13 @@ class TaskLinkedForm(forms.ModelForm):
     subtasks=forms.ModelMultipleChoiceField( Task.objects, help_text="subtask", required=True, widget=CheckboxSelectMultiple() )
 
     def __init__(self, *args, **kwargs):
-        argmaintaskid = kwargs.pop('argmaintaskid', None)
+        arg_qs = kwargs.pop('arg_qs', None)
         super(TaskLinkedForm, self).__init__(*args, **kwargs)
 
-        if (argmaintaskid != "" ):
-            main_task = Task.objects.get( id = argmaintaskid )
-            self.fields['subtasks'].queryset = main_task.project.Get_Tasks( True ).exclude(id=argmaintaskid).exclude( sub__maintask = argmaintaskid )
+        self.fields['subtasks'].queryset = arg_qs
+
+        if ( arg_qs != "" ):
+            self.fields['subtasks'].queryset = arg_qs
 
     class Meta:
         model = TaskLink
