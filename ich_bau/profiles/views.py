@@ -103,7 +103,9 @@ def notifications_view_prepare(request, arg_new):
     if u is None:
         raise Http404
 
-    notifications = GetUserNoticationsQ( u, arg_new ).order_by('sender_user')
+    notifications = GetUserNoticationsQ( u, arg_new )
+    if arg_new:
+        notifications.order_by('sender_user')
 
     context_dict = { 'notifications' : notifications, 'filter_new' : arg_new }
     return render( request, 'profiles/notifications.html', context_dict )
