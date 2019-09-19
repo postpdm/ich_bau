@@ -22,7 +22,7 @@ class TaskFilter(django_filters.FilterSet):
 
     class Meta:
         model = Task
-        fields = ['fullname', 'description', 'state', 'milestone', 'assignee', 'holder' ]
+        fields = ['fullname', 'description', 'state', 'milestone', 'holder' ]
 
 
 def user_projects(request):

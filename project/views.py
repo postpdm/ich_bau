@@ -270,7 +270,6 @@ def get_project_view(request, project_id, arg_task_filter = TASK_FILTER_OPEN, ar
                     task_filter = TaskFilter( request.GET, queryset=base_tasks )
                     task_filter.filters['milestone'].queryset = milestones
                     p_list = project.GetFullMemberProfiles()
-                    task_filter.filters['assignee'].queryset = p_list
                     task_filter.filters['holder'].queryset = p_list
                     tasks = task_filter.qs
                 else:
@@ -804,9 +803,10 @@ def add_profile(request, task_id):
         form = TaskProfileForm(request.POST, argmaintaskid = task_id )
 
         if form.is_valid():
-            tl = form.save(commit=False)
-            tl.parenttask=Task.objects.get(id=task_id)
-            tl.save()
+            tp = form.save(commit=False)
+            tp.parenttask=Task.objects.get(id=task_id)
+            tp.set_change_user(request.user)
+            tp.save()
             # перебросить пользователя на задание
             return HttpResponseRedirect('/project/task/' + task_id )
         else:

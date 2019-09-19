@@ -10,7 +10,7 @@ from django.db import transaction
 import reversion
 
 from ich_bau.profiles.notification_helper import Send_Notification
-from ich_bau.profiles.models import Profile, PROFILE_TYPE_FOR_TASK
+from ich_bau.profiles.models import Profile, PROFILE_TYPE_USER, PROFILE_TYPE_FOR_TASK
 from ich_bau.profiles.messages import *
 
 from project.repo_wrapper import *
@@ -283,7 +283,6 @@ class Task(BaseStampedModel):
     description = models.TextField(blank=True, null=True)
     # была мысль, что applicant - это тикет в Servicedesk от определенного клиента. Но если тикеты в SD будут отдельно, то достаточно и holder
     # applicant = models.ForeignKey( Profile, blank=True, null=True, related_name = "Applicant" )
-    assignee = models.ForeignKey( Profile, on_delete=models.PROTECT, blank=True, null=True, related_name = "Assignee" )
     holder = models.ForeignKey(Profile, on_delete=models.PROTECT, blank=True, null=True, related_name = "Holder" )
 
     state = models.PositiveSmallIntegerField( blank=False, null=False, default = TASK_STATE_NEW )
@@ -326,15 +325,7 @@ class Task(BaseStampedModel):
     def save(self, *args, **kwargs):
         # проверить - есть ли данная веха у проекта?
         if ( self.milestone is None ) or ( self.milestone.project == self.project ):
-            # проверить - назначение на участника?
-            if ( self.assignee is None ) or ( self.assignee.user is None ) or ( self.project.is_member( self.assignee.user ) ):
-                # проверить состояние
-                if not ( self.state in TASK_STATE_LIST ):
-                    raise Exception("Wrong task state!")
-                else:
-                    super(Task, self).save(*args, **kwargs) # Call the "real" save() method.
-            else:
-                raise Exception("Assignee is not a member!")
+            super(Task, self).save(*args, **kwargs) # Call the "real" save() method.
         else:
             raise Exception("Wrong milestone!")
 
@@ -395,12 +386,9 @@ def GetTaskCommentators( arg_task, arg_exclude_user = None ):
 
     return User.objects.filter( id__in = q.distinct() )
 
-def Send_Notifications_For_Task( arg_sender_user, arg_msg, arg_list, arg_url, arg_task_assignee, arg_task_holder ):
+def Send_Notifications_For_Task( arg_sender_user, arg_msg, arg_list, arg_url, arg_task_holder ):
     for m in arg_list:
         Send_Notification( arg_sender_user, m, arg_msg, arg_url )
-
-    if not ( arg_task_assignee is None ) and ( arg_task_assignee != arg_sender_user ) and not ( arg_task_assignee in arg_list ):
-        Send_Notification( arg_sender_user, arg_task_assignee, arg_msg, arg_url )
 
     if not ( arg_task_holder is None ) and ( arg_task_holder != arg_sender_user ) and not ( arg_task_holder in arg_list ):
         Send_Notification( arg_sender_user, arg_task_holder, arg_msg, arg_url )
@@ -413,13 +401,11 @@ def task_post_save_Notifier_Composer(sender, instance, **kwargs):
 
     message_str = project_msg2json_str( MSG_NOTIFY_TYPE_PROJECT_TASK_CHANGED_ID, arg_project_name = instance.project.fullname, arg_task_name = instance.fullname )
 
-    assignee_user = None
-    if ( not ( instance.assignee is None ) ) and ( not ( instance.assignee.user is None ) ):
-        assignee_user = instance.assignee.user
     holder_user = None
     if ( not ( instance.holder is None ) ) and ( not ( instance.holder.user is None ) ):
         holder_user = instance.holder.user
-    Send_Notifications_For_Task( instance.modified_user, message_str, task_users, instance.get_absolute_url(), assignee_user, holder_user )
+
+    Send_Notifications_For_Task( instance.modified_user, message_str, task_users, instance.get_absolute_url(), holder_user )
 
 @receiver(post_save, sender=TaskComment)
 def taskcomment_post_save_Notifier_Composer(sender, instance, **kwargs):
@@ -434,28 +420,43 @@ def taskcomment_post_save_Notifier_Composer(sender, instance, **kwargs):
 
     message_str = project_msg2json_str( msg_type, arg_project_name = parent_task.project.fullname, arg_task_name = parent_task.fullname )
 
-    parenttask_assignee_user = None
-    if ( not ( parent_task.assignee is None ) ) and ( not ( parent_task.assignee.user is None ) ):
-        parenttask_assignee_user = parent_task.assignee.user
-
     parenttask_holder_user = None
     if ( not ( parent_task.holder is None ) ) and ( not ( parent_task.holder.user is None ) ):
         parenttask_holder_user = parent_task.holder.user
 
-    Send_Notifications_For_Task( instance.modified_user, message_str, task_users, parent_task.get_absolute_url(), parenttask_assignee_user, parenttask_holder_user )
+    Send_Notifications_For_Task( instance.modified_user, message_str, task_users, parent_task.get_absolute_url(), parenttask_holder_user )
 
 def Get_User_Tasks( arg_user ):
-    return Task.objects.filter( state = TASK_STATE_NEW, assignee__user = arg_user )
+    return None
+    #return Task.objects.filter( state = TASK_STATE_NEW, assignee__user = arg_user )
 
 # участники-ресурсы на задачу
-class TaskProfile(models.Model):
+class TaskProfile(BaseStampedModel):
     parenttask=models.ForeignKey( Task, on_delete=models.PROTECT, related_name = 'profile2task' )
     profile=models.ForeignKey( Profile, on_delete=models.PROTECT, related_name = 'task2profile' )
     class Meta:
         unique_together = ("parenttask", "profile")
 
+@receiver(post_save, sender=TaskProfile)
+def taskprofile_post_save_Notifier_Composer(sender, instance, **kwargs):
+    # профиль назначен на задачу
+    assigned_profile = instance.profile
+    if assigned_profile.profile_type == PROFILE_TYPE_USER:
+        task = instance.parenttask
+
+        holder_user = None
+        if ( not ( task.holder is None ) ) and ( not ( task.holder.user is None ) ):
+            holder_user = task.holder.user
+
+        if assigned_profile.user != holder_user:
+            message_str = project_msg2json_str( MSG_NOTIFY_TYPE_PROJECT_TASK_ASSIGNED_ID, arg_project_name = task.project.fullname, arg_task_name = task.fullname )
+            Send_Notification( holder_user, assigned_profile.user, message_str, task.get_absolute_url() )
+
 def Get_Profiles_Available2Task( arg_task_id ):
-    return Profile.objects.filter( profile_type__in = PROFILE_TYPE_FOR_TASK ).exclude( task2profile__parenttask = arg_task_id )
+    p = Task.objects.get( pk=arg_task_id ).project
+    #только принявшие приглашение и на назначенные + неназначенные не пользователи (организации и проч)
+    q = ( ( p.GetFullMemberProfiles() | Profile.objects.filter( profile_type__in = PROFILE_TYPE_FOR_TASK ) ).distinct() ).exclude( task2profile__parenttask = arg_task_id )
+    return q
 
 def Get_Profile_Tasks( arg_profile ):
     return Task.objects.filter( profile2task__profile = arg_profile )

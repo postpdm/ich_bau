@@ -43,7 +43,7 @@ class TaskForm(forms.ModelForm):
 
     class Meta:
         model = Task
-        fields = ['fullname', 'milestone', 'assignee', 'holder', 'important', 'description', ]
+        fields = ['fullname', 'milestone', 'holder', 'important', 'description', ]
 
     def __init__(self, *args, **kwargs):
         super(TaskForm, self).__init__(*args, **kwargs)
@@ -60,7 +60,6 @@ class TaskForm(forms.ModelForm):
             self.fields['milestone'].queryset = Milestone.objects.filter( project = p, finished_at__isnull = True )
             list = p.GetFullMemberProfiles()
             self.fields['holder'].queryset = list
-            self.fields['assignee'].queryset = list
 
 class TaskLinkedForm(forms.ModelForm):
     subtasks=forms.ModelMultipleChoiceField( Task.objects, help_text="subtask", required=True, widget=CheckboxSelectMultiple() )
