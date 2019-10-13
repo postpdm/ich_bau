@@ -6,6 +6,11 @@ from django.forms.models import modelformset_factory
 from django.utils import timezone
 from django.http import HttpResponseForbidden
 
+from account.mixins import LoginRequiredMixin
+from django.views.generic.edit import CreateView, UpdateView
+
+from django.contrib.auth.mixins import PermissionRequiredMixin, AccessMixin
+
 # Create your views here.
 
 from django.shortcuts import get_object_or_404, render
@@ -18,12 +23,14 @@ from django.template import RequestContext
 
 #from django.contrib.auth.decorators import login_required
 from account.decorators import login_required
+from account.utils import handle_redirect_to_login
+from django.contrib.auth import REDIRECT_FIELD_NAME
 
 from django.db import transaction
 import reversion
 from reversion.models import Version
 
-from project.filters import ProjectFilter, TaskFilter
+from project.filters import ProjectFilter, TaskFilter, TaskFilter_for_Linking
 
 from project.repo_wrapper import *
 
@@ -53,6 +60,9 @@ def get_index( request, arg_page = PROJECT_FILTER_MINE ):
             else:
                 raise Http404()
 
+    # check if user has permission to create project (or super user)
+    context_dict[ 'can_add_project' ] = request.user.has_perm('project.add_project')
+
     # Сформировать ответ, отправить пользователю
     return render( request, 'project/index.html', context_dict )
 
@@ -65,13 +75,14 @@ def index_search_public( request ):
 def index_public( request ):
     return get_index( request, PROJECT_FILTER_ALL_PUBLIC )
 
-from account.mixins import LoginRequiredMixin
-from django.views.generic.edit import CreateView, UpdateView
-
-class ProjectCreateView(LoginRequiredMixin, CreateView):
+class ProjectCreateView( LoginRequiredMixin, PermissionRequiredMixin, CreateView):
 
     form_class = ProjectForm
     model = Project
+    permission_required = 'project.add_project'
+
+    raise_exception = True
+
     def form_valid(self, form):
         self.object = form.save(commit=False)
         self.object.set_change_user(self.request.user)
@@ -268,7 +279,6 @@ def get_project_view(request, project_id, arg_task_filter = TASK_FILTER_OPEN, ar
                     task_filter = TaskFilter( request.GET, queryset=base_tasks )
                     task_filter.filters['milestone'].queryset = milestones
                     p_list = project.GetFullMemberProfiles()
-                    task_filter.filters['assignee'].queryset = p_list
                     task_filter.filters['holder'].queryset = p_list
                     tasks = task_filter.qs
                 else:
@@ -585,7 +595,11 @@ def task_view(request, task_id):
 
         ual = task.project.user_access_level( request.user )
         if ual == PROJECT_ACCESS_NONE:
-            raise Http404()
+            # если пользователь не авторизован, то доступ только к открытым проектам и только на просмотр
+            if ( request.user is None ) or ( not request.user.is_authenticated ):
+                return handle_redirect_to_login( request, redirect_field_name=REDIRECT_FIELD_NAME, login_url=None )
+            else:
+                raise Http404()
         else:
             if ual == PROJECT_ACCESS_WORK:
                 user_can_work = True
@@ -751,26 +765,31 @@ def task_comment_history(request, task_comment_id):
 def add_linked(request, task_id):
     context = RequestContext(request)
 
-    if request.method == 'POST':
-        form = TaskLinkedForm(request.POST, argmaintaskid = task_id )
+    main_task = get_object_or_404( Task, pk=task_id )
+    task_filter = TaskFilter_for_Linking( data = request.GET, request=request, queryset= Task.objects.filter(project__in=GetMemberedProjectList(request.user)).exclude(id=task_id).exclude( sub__maintask = task_id ) )
 
+
+    if request.method == 'POST':
+        form = TaskLinkedForm( request.POST, arg_qs = task_filter.qs )
         if form.is_valid():
             for st in form.cleaned_data['subtasks']:
                 tl = TaskLink()
-                tl.maintask=Task.objects.get(id=task_id)
+                tl.maintask=main_task
                 tl.subtask = st
                 tl.save()
-
             # перебросить пользователя на задание
             return HttpResponseRedirect('/project/task/' + task_id )
         else:
             print( form.errors )
     else:
-        form = TaskLinkedForm( argmaintaskid = task_id )
+        form = TaskLinkedForm( arg_qs = task_filter.qs )
 
     return render( request, 'project/task_add_link.html',
             {'task_id': task_id,
-             'form': form, } )
+              'main_task' : main_task,
+             'form': form,
+             'task_filter' : task_filter,
+             } )
 
 @login_required
 def task_unlink(request, tasklink_id):
@@ -793,9 +812,10 @@ def add_profile(request, task_id):
         form = TaskProfileForm(request.POST, argmaintaskid = task_id )
 
         if form.is_valid():
-            tl = form.save(commit=False)
-            tl.parenttask=Task.objects.get(id=task_id)
-            tl.save()
+            tp = form.save(commit=False)
+            tp.parenttask=Task.objects.get(id=task_id)
+            tp.set_change_user(request.user)
+            tp.save()
             # перебросить пользователя на задание
             return HttpResponseRedirect('/project/task/' + task_id )
         else:

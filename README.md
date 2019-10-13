@@ -56,3 +56,8 @@ For testing file repo functions you need actual version of Apache Subversion cli
 * `svn` and `svnadmin` command-line clients in your PATH
 * setting up the `REPO_SVN` settingns in `settings.py`
 * `file://`, `svn://`, `http://` or `https://` connections is available to your repos 
+
+### Permissions
+
+New project could be created by super user or by user with `project.add_project` permission (assign it in Admin panel).
+

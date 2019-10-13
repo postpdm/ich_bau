@@ -43,7 +43,7 @@ class TaskForm(forms.ModelForm):
 
     class Meta:
         model = Task
-        fields = ['fullname', 'milestone', 'assignee', 'holder', 'important', 'description', ]
+        fields = ['fullname', 'milestone', 'holder', 'important', 'description', ]
 
     def __init__(self, *args, **kwargs):
         super(TaskForm, self).__init__(*args, **kwargs)
@@ -60,18 +60,18 @@ class TaskForm(forms.ModelForm):
             self.fields['milestone'].queryset = Milestone.objects.filter( project = p, finished_at__isnull = True )
             list = p.GetFullMemberProfiles()
             self.fields['holder'].queryset = list
-            self.fields['assignee'].queryset = list
 
 class TaskLinkedForm(forms.ModelForm):
     subtasks=forms.ModelMultipleChoiceField( Task.objects, help_text="subtask", required=True, widget=CheckboxSelectMultiple() )
 
     def __init__(self, *args, **kwargs):
-        argmaintaskid = kwargs.pop('argmaintaskid', None)
+        arg_qs = kwargs.pop('arg_qs', None)
         super(TaskLinkedForm, self).__init__(*args, **kwargs)
 
-        if (argmaintaskid != "" ):
-            main_task = Task.objects.get( id = argmaintaskid )
-            self.fields['subtasks'].queryset = main_task.project.Get_Tasks( True ).exclude(id=argmaintaskid).exclude( sub__maintask = argmaintaskid )
+        self.fields['subtasks'].queryset = arg_qs
+
+        if ( arg_qs != "" ):
+            self.fields['subtasks'].queryset = arg_qs
 
     class Meta:
         model = TaskLink

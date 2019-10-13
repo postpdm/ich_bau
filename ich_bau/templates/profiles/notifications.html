@@ -16,12 +16,35 @@
 </ul>
 
 <p></p>
+
+{% if filter_new %} 
+
+{% regroup notifications by sender_user as nlist %}
+
 <ul>
-{% for n in notifications %}
-<li>
-<a href="{{n.get_absolute_url}}">{{n.decode_msg}}</a> {{n.created_at}} by {{n.sender_user}}</li>
+{% for nsender_user in nlist %}
+    <li>{{ nsender_user.grouper }}
+    <ol>
+        {% for n in nsender_user.list %}
+         <li><a href="{{n.get_absolute_url}}">{{n.decode_msg}}</a> {{n.created_at}} by {{n.sender_user}}</li>
+        {% endfor %}
+    </ol>
+    </li>
 {% endfor %}
 </ul>
+
+{% else %}
+
+<ul>
+{% for n in notifications %}
+  <li><a href="{{n.get_absolute_url}}">{{n.decode_msg}}</a> {{n.created_at}} by {{n.sender_user}}</li>
+{% endfor %}
+</ul>
+
+
+{% endif %}
+
+
     </div>
     </div>
 

@@ -1,12 +1,12 @@
 '''Test the project collaboration route. With views.'''
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User, Permission
 
 from django.test import TestCase, Client
 from django.test.testcases import SimpleTestCase, TransactionTestCase
 
 from django.urls import reverse_lazy
 
-from .models import Project, Task, Milestone, TaskComment
+from .models import Project, Task, Milestone, TaskComment, GetTaskAssignedUser, TaskProfile
 
 from reversion.models import Version
 
@@ -31,7 +31,6 @@ TEST_SELF_WORKER_USER_PW    = 'test_self_worker_user_pw'
 TEST_PROJECT_FULLNAME = 'TEST PROJECT FOR COLLABORATION #1 FULL NAME'
 
 TEST_TASK_FULLNAME = 'TEST TASK FOR COLLABORATION #1 FULL NAME'
-TEST_TASK_FULLNAME_ASSIGNED = 'TEST TASK FOR COLLABORATION #1 FULL NAME - WORKER ASSIGNED'
 
 TEST_PROJECT_DESCRIPTION_1 = 'Project for collaboration'
 
@@ -48,6 +47,18 @@ class Project_Collaboration_View_Test_Client(TestCase):
         c_a = Client()
         response = c_a.login( username = TEST_ADMIN_USER_NAME, password = TEST_ADMIN_USER_PW )
         self.assertTrue( response )
+
+        self.assertEqual( Project.objects.count(), 0 )
+
+        # create new project with post
+        response = c_a.post( reverse_lazy('project:project_add'), { 'fullname' : TEST_PROJECT_FULLNAME, 'description' : TEST_PROJECT_DESCRIPTION_1, } )
+        # forbidden
+        self.assertEqual( response.status_code, 403 )
+        self.assertEqual( Project.objects.count(), 0 )
+
+        # need to add the permissions
+        add_project_permission = Permission.objects.get(codename='add_project')
+        test_admin_user.user_permissions.add( add_project_permission )
 
         # create new project with post
         response = c_a.post( reverse_lazy('project:project_add'), { 'fullname' : TEST_PROJECT_FULLNAME, 'description' : TEST_PROJECT_DESCRIPTION_1, } )
@@ -230,15 +241,21 @@ class Project_Collaboration_View_Test_Client(TestCase):
 
         # edit task
         self.assertEqual( Task.objects.count(), 1 )
-        self.assertIsNone( test_task_1.assignee )
-        response = c_a.post( reverse_lazy('project:task_edit', args = (test_task_1.id,) ), { 'fullname' : TEST_TASK_FULLNAME_ASSIGNED, 'assignee' : test_worker_user.profile.id, } )
+
+        self.assertEqual( GetTaskAssignedUser(test_task_1).count(), 0 )
+
+        response = c_a.post( reverse_lazy('project:add_profile', args = (test_task_1.id,) ), { 'profile' : test_worker_user.profile.id, } )
+
         # we are redirected to task page
         self.assertEqual( response.status_code, 302 )
 
         test_task_1.refresh_from_db()
         self.assertEqual( Task.objects.count(), 1 )
-        self.assertEqual( test_task_1.fullname, TEST_TASK_FULLNAME_ASSIGNED )
-        self.assertEqual( test_task_1.assignee, test_worker_user.profile )
+
+        assignee = GetTaskAssignedUser(test_task_1)
+        self.assertEqual( assignee.count(), 1 )
+
+        self.assertEqual( assignee.filter( profile = test_worker_user.profile ).count(), 1 )
 
         self.assertEqual( GetUserNoticationsQ( test_admin_user, True).count(), 0 )
         self.assertEqual( GetUserNoticationsQ( test_worker_user, True).count(), 1 )
@@ -276,6 +293,16 @@ class SVN_Repo_Client_Test(TransactionTestCase):
             c_a = Client()
             response = c_a.login( username = TEST_ADMIN_USER_NAME, password = TEST_ADMIN_USER_PW )
             self.assertTrue( response )
+
+            response = c_a.post( reverse_lazy('project:project_add'), { 'fullname' : TEST_PROJECT_FULLNAME, 'description' : TEST_PROJECT_DESCRIPTION_1, } )
+
+            # forbidden
+            self.assertEqual( response.status_code, 403 )
+            self.assertEqual( Project.objects.count(), 0 )
+
+            # need to add the permissions
+            add_project_permission = Permission.objects.get(codename='add_project')
+            test_admin_user.user_permissions.add( add_project_permission )
 
             response = c_a.post( reverse_lazy('project:project_add'), { 'fullname' : TEST_PROJECT_FULLNAME, 'description' : TEST_PROJECT_DESCRIPTION_1, } )
             # we are redirected to new project page
