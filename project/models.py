@@ -453,13 +453,17 @@ def taskprofile_post_save_Notifier_Composer(sender, instance, **kwargs):
     if assigned_profile.profile_type == PROFILE_TYPE_USER:
         task = instance.parenttask
 
-        holder_user = None
+        sender_user = None
         if ( not ( task.holder is None ) ) and ( not ( task.holder.user is None ) ):
-            holder_user = task.holder.user
+            sender_user = task.holder.user
 
-        if assigned_profile.user != holder_user:
+        # task holder could be empty
+        if ( sender_user is None ):
+            sender_user = instance.created_user
+
+        if assigned_profile.user != sender_user:
             message_str = project_msg2json_str( MSG_NOTIFY_TYPE_PROJECT_TASK_ASSIGNED_ID, arg_project_name = task.project.fullname, arg_task_name = task.fullname )
-            Send_Notification( holder_user, assigned_profile.user, message_str, task.get_absolute_url() )
+            Send_Notification( sender_user, assigned_profile.user, message_str, task.get_absolute_url() )
 
 def Get_Profiles_Available2Task( arg_task_id ):
     p = Task.objects.get( pk=arg_task_id ).project
