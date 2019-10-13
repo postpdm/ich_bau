@@ -6,7 +6,11 @@
     <div class="row">
         <div class="col-md-12">
 
-<h1>Projects <a class="btn btn-default" href="/project/project_add/"><i class="fa fa-plus"></i>Create project</a></h1>
+<h1>Projects 
+{% if can_add_project %}
+<a class="btn btn-default" href="/project/project_add/"><i class="fa fa-plus"></i>Create project</a>
+{%endif%}
+</h1>
 
 <ul class="nav nav-tabs">
   <li role="presentation" {% if filter_type == '' %} class="active" {% endif %}><a href="/project/">Mine</a></li>

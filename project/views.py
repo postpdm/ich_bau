@@ -6,6 +6,11 @@ from django.forms.models import modelformset_factory
 from django.utils import timezone
 from django.http import HttpResponseForbidden
 
+from account.mixins import LoginRequiredMixin
+from django.views.generic.edit import CreateView, UpdateView
+
+from django.contrib.auth.mixins import PermissionRequiredMixin, AccessMixin
+
 # Create your views here.
 
 from django.shortcuts import get_object_or_404, render
@@ -55,6 +60,9 @@ def get_index( request, arg_page = PROJECT_FILTER_MINE ):
             else:
                 raise Http404()
 
+    # check if user has permission to create project (or super user)
+    context_dict[ 'can_add_project' ] = request.user.has_perm('project.add_project')
+
     # Сформировать ответ, отправить пользователю
     return render( request, 'project/index.html', context_dict )
 
@@ -67,13 +75,14 @@ def index_search_public( request ):
 def index_public( request ):
     return get_index( request, PROJECT_FILTER_ALL_PUBLIC )
 
-from account.mixins import LoginRequiredMixin
-from django.views.generic.edit import CreateView, UpdateView
-
-class ProjectCreateView(LoginRequiredMixin, CreateView):
+class ProjectCreateView( LoginRequiredMixin, PermissionRequiredMixin, CreateView):
 
     form_class = ProjectForm
     model = Project
+    permission_required = 'project.add_project'
+
+    raise_exception = True
+
     def form_valid(self, form):
         self.object = form.save(commit=False)
         self.object.set_change_user(self.request.user)
