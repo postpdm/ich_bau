@@ -1,4 +1,4 @@
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User, Permission
 
 from django.test import TestCase, Client
 
@@ -58,6 +58,16 @@ class Project_View_Test_Client(TestCase):
         self.assertTrue( res )
 
         # create new project with post
+        response = c.post( reverse_lazy('project:project_add'), { 'fullname' : TEST_PROJECT_FULLNAME, 'description' : TEST_PROJECT_DESCRIPTION_1, } )
+
+        # forbidden
+        self.assertEqual( response.status_code, 403 )
+        self.assertEqual( Project.objects.count(), 0 )
+
+        # need to add the permissions
+        add_project_permission = Permission.objects.get(codename='add_project')
+        test_user.user_permissions.add( add_project_permission )
+
         response = c.post( reverse_lazy('project:project_add'), { 'fullname' : TEST_PROJECT_FULLNAME, 'description' : TEST_PROJECT_DESCRIPTION_1, } )
         # we are redirected to new project page
         self.assertEqual( response.status_code, 302 )
@@ -208,13 +218,15 @@ class Project_View_Test_Client(TestCase):
 
         # profiles
         avail_profiles = Get_Profiles_Available2Task( test_task_2.id )
-        self.assertEqual( avail_profiles.count(), 0 )
+
+        self.assertEqual( avail_profiles.count(), 1 )
+        self.assertEqual( avail_profiles.filter( user = test_user ).count(), 1 )
 
         self.assertEqual( test_task_2.get_profiles().count(), 0 )
 
         new_resource = Profile( profile_type = PROFILE_TYPE_RESOURCE, name = 'Resource' )
         new_resource.save()
-        self.assertEqual( avail_profiles.count(), 1 )
+        self.assertEqual( avail_profiles.count(), 2 )
         self.assertEqual( Get_Profile_Tasks( new_resource ).count(), 0 )
 
         response = c.post( reverse_lazy('project:add_profile', args = (test_task_2.id, ) ), { 'profile' : new_resource.id, } )
@@ -222,7 +234,7 @@ class Project_View_Test_Client(TestCase):
         self.assertEqual( response.status_code, 302 )
 
         self.assertEqual( test_task_2.get_profiles().count(), 1 )
-        self.assertEqual( avail_profiles.count(), 0 )
+        self.assertEqual( avail_profiles.count(), 1 )
 
         self.assertEqual( Get_Profile_Tasks( new_resource ).count(), 1 )
 
