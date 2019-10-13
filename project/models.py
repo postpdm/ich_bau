@@ -384,7 +384,15 @@ def GetTaskCommentators( arg_task, arg_exclude_user = None ):
     if arg_exclude_user:
         q = q.exclude( created_user = arg_exclude_user )
 
-    return User.objects.filter( id__in = q.distinct() )
+    return User.objects.filter( id__in = q.distinct() ).distinct()
+
+def GetTaskAssignedUser( arg_task, arg_exclude_user = None ):
+    q = TaskProfile.objects.values_list('profile_id', flat = True).filter( parenttask = arg_task )
+    if arg_exclude_user:
+        q = q.exclude( profile_id__user = arg_exclude_user )
+    p = Profile.objects.values_list('user_id', flat = True).filter( id__in = q.distinct() )
+    r = User.objects.filter( id__in = p ).distinct()
+    return r
 
 def Send_Notifications_For_Task( arg_sender_user, arg_msg, arg_list, arg_url, arg_task_holder ):
     for m in arg_list:
@@ -396,8 +404,7 @@ def Send_Notifications_For_Task( arg_sender_user, arg_msg, arg_list, arg_url, ar
 @receiver(post_save, sender=Task)
 def task_post_save_Notifier_Composer(sender, instance, **kwargs):
     # задание изменилось - разослать уведомление всем участникам задания - кроме автора изменений
-
-    task_users = GetTaskCommentators( instance, instance.modified_user )
+    task_users = ( GetTaskCommentators( instance, instance.modified_user ) | GetTaskAssignedUser( instance, instance.modified_user ) ).distinct()
 
     message_str = project_msg2json_str( MSG_NOTIFY_TYPE_PROJECT_TASK_CHANGED_ID, arg_project_name = instance.project.fullname, arg_task_name = instance.fullname )
 
