@@ -1,5 +1,5 @@
 '''Test the project collaboration route. With views.'''
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User, Permission
 
 from django.test import TestCase, Client
 from django.test.testcases import SimpleTestCase, TransactionTestCase
@@ -48,6 +48,21 @@ class Project_Collaboration_View_Test_Client(TestCase):
         c_a = Client()
         response = c_a.login( username = TEST_ADMIN_USER_NAME, password = TEST_ADMIN_USER_PW )
         self.assertTrue( response )
+
+        self.assertEqual( Project.objects.count(), 0 )
+
+        # create new project with post
+        response = c_a.post( reverse_lazy('project:project_add'), { 'fullname' : TEST_PROJECT_FULLNAME, 'description' : TEST_PROJECT_DESCRIPTION_1, } )
+        # forbidden
+        self.assertEqual( response.status_code, 403 )
+
+        self.assertEqual( Project.objects.count(), 0 )
+
+        add_project_permission = Permission.objects.get(codename='add_project')
+
+        print( add_project_permission )
+
+        test_admin_user.user_permissions.add( add_project_permission )
 
         # create new project with post
         response = c_a.post( reverse_lazy('project:project_add'), { 'fullname' : TEST_PROJECT_FULLNAME, 'description' : TEST_PROJECT_DESCRIPTION_1, } )
