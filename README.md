@@ -49,6 +49,8 @@ manage.py runserver
 | DATABASES    | Database configuration | Standard Django configuration. `dj_database_url` is supported |
 | REPO_SVN     | SVN file repo          |                                         |
 
+For your instance, please create `production_settings.py` in `ich_bau` folder.
+
 ### Testing file repo functions
 
 For testing file repo functions you need actual version of Apache Subversion client and server.
