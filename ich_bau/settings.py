@@ -1,6 +1,6 @@
 import os
 
-# DEBUG, PROJECT_ROOT, PACKAGE_ROOT, DATABASES, MEDIA_ROOT, MEDIA_URL, STATIC_ROOT, STATIC_URL, SECRET_KEY, ALLOWED_HOSTS, EMAIL_BACKEND, EMAIL_HOST, EMAIL_HOST_USER, EMAIL_HOST_PASSWORD, EMAIL_PORT, EMAIL_USE_TLS, REPO_SVN, MAIN_MESSAGE
+# DEBUG, PROJECT_ROOT, PACKAGE_ROOT, DATABASES, MEDIA_ROOT, MEDIA_URL, STATIC_ROOT, STATIC_URL, SECRET_KEY, ALLOWED_HOSTS, EMAIL_BACKEND, EMAIL_HOST, EMAIL_HOST_USER, EMAIL_HOST_PASSWORD, EMAIL_PORT, EMAIL_USE_TLS, REPO_SVN, MAIN_MESSAGE, CUSTOM_APP
 if os.environ.get('DATABASE_URL'):
     # heroku demo
     from .heroku_demo_settings import *
@@ -54,6 +54,7 @@ STATICFILES_FINDERS = [
 TEMPLATES = [
     {   "BACKEND": "django.template.backends.django.DjangoTemplates",
         "DIRS": [
+            os.path.join(PROJECT_ROOT, "templates"),
             os.path.join(PACKAGE_ROOT, "templates"),
         ],
         "APP_DIRS": True,
@@ -120,7 +121,7 @@ INSTALLED_APPS = [
 
     "ich_bau",
     "ich_bau.profiles",
-]
+] + CUSTOM_APP
 
 # A sample logging configuration. The only tangible logging
 # performed by this configuration is to send an email to
