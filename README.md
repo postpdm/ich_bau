@@ -45,9 +45,17 @@ manage.py runserver
 
 | Setting name | Sample                 |               Description               |
 |--------------|------------------------|:---------------------------------------:|
-| MAIN_MESSAGE | Debug mode             | Some test massage as alert at each page |
+| MAIN_MESSAGE | Debug mode ON          | Some test massage as alert at each page |
 | DATABASES    | Database configuration | Standard Django configuration. `dj_database_url` is supported |
 | REPO_SVN     | SVN file repo          |                                         |
+
+For your instance, please create `production_settings.py` in `ich_bau` folder.
+
+### Customization
+
+For template customization - use `templates` folder in the root of the project. HTML files in this folder will ignored by `.gitignore` file, so your custom templates will not be committed to project repo.
+
+For sample - place `homepage.html` in `templates` folder of your site to overwrite the start age.
 
 ### Testing file repo functions
 
