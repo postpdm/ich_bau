@@ -25,6 +25,10 @@ admin.site.register(
 
 admin.site.register(
     Task,
+    list_display=[
+        "fullname",
+        "project",
+        ]
     )
 
 admin.site.register(
