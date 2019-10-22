@@ -28,6 +28,12 @@ admin.site.register(
     list_display=[
         "fullname",
         "project",
+        "created_at",
+        "created_user",
+        "modified_at",
+        "modified_user",
+        "finished_fact_at",
+        "important",
         ]
     )
 
