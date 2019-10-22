@@ -25,6 +25,16 @@ admin.site.register(
 
 admin.site.register(
     Task,
+    list_display=[
+        "fullname",
+        "project",
+        "created_at",
+        "created_user",
+        "modified_at",
+        "modified_user",
+        "finished_fact_at",
+        "important",
+        ]
     )
 
 admin.site.register(
