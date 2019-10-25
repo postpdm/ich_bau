@@ -55,7 +55,7 @@ For your instance, please create `production_settings.py` in `ich_bau` folder.
 
 For template customization - use `templates` folder in the root of the project. HTML files in this folder will ignored by `.gitignore` file, so your custom templates will not be committed to project repo.
 
-For sample - place `homepage.html` in `templates` folder of your site to overwrite the start age.
+For sample - place `homepage.html` in `templates` folder of your site to overwrite the start page.
 
 ### Testing file repo functions
 
