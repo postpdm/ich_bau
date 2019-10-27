@@ -116,6 +116,7 @@ INSTALLED_APPS = [
 
     # project
     "commons",
+    "support",
     "project",
     "crm",
 

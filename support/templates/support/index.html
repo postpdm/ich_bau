@@ -1,0 +1,22 @@
+{% extends "site_base.html" %}
+
+{% block head_title %}Support{% endblock %}
+
+{% block body %}
+    <div class="row">
+        <div class="col-md-12">
+
+        <h1>Support</h1>
+        {% if sps %}
+        {% for sp in sps %}
+
+        <a href="{{ sp.project.get_absolute_url }}">{{ sp.project.fullname }}</a><br />
+
+        {% endfor %}
+        {% else %}
+        <p class="bg-warning">No projects are marked as &quot;supporting&quot;. Ask your system admin.</p>
+        {%endif%}
+
+        </div>
+    </div>
+{% endblock %}

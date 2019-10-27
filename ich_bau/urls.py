@@ -25,6 +25,7 @@ urlpatterns = [
     url(r"^notifications/read/$", notifications_view_read, name="read_notifications_view"),
     url(r"^notification/(?P<notification_id>\w+)/$", notification_read, name="notification_read"),
 
+    url(r"^support/", include('support.urls', namespace="support") ),
     url(r"^project/", include('project.urls', namespace="project") ),
     url(r"^crm/", include('crm.urls', namespace="crm") ),
 
