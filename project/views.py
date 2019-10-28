@@ -9,7 +9,7 @@ from django.http import HttpResponseForbidden
 from account.mixins import LoginRequiredMixin
 from django.views.generic.edit import CreateView, UpdateView
 
-from django.contrib.auth.mixins import PermissionRequiredMixin, AccessMixin
+from django.contrib.auth.mixins import PermissionRequiredMixin
 
 # Create your views here.
 
