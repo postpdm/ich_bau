@@ -7,6 +7,7 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.template import RequestContext
 
 from account.mixins import LoginRequiredMixin
+from django.contrib.auth.mixins import PermissionRequiredMixin
 
 from .forms import ProfileForm, ContactProfileForm, Profile_AffiliationForm
 from .models import *
@@ -67,9 +68,11 @@ class ProfileListView(ListView):
     model = Profile
     context_object_name = "profiles"
 
-class ProfileCreateView(LoginRequiredMixin, CreateView):
+class ProfileCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateView):
     model = Profile
     form_class = ContactProfileForm
+    permission_required = 'profile.add_profile'
+    raise_exception = True
 
 class ProfileUpdateView(LoginRequiredMixin, UpdateView):
     model = Profile
