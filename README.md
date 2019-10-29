@@ -69,3 +69,4 @@ For testing file repo functions you need actual version of Apache Subversion cli
 
 New project could be created by super user or by user with `project.add_project` permission (assign it in Admin panel).
 
+New profiles could be created by super user or by user with `profiles.add_profile` permission (assign it in Admin panel).

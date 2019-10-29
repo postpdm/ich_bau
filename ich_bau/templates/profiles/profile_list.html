@@ -10,7 +10,9 @@
     <div class="row">
         <div class="col-md-12">
             <h1>People, bots and orgs
+            {% if can_add_profile %}
             <a class="btn btn-default" href="{% url 'profile_create' %}"><i class="fa fa-plus"></i>Create profile</a>
+            {% endif %}
             </h1>
         </div>
     </div>

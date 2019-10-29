@@ -68,10 +68,16 @@ class ProfileListView(ListView):
     model = Profile
     context_object_name = "profiles"
 
+    def get_context_data(self, **kwargs):
+        context = super(ProfileListView, self).get_context_data(**kwargs)
+        # check if user has permission to create profile (or super user)
+        context[ 'can_add_profile' ] = self.request.user.has_perm('profiles.add_profile')
+        return context
+
 class ProfileCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateView):
     model = Profile
     form_class = ContactProfileForm
-    permission_required = 'profile.add_profile'
+    permission_required = 'profiles.add_profile'
     raise_exception = True
 
 class ProfileUpdateView(LoginRequiredMixin, UpdateView):
