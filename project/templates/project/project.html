@@ -10,7 +10,7 @@
     <div class="row">
         <div class="col-md-12">
 <h1>{{project}}
-{% if project.private_flag %}
+{% if not project.is_project_visible %}
 <i class="fa fa-lock"></i>
 {% endif %}
 
