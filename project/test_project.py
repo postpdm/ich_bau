@@ -47,7 +47,7 @@ class Project_Test(TestCase):
 
         test_project_private = Project(fullname=TEST_PROJECT_PRIVATE_NAME)
         test_project_private.set_change_user(user_creator)
-        test_project_private.private_flag = True
+        test_project_private.private_flag = PROJECT_VISIBLE_PRIVATE
         test_project_private.save()
 
     def test_have_repo_false(self):
