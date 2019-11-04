@@ -43,6 +43,7 @@ class Project_Test(TestCase):
 
         test_project_public = Project(fullname=TEST_PROJECT_PUBLIC_NAME)
         test_project_public.set_change_user(user_creator)
+        test_project_public.private_flag = PROJECT_VISIBLE_VISIBLE
         test_project_public.save()
 
         test_project_private = Project(fullname=TEST_PROJECT_PRIVATE_NAME)
