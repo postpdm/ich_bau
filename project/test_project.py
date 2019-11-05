@@ -181,3 +181,19 @@ class Project_Test(TestCase):
         p = Get_Profiles_Available2Task( test_task.id )
         self.assertEqual( p.count(), 1 ) # 1 profile is available
         self.assertEqual( p.filter( user = get_creator_user() ).count(), 1 ) # creator_user profile is available
+
+
+class Project_Set_Wrong_Private_Flag_Test(TestCase):
+
+    def test_Project_Set_Wrong_Private_Flag( self ):
+        user_creator = User.objects.create_user( username = TEST_USER_NAME_CREATOR, password = '-' )
+        user_creator.save()
+
+        user_not_member = User.objects.create_user( username = TEST_USER_NAME_NOT_MEMBER, password = '-' )
+        user_not_member.save()
+
+        with self.assertRaises(Exception):
+            test_project_public = Project(fullname=TEST_PROJECT_PUBLIC_NAME)
+            test_project_public.set_change_user(user_creator)
+            test_project_public.private_flag = -1111
+            test_project_public.save()
