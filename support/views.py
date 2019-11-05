@@ -1,4 +1,5 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
+from django.http import HttpResponseRedirect
 
 from .models import SupportProject
 
@@ -6,5 +7,9 @@ from .models import SupportProject
 
 def index( request ):
     sp = SupportProject.objects.all()
-    context_dict = { 'sps' : sp,  }
-    return render( request, 'support/index.html', context_dict )
+    
+    if sp.count() == 1:
+        return HttpResponseRedirect( sp.first().project.get_absolute_url() )
+    else:
+        context_dict = { 'sps' : sp,  }
+        return render( request, 'support/index.html', context_dict )
