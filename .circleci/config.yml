@@ -1,0 +1,18 @@
+version: 1
+jobs:
+  build:  # required for runs that don't use workflows
+    working_directory: ~/project
+    docker:
+      - image: circleci/python:3.6.4
+    steps:
+      - checkout  # checkout source code to working directory
+      - run:
+        command: |  # use pipenv to install dependencies
+          sudo pip install pipenv
+          pipenv install
+          pipenv run python manage.py test
+      - store_test_results: # Upload test results for display in Test Summary: https://circleci.com/docs/2.0/collect-test-data/
+          path: test-results
+      - store_artifacts: # Upload test summary for display in Artifacts: https://circleci.com/docs/2.0/artifacts/
+          path: test-results
+          destination: tr1
