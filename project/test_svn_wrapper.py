@@ -109,7 +109,7 @@ class SVN_Wrapper_Temp_Dir_Test(TestCase):
         r = svn.remote.RemoteClient( file_path_ulr, 'u', 'p' )
 
         print(file_path_ulr)
-        
+        print(r.info())
         
         self.assertEqual( file_path_ulr, r.info()['url'] )
         self.assertEqual( '^/', r.info()['relative_url'] )
