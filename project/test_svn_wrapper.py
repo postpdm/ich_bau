@@ -90,16 +90,16 @@ class SVN_Wrapper_Temp_Dir_Test(TestCase):
         f.close()
 
     def test_SVN_Client(self):
-        path = self.test_temp_dir + '/test_repo_name'
+        path = os.path.join(self.test_temp_dir, 'test_repo_name' )
         self.assertFalse(os.path.exists( path ))
         a = svn.admin.Admin( )
         a.create( path )
         self.assertTrue(os.path.exists( path ))
 
-        self.assertTrue(os.path.exists( path + '/conf' ))
-        self.assertTrue(os.path.isfile( path + '/conf/authz' ))
+        self.assertTrue(os.path.exists( os.path.join( path, 'conf' ) ))
+        self.assertTrue(os.path.isfile( os.path.join( path, 'conf', 'authz' )) )
 
-        f = open( path + '/conf/authz' )
+        f = open( os.path.join( path, 'conf', 'authz' ) )
 
         self.assertIn( '[groups]', f.read() )
         f.close()
