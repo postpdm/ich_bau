@@ -143,19 +143,19 @@ class SVN_Wrapper_Client_Test(SimpleTestCase):
             shutil.rmtree(self.test_temp_dir, True )
             self.test_temp_dir = None
 
-    def test_SVN_Wrapper(self):
-        path = os.path.join(self.test_temp_dir, '' )
-        with self.settings( REPO_SVN = get_TEST_REPO_SVN_FILE( path ) ):
+    # def test_SVN_Wrapper(self):
+        # path = os.path.join(self.test_temp_dir, '' )
+        # with self.settings( REPO_SVN = get_TEST_REPO_SVN_FILE( path ) ):
 
-            repo = Create_New_Repo()
-            self.assertTrue( repo[0] == 0 )
-            self.assertTrue(os.path.exists( os.path.join( path , repo[1] ) ) )
+            # repo = Create_New_Repo()
+            # self.assertTrue( repo[0] == 0 )
+            # self.assertTrue(os.path.exists( os.path.join( path , repo[1] ) ) )
 
-            info = Get_Info_For_Repo_Name( repo[1] )
-            self.assertTrue( info[0] == VCS_REPO_SUCCESS )
+            # info = Get_Info_For_Repo_Name( repo[1] )
+            # self.assertTrue( info[0] == VCS_REPO_SUCCESS )
 
-            log = Get_Log_For_Repo_Name( repo[1], arg_echo = True )
-            self.assertTrue( log[0] == VCS_REPO_SUCCESS )
+            # log = Get_Log_For_Repo_Name( repo[1], arg_echo = True )
+            # self.assertTrue( log[0] == VCS_REPO_SUCCESS )
 
-            list = Get_List_For_Repo_Name( repo[1], '' )
-            self.assertTrue( list[0] == VCS_REPO_SUCCESS )
+            # list = Get_List_For_Repo_Name( repo[1], '' )
+            # self.assertTrue( list[0] == VCS_REPO_SUCCESS )
