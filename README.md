@@ -51,6 +51,9 @@ manage.py runserver
 
 For your instance, please create `production_settings.py` in `ich_bau` folder.
 
+Set up the [SITE](https://docs.djangoproject.com/en/2.0/ref/contrib/sites/) settings.
+
+
 ### Customization
 
 For template customization - use `templates` folder in the root of the project. HTML files in this folder will ignored by `.gitignore` file, so your custom templates will not be committed to project repo.
