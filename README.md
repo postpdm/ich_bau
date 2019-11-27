@@ -51,6 +51,9 @@ manage.py runserver
 
 For your instance, please create `production_settings.py` in `ich_bau` folder.
 
+Set up the [SITE](https://docs.djangoproject.com/en/2.0/ref/contrib/sites/) settings.
+
+
 ### Customization
 
 For template customization - use `templates` folder in the root of the project. HTML files in this folder will ignored by `.gitignore` file, so your custom templates will not be committed to project repo.
@@ -69,3 +72,4 @@ For testing file repo functions you need actual version of Apache Subversion cli
 
 New project could be created by super user or by user with `project.add_project` permission (assign it in Admin panel).
 
+New profiles could be created by super user or by user with `profiles.add_profile` permission (assign it in Admin panel).

@@ -1,7 +1,7 @@
 ﻿# project forms
 
 from django import forms
-from project.models import Project, Task, TaskComment, Milestone, Member, TaskLink, TaskProfile, TaskCheckList, Get_Profiles_Available2Task
+from project.models import Project, PROJECT_VISIBLE_LIST_CHOICES, PROJECT_VISIBLE_PRIVATE, Task, TaskComment, Milestone, Member, TaskLink, TaskProfile, TaskCheckList, Get_Profiles_Available2Task
 
 from django.forms.widgets import HiddenInput, CheckboxSelectMultiple
 
@@ -9,7 +9,13 @@ from commons.editors import DateTime_Field, TextEditor_Field
 
 class ProjectForm(forms.ModelForm):
     description = TextEditor_Field(arg_required=False)
-
+    # https://docs.djangoproject.com/en/2.2/ref/forms/api/#dynamic-initial-values
+    # https://docs.djangoproject.com/en/2.2/ref/forms/widgets/#widgets-inheriting-from-the-select-widget
+    private_flag = forms.ChoiceField( label='Project visible level', 
+                                      widget=forms.RadioSelect, 
+                                      choices=PROJECT_VISIBLE_LIST_CHOICES, 
+                                      initial = PROJECT_VISIBLE_PRIVATE )
+    
     class Meta:
         model = Project
         fields = ['fullname', 'private_flag', 'active_flag', 'description' ]

@@ -30,18 +30,40 @@ PROJECT_ACCESS_ADMIN = 3 # админить проект - создавать и
 # - авторизованный участник может работать
 # - админ может админить
 
+
+# виды приватности проекта
+PROJECT_VISIBLE_PRIVATE = 0
+PROJECT_VISIBLE_VISIBLE = 1
+PROJECT_VISIBLE_OPEN    = 2
+
+PROJECT_VISIBLE_LIST = ( PROJECT_VISIBLE_PRIVATE, PROJECT_VISIBLE_VISIBLE, PROJECT_VISIBLE_OPEN )
+
+PROJECT_VISIBLE_LIST_CHOICES = (
+    ( PROJECT_VISIBLE_PRIVATE, 'Private' ),
+    ( PROJECT_VISIBLE_VISIBLE, 'Visible' ),
+    ( PROJECT_VISIBLE_OPEN, 'Open' ),
+    )
+
 @reversion.register()
 class Project(BaseStampedModel):
     # shortname = models.CharField(max_length=255)
     fullname = models.CharField(max_length=255, verbose_name = 'Full name!')
     active_flag=models.BooleanField(blank=True, default=True)
-    private_flag=models.BooleanField(blank=True, default=False, verbose_name = 'Private project')
+    # доступность проекта для пользователей
+    private_flag=models.PositiveSmallIntegerField( blank=False, null=False, default = PROJECT_VISIBLE_PRIVATE, verbose_name = 'Private project' )
+
     description = models.TextField(blank=True, null=True)
     repo_name = models.CharField( max_length=255, blank=True, null = True )
 
     class Meta:
         ordering = ['fullname']
-
+    
+    def save(self, *args, **kwargs):
+        if self.private_flag in PROJECT_VISIBLE_LIST: # check for private visible type
+            return super(Project, self).save(*args, **kwargs)
+        else:
+            raise Exception("Cannot save - wrong project private flag!")
+            
     # полный список членов проекта, независимо от статуса подтверждения. Возвращает объекты Member
     def GetMemberList( self ):
         return Member.objects.filter( project = self )
@@ -83,26 +105,29 @@ class Project(BaseStampedModel):
         # создавать и редактировать вехи
         return self.is_admin( arg_user )
 
+    def is_project_visible(self):
+        return self.private_flag in ( PROJECT_VISIBLE_VISIBLE, PROJECT_VISIBLE_OPEN )
+        
     def can_view( self, arg_user ):
         # если проект открытый, то смотреть могут все
         # если закрытый, то только члены
-        if self.private_flag:
+        if self.is_project_visible():
             return self.is_member( arg_user )
         else:
             return True
 
     # может ли юзер подать заявку на включение
     def can_join( self, arg_user ):
-        return ( not self.private_flag ) and ( arg_user.is_authenticated ) and ( not self.GetMemberList().filter( member_profile__user = arg_user ).exists() )
+        return ( self.is_project_visible() ) and ( arg_user.is_authenticated ) and ( not self.GetMemberList().filter( member_profile__user = arg_user ).exists() )
 
     def user_access_level( self, arg_user ):
         member_level = None
         # если пользователь не авторизован, то доступ только к открытым проектам и только на просмотр
         if ( arg_user is None ) or ( not arg_user.is_authenticated ):
-            if self.private_flag:
-                return PROJECT_ACCESS_NONE
-            else:
+            if self.is_project_visible():
                 return PROJECT_ACCESS_VIEW
+            else:
+                return PROJECT_ACCESS_NONE
         else:
             # предполагается 1 или ни единого.
             try:
@@ -121,10 +146,10 @@ class Project(BaseStampedModel):
                 member_level = None
 
         if member_level is None:
-            if self.private_flag:
-                return PROJECT_ACCESS_NONE
-            else:
+            if self.is_project_visible():
                 return PROJECT_ACCESS_VIEW
+            else:
+                return PROJECT_ACCESS_NONE
 
     # список задач проекта.
     #   arg_opened = None значит все
@@ -224,7 +249,7 @@ def project_post_save_Notifier_Composer(sender, instance, **kwargs):
         Send_Notification( instance.modified_user, mu, message_str, instance.get_absolute_url() )
 
 def GetAllPublicProjectList( ):
-    return Project.objects.filter( private_flag = False )
+    return Project.objects.filter( private_flag__in = ( PROJECT_VISIBLE_VISIBLE, PROJECT_VISIBLE_OPEN ) )
 
 def GetMemberedProjectList( arg_user ):
     # если он не авторизован, то и членства ни в одном проекте нет

@@ -6,7 +6,7 @@ from django.test.testcases import SimpleTestCase, TransactionTestCase
 
 from django.urls import reverse_lazy
 
-from .models import Project, Task, Milestone, TaskComment, GetTaskAssignedUser, TaskProfile
+from .models import Project, Task, Milestone, TaskComment, GetTaskAssignedUser, TaskProfile, PROJECT_VISIBLE_PRIVATE, PROJECT_VISIBLE_VISIBLE
 
 from reversion.models import Version
 
@@ -61,9 +61,10 @@ class Project_Collaboration_View_Test_Client(TestCase):
         test_admin_user.user_permissions.add( add_project_permission )
 
         # create new project with post
-        response = c_a.post( reverse_lazy('project:project_add'), { 'fullname' : TEST_PROJECT_FULLNAME, 'description' : TEST_PROJECT_DESCRIPTION_1, } )
+        response = c_a.post( reverse_lazy('project:project_add'), { 'fullname' : TEST_PROJECT_FULLNAME, 'private_flag' : PROJECT_VISIBLE_PRIVATE, 'description' : TEST_PROJECT_DESCRIPTION_1, }, follow = True )
+
         # we are redirected to new project page
-        self.assertEqual( response.status_code, 302 )
+        self.assertContains(response, '<i class="fa fa-lock"></i>', status_code=200 )
 
         # check project is created
         self.assertEqual( Project.objects.count(), 1 )
@@ -304,7 +305,7 @@ class SVN_Repo_Client_Test(TransactionTestCase):
             add_project_permission = Permission.objects.get(codename='add_project')
             test_admin_user.user_permissions.add( add_project_permission )
 
-            response = c_a.post( reverse_lazy('project:project_add'), { 'fullname' : TEST_PROJECT_FULLNAME, 'description' : TEST_PROJECT_DESCRIPTION_1, } )
+            response = c_a.post( reverse_lazy('project:project_add'), { 'fullname' : TEST_PROJECT_FULLNAME, 'private_flag' : PROJECT_VISIBLE_VISIBLE, 'description' : TEST_PROJECT_DESCRIPTION_1, } )
             # we are redirected to new project page
             self.assertEqual( response.status_code, 302 )
 

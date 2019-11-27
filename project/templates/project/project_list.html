@@ -13,7 +13,7 @@
 <li>
 
 <a href="{{p.get_absolute_url}}">{{p}}</a> 
-{% if p.private_flag %}
+{% if not p.is_project_visible %}
 <i class="fa fa-lock"></i>
 {% endif %}
 
@@ -36,7 +36,7 @@
 <li>
 <strike>
 <a href="{{p.get_absolute_url}}">{{p}}</a> 
-{% if p.private_flag %}
+{% if not p.is_project_visible %}
 <i class="fa fa-lock"></i>
 {% endif %}
 </strike>

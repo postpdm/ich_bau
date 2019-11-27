@@ -4,7 +4,8 @@ from django.test import TestCase, Client
 
 from django.urls import reverse_lazy
 
-from .models import Project, Task, Milestone, Get_Profiles_Available2Task, Get_Profile_Tasks, TaskCheckList, TaskLink
+from .models import Project, Task, Milestone, Get_Profiles_Available2Task, Get_Profile_Tasks, TaskCheckList, TaskLink, PROJECT_VISIBLE_PRIVATE, PROJECT_VISIBLE_VISIBLE, PROJECT_VISIBLE_OPEN
+
 from ich_bau.profiles.models import Profile, PROFILE_TYPE_RESOURCE
 
 TEST_USER_NAME  = 'test_user'
@@ -68,7 +69,7 @@ class Project_View_Test_Client(TestCase):
         add_project_permission = Permission.objects.get(codename='add_project')
         test_user.user_permissions.add( add_project_permission )
 
-        response = c.post( reverse_lazy('project:project_add'), { 'fullname' : TEST_PROJECT_FULLNAME, 'description' : TEST_PROJECT_DESCRIPTION_1, } )
+        response = c.post( reverse_lazy('project:project_add'), { 'fullname' : TEST_PROJECT_FULLNAME, 'private_flag' : PROJECT_VISIBLE_VISIBLE, 'description' : TEST_PROJECT_DESCRIPTION_1, } )
         # we are redirected to new project page
         self.assertEqual( response.status_code, 302 )
 
@@ -135,7 +136,9 @@ class Project_View_Test_Client(TestCase):
         # self.assertContains(response, "Project already have a repo!", status_code=200 )
 
         # check form posting from edit page - set new description
-        response = c.post( reverse_lazy('project:project_edit', args = (test_project_1.id,)), { 'fullname' : TEST_PROJECT_FULLNAME, 'description' : TEST_PROJECT_DESCRIPTION_2, } )
+        response = c.post( reverse_lazy('project:project_edit', args = (test_project_1.id,)), { 'fullname' : TEST_PROJECT_FULLNAME,
+                           'private_flag' : test_project_1.private_flag, 'description' : TEST_PROJECT_DESCRIPTION_2, } )
+
         self.assertEqual(response.status_code, 302 )
         # refresh object from db
         test_project_1.refresh_from_db()
