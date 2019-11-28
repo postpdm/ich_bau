@@ -35,6 +35,7 @@ virtualenv.exe ich_bau_test
 git clone https://github.com/postpdm/ich_bau.git
 activate
 pip install -r requirements.txt
+manage.py collectstatic
 manage.py test
 manage.py migrate --run-syncdb
 manage.py createsuperuser
