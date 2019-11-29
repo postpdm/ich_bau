@@ -11,14 +11,14 @@ class ProjectForm(forms.ModelForm):
     description = TextEditor_Field(arg_required=False)
     # https://docs.djangoproject.com/en/2.2/ref/forms/api/#dynamic-initial-values
     # https://docs.djangoproject.com/en/2.2/ref/forms/widgets/#widgets-inheriting-from-the-select-widget
-    private_flag = forms.ChoiceField( label='Project visible level', 
+    private_type = forms.ChoiceField( label='Project visible level', 
                                       widget=forms.RadioSelect, 
                                       choices=PROJECT_VISIBLE_LIST_CHOICES, 
                                       initial = PROJECT_VISIBLE_PRIVATE )
     
     class Meta:
         model = Project
-        fields = ['fullname', 'private_flag', 'active_flag', 'description' ]
+        fields = ['fullname', 'private_type', 'active_flag', 'description' ]
 
 class MilestoneForm(forms.ModelForm):
     planned_at = DateTime_Field( False )

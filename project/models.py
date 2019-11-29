@@ -50,7 +50,7 @@ class Project(BaseStampedModel):
     fullname = models.CharField(max_length=255, verbose_name = 'Full name!')
     active_flag=models.BooleanField(blank=True, default=True)
     # доступность проекта для пользователей
-    private_flag=models.PositiveSmallIntegerField( blank=False, null=False, default = PROJECT_VISIBLE_PRIVATE, verbose_name = 'Private project' )
+    private_type=models.PositiveSmallIntegerField( blank=False, null=False, default = PROJECT_VISIBLE_PRIVATE, verbose_name = 'Private project' )
 
     description = models.TextField(blank=True, null=True)
     repo_name = models.CharField( max_length=255, blank=True, null = True )
@@ -59,7 +59,7 @@ class Project(BaseStampedModel):
         ordering = ['fullname']
     
     def save(self, *args, **kwargs):
-        if self.private_flag in PROJECT_VISIBLE_LIST: # check for private visible type
+        if self.private_type in PROJECT_VISIBLE_LIST: # check for private visible type
             return super(Project, self).save(*args, **kwargs)
         else:
             raise Exception("Cannot save - wrong project private flag!")
@@ -106,7 +106,7 @@ class Project(BaseStampedModel):
         return self.is_admin( arg_user )
 
     def is_project_visible(self):
-        return self.private_flag in ( PROJECT_VISIBLE_VISIBLE, PROJECT_VISIBLE_OPEN )
+        return self.private_type in ( PROJECT_VISIBLE_VISIBLE, PROJECT_VISIBLE_OPEN )
         
     def can_view( self, arg_user ):
         # если проект открытый, то смотреть могут все
@@ -249,7 +249,7 @@ def project_post_save_Notifier_Composer(sender, instance, **kwargs):
         Send_Notification( instance.modified_user, mu, message_str, instance.get_absolute_url() )
 
 def GetAllPublicProjectList( ):
-    return Project.objects.filter( private_flag__in = ( PROJECT_VISIBLE_VISIBLE, PROJECT_VISIBLE_OPEN ) )
+    return Project.objects.filter( private_type__in = ( PROJECT_VISIBLE_VISIBLE, PROJECT_VISIBLE_OPEN ) )
 
 def GetMemberedProjectList( arg_user ):
     # если он не авторизован, то и членства ни в одном проекте нет

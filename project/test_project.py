@@ -43,12 +43,12 @@ class Project_Test(TestCase):
 
         test_project_public = Project(fullname=TEST_PROJECT_PUBLIC_NAME)
         test_project_public.set_change_user(user_creator)
-        test_project_public.private_flag = PROJECT_VISIBLE_VISIBLE
+        test_project_public.private_type = PROJECT_VISIBLE_VISIBLE
         test_project_public.save()
 
         test_project_private = Project(fullname=TEST_PROJECT_PRIVATE_NAME)
         test_project_private.set_change_user(user_creator)
-        test_project_private.private_flag = PROJECT_VISIBLE_PRIVATE
+        test_project_private.private_type = PROJECT_VISIBLE_PRIVATE
         test_project_private.save()
 
     def test_have_repo_false(self):
@@ -183,9 +183,9 @@ class Project_Test(TestCase):
         self.assertEqual( p.filter( user = get_creator_user() ).count(), 1 ) # creator_user profile is available
 
 
-class Project_Set_Wrong_Private_Flag_Test(TestCase):
+class Project_Set_Wrong_Private_Type_Test(TestCase):
 
-    def test_Project_Set_Wrong_Private_Flag( self ):
+    def test_Project_Set_Wrong_Private_Type( self ):
         user_creator = User.objects.create_user( username = TEST_USER_NAME_CREATOR, password = '-' )
         user_creator.save()
 
@@ -195,5 +195,5 @@ class Project_Set_Wrong_Private_Flag_Test(TestCase):
         with self.assertRaises(Exception):
             test_project_public = Project(fullname=TEST_PROJECT_PUBLIC_NAME)
             test_project_public.set_change_user(user_creator)
-            test_project_public.private_flag = -1111
+            test_project_public.private_type = -1111
             test_project_public.save()

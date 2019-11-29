@@ -69,7 +69,7 @@ class Project_View_Test_Client(TestCase):
         add_project_permission = Permission.objects.get(codename='add_project')
         test_user.user_permissions.add( add_project_permission )
 
-        response = c.post( reverse_lazy('project:project_add'), { 'fullname' : TEST_PROJECT_FULLNAME, 'private_flag' : PROJECT_VISIBLE_VISIBLE, 'description' : TEST_PROJECT_DESCRIPTION_1, } )
+        response = c.post( reverse_lazy('project:project_add'), { 'fullname' : TEST_PROJECT_FULLNAME, 'private_type' : PROJECT_VISIBLE_VISIBLE, 'description' : TEST_PROJECT_DESCRIPTION_1, } )
         # we are redirected to new project page
         self.assertEqual( response.status_code, 302 )
 
@@ -137,7 +137,7 @@ class Project_View_Test_Client(TestCase):
 
         # check form posting from edit page - set new description
         response = c.post( reverse_lazy('project:project_edit', args = (test_project_1.id,)), { 'fullname' : TEST_PROJECT_FULLNAME,
-                           'private_flag' : test_project_1.private_flag, 'description' : TEST_PROJECT_DESCRIPTION_2, } )
+                           'private_type' : test_project_1.private_type, 'description' : TEST_PROJECT_DESCRIPTION_2, } )
 
         self.assertEqual(response.status_code, 302 )
         # refresh object from db

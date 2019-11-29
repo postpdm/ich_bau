@@ -7,7 +7,7 @@ admin.site.register(
     list_display=[
         "fullname",
         "active_flag",
-        "private_flag",
+        "private_type",
         "created_at",
         "created_user",
         "modified_at",
