@@ -8,6 +8,7 @@
 
 
 <th>Task</th>
+<th>Kind</th>
 {%comment%}<th>Target (milestone or date)</th>{%endcomment%}
 {% if table_mode != 'milestone' %}<th>Target milestone</th>{% endif %}
 <th>Holder</th>
@@ -32,6 +33,9 @@
     {% if t.important %}
     <i class="fa fa-exclamation-triangle" style="color:red"></i>
     {% endif %}
+    </td>
+    <td>
+    {%if t.kind %}{{t.kind}}{% endif %}
     </td>
     {% if table_mode != 'milestone' %}
     <td>{% if t.milestone %} Milestone - <a href="{{t.milestone.get_absolute_url}}">{{t.milestone}} {% if t.milestone.planned_at %} {{ t.milestone.planned_at|date }} {% endif %} </a>{% endif %}

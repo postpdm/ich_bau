@@ -17,8 +17,12 @@
 {% if task.milestone %}<li> <a href="{{task.milestone.get_absolute_url}}">{{task.milestone}}</a> </li>{% endif %}
 </ol>
 
-  <div class="panel-heading"><strong>{{task}}</strong>
-
+  <div class="panel-heading"><strong>{{task}}
+  
+   {% if task.kind %}
+   ({{ task.kind }})
+   {% endif %}
+  </strong> 
   {% if task.important %}
     <i class="fa fa-exclamation-triangle" style="color:red"></i>
     {% endif %}

@@ -49,7 +49,7 @@ class TaskForm(forms.ModelForm):
 
     class Meta:
         model = Task
-        fields = ['fullname', 'milestone', 'holder', 'important', 'description', ]
+        fields = ['fullname', 'milestone', 'holder', 'important', 'kind', 'description', ]
 
     def __init__(self, *args, **kwargs):
         super(TaskForm, self).__init__(*args, **kwargs)
