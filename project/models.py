@@ -57,13 +57,13 @@ class Project(BaseStampedModel):
 
     class Meta:
         ordering = ['fullname']
-    
+
     def save(self, *args, **kwargs):
         if self.private_type in PROJECT_VISIBLE_LIST: # check for private visible type
             return super(Project, self).save(*args, **kwargs)
         else:
             raise Exception("Cannot save - wrong project private flag!")
-            
+
     # полный список членов проекта, независимо от статуса подтверждения. Возвращает объекты Member
     def GetMemberList( self ):
         return Member.objects.filter( project = self )
@@ -107,7 +107,7 @@ class Project(BaseStampedModel):
 
     def is_project_visible(self):
         return self.private_type in ( PROJECT_VISIBLE_VISIBLE, PROJECT_VISIBLE_OPEN )
-        
+
     def can_view( self, arg_user ):
         # если проект открытый, то смотреть могут все
         # если закрытый, то только члены
@@ -301,6 +301,12 @@ TASK_STATE_LIST_CHOICES = (
     ( TASK_STATE_CLOSED, 'Closed' ),
     )
 
+class TaskKind(models.Model):
+    name = models.CharField(max_length=255, verbose_name = 'Kind name!' )
+
+    def __str__(self):
+        return self.name
+
 @reversion.register()
 class Task(BaseStampedModel):
     project = models.ForeignKey(Project, on_delete=models.PROTECT, blank=False, null=False )
@@ -315,6 +321,7 @@ class Task(BaseStampedModel):
     milestone = models.ForeignKey(Milestone, on_delete=models.PROTECT, blank=True, null=True )
     finished_fact_at = models.DateTimeField( blank=True, null=True )
     important = models.BooleanField(blank=True, default=False)
+    kind = models.ForeignKey(TaskKind, on_delete=models.PROTECT, blank=True, null=True )
 
     class Meta:
         ordering = ['-important']
