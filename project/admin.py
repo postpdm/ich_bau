@@ -1,7 +1,7 @@
 from django.contrib import admin
 from mptt.admin import MPTTModelAdmin
 
-from .models import Project, Member, TaskKind, TaskDomain, Task, Milestone, TaskLink
+from .models import Project, Member, TaskKind, TaskDomain, Task, Task2Domain, Milestone, TaskLink
 
 admin.site.register(
     Project,
@@ -30,7 +30,7 @@ admin.site.register(
         "name",
         ]
     )
-    
+
 admin.site.register(TaskDomain, MPTTModelAdmin)
 
 admin.site.register(
@@ -38,6 +38,7 @@ admin.site.register(
     list_display=[
         "fullname",
         "project",
+        "kind",
         "created_at",
         "created_user",
         "modified_at",
@@ -56,4 +57,11 @@ admin.site.register(
     list_display=[
         "maintask",
         "subtask",
+    ], )
+
+admin.site.register(
+    Task2Domain,
+    list_display=[
+        "taskdomain",
+        "task",
     ], )
