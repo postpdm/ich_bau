@@ -1,9 +1,10 @@
 ﻿# project forms
 
 from django import forms
-from project.models import Project, PROJECT_VISIBLE_LIST_CHOICES, PROJECT_VISIBLE_PRIVATE, Task, TaskComment, Milestone, Member, TaskLink, TaskProfile, TaskCheckList, Get_Profiles_Available2Task
+from project.models import Project, PROJECT_VISIBLE_LIST_CHOICES, PROJECT_VISIBLE_PRIVATE, Task, TaskComment, Milestone, Member, TaskDomain, TaskLink, TaskProfile, TaskCheckList, Task2Domain, Get_Profiles_Available2Task
 
 from django.forms.widgets import HiddenInput, CheckboxSelectMultiple
+from mptt.forms import TreeNodeChoiceField
 
 from commons.editors import DateTime_Field, TextEditor_Field
 
@@ -98,6 +99,21 @@ class TaskProfileForm(forms.ModelForm):
         model = TaskProfile
         fields = ['profile']
 
+class TaskDomainForm(forms.ModelForm):
+    taskdomain = TreeNodeChoiceField(queryset=TaskDomain.objects.all())
+        
+    def __init__(self, *args, **kwargs):
+        argmaintaskid = kwargs.pop('argmaintaskid', None)
+        super(TaskDomainForm, self).__init__(*args, **kwargs)
+
+        if (argmaintaskid != "" ):
+            #main_task = Task.objects.get( id = argmaintaskid )
+            self.fields['taskdomain'].queryset = TaskDomain.objects.all().exclude( domain__task = argmaintaskid )
+
+    class Meta:
+        model = Task2Domain
+        fields = ['taskdomain']        
+        
 class TaskCommentForm(forms.ModelForm):
     comment = TextEditor_Field()
 

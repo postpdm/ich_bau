@@ -118,6 +118,23 @@ no history to view
   {% endif %}
 </li>
 
+<li class="list-group-item">
+  <p><strong>Linked domains</strong></p>
+  {% if domains %}
+  <ul>
+  {% for d in domains %}
+  <li>{{d.taskdomain}}
+  </li>
+  {% endfor %}
+  </ul>
+  {% endif %}
+
+  {% if user.is_authenticated and user_can_work and task.get_opened %}
+    <p class="text-right">
+        <a class="btn btn-default" href="/project/add_domain/{{task.id}}/"><i class="fa fa-plus"></i> Add domain</a>
+    </p>
+  {% endif %}
+</li>
 
 <li class="list-group-item"><p><strong>Check list</strong>
 
