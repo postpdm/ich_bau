@@ -8,6 +8,7 @@ from django.utils import timezone
 
 from django.db import transaction
 import reversion
+from mptt.models import MPTTModel, TreeForeignKey
 
 from ich_bau.profiles.notification_helper import Send_Notification
 from ich_bau.profiles.models import Profile, PROFILE_TYPE_USER, PROFILE_TYPE_FOR_TASK
@@ -303,6 +304,15 @@ TASK_STATE_LIST_CHOICES = (
 
 class TaskKind(models.Model):
     name = models.CharField(max_length=255, verbose_name = 'Kind name!' )
+    def __str__(self):
+        return self.name
+
+class TaskDomain(MPTTModel):
+    name = models.CharField(max_length=255, unique=True)
+    parent = TreeForeignKey('self', on_delete=models.CASCADE, null=True, blank=True, related_name='children')
+
+    class MPTTMeta:
+        order_insertion_by = ['name']
 
     def __str__(self):
         return self.name
@@ -372,6 +382,13 @@ class Task(BaseStampedModel):
 
     def get_profiles(self):
         return TaskProfile.objects.filter( parenttask = self )
+
+@reversion.register()
+class Task2Domain(BaseStampedModel):
+    taskdomain = TreeForeignKey(TaskDomain, on_delete=models.PROTECT, null=False, blank=False, related_name='domain')
+    task = models.ForeignKey(Task, on_delete=models.CASCADE, null=False, blank=False, related_name='task')
+    class Meta:
+        unique_together = ("taskdomain", "task")
 
 # связи между задачами
 class TaskLink(models.Model):

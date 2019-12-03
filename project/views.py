@@ -1,5 +1,5 @@
 ﻿from project.models import *
-from project.forms import ProjectForm, TaskForm, TaskCommentForm, MilestoneForm, MemberForm, TaskLinkedForm, TaskProfileForm, TaskCheckListForm
+from project.forms import ProjectForm, TaskForm, TaskCommentForm, MilestoneForm, MemberForm, TaskLinkedForm, TaskProfileForm, TaskCheckListForm, TaskDomainForm
 
 from django.forms.models import modelformset_factory
 
@@ -618,6 +618,7 @@ def task_view(request, task_id):
         maintasks = TaskLink.objects.filter(subtask=task)
         task_checklist = TaskCheckList.objects.filter( parenttask = task )
         profiles = task.get_profiles()
+        domains = Task2Domain.objects.filter(task=task)
 
         # доступ списку коментов открыт, а форму показывать не надо
         if request.user.is_authenticated:
@@ -660,6 +661,7 @@ def task_view(request, task_id):
                          'comments': comments,
                          'subtasks' : subtasks,
                          'profiles' : profiles,
+                         'domains' : domains,
                          'maintasks' : maintasks,
                          'task_checklist' : task_checklist,
                          'task_comment_form': task_comment_form,
@@ -824,6 +826,29 @@ def add_profile(request, task_id):
         form = TaskProfileForm( argmaintaskid = task_id )
 
     return render( request, 'project/task_add_profile.html',
+            {'task_id': task_id,
+             'form': form} )
+
+@login_required
+def add_domain(request, task_id):
+    context = RequestContext(request)
+
+    if request.method == 'POST':
+        form = TaskDomainForm(request.POST, argmaintaskid = task_id )
+
+        if form.is_valid():
+            tp = form.save(commit=False)
+            tp.task=Task.objects.get(id=task_id)
+            tp.set_change_user(request.user)
+            tp.save()
+            # перебросить пользователя на задание
+            return HttpResponseRedirect('/project/task/' + task_id )
+        else:
+            print( form.errors )
+    else:
+        form = TaskDomainForm( argmaintaskid = task_id )
+
+    return render( request, 'project/task_add_domain.html',
             {'task_id': task_id,
              'form': form} )
 
