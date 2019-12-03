@@ -111,6 +111,7 @@ INSTALLED_APPS = [
     "django_filters",
     "easy_thumbnails",
     "reversion",
+    "mptt",
     "bootstrap3_datetime",
     "django_summernote",
 
