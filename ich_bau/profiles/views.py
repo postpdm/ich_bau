@@ -145,4 +145,4 @@ def notification_read( request, notification_id ):
         else:
             return redirect( n.msg_url )
     else:
-        Http404
+        raise Http404()
