@@ -12,11 +12,11 @@ def Send_Notification( ArgFromUser, Arg2User, Arg_MsgTxt, Arg_Url ):
     n.msg_url = Arg_Url
     n.save()
 
-    # if users have a mail's    
-    print( settings.EMAIL_HOST_USER )
+    # if users have a mail's
     if settings.EMAIL_HOST_USER and n.reciever_user.email:
+        html_message = '<p><a href="' + Site.objects.get_current().domain + n.get_absolute_url() + '">' + decode_json2msg( Arg_MsgTxt ) + '</a></p>'
         send_mail( decode_json2msg( Arg_MsgTxt ),
-                   Site.objects.get_current().domain + Arg_Url,
+                   html_message,
                    settings.EMAIL_HOST_USER,
                    [n.reciever_user.email],
                    fail_silently=False,

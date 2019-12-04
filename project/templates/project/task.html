@@ -105,8 +105,7 @@ no history to view
   {% if profiles %}
   <ul>
   {% for p in profiles %}
-  <li>{{p.profile}}
-  </li>
+  <li><a href="{% url 'profiles_detail' pk=p.profile.id %}">{{p.profile}}</a></li>
   {% endfor %}
   </ul>
   {% endif %}
