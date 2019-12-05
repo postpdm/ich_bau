@@ -14,10 +14,11 @@ def Send_Notification( ArgFromUser, Arg2User, Arg_MsgTxt, Arg_Url ):
 
     # if users have a mail's
     if settings.EMAIL_HOST_USER and n.reciever_user.email:
-        html_message = '<p><a href="' + Site.objects.get_current().domain + n.get_absolute_url() + '">' + decode_json2msg( Arg_MsgTxt ) + '</a></p>'
+        html_message_text = '<p><a href="' + Site.objects.get_current().domain + n.get_absolute_url() + '">' + decode_json2msg( Arg_MsgTxt ) + '</a></p>'
         send_mail( decode_json2msg( Arg_MsgTxt ),
-                   html_message,
+                   html_message_text,
                    settings.EMAIL_HOST_USER,
                    [n.reciever_user.email],
                    fail_silently=False,
+                   html_message=html_message_text
                  )
