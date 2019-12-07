@@ -245,7 +245,7 @@ class Project_Collaboration_View_Test_Client(TestCase):
 
         self.assertEqual( GetTaskAssignedUser(test_task_1).count(), 0 )
 
-        response = c_a.post( reverse_lazy('project:add_profile', args = (test_task_1.id,) ), { 'profile' : test_worker_user.profile.id, } )
+        response = c_a.post( reverse_lazy('project:add_user', args = (test_task_1.id,) ), { 'profile' : test_worker_user.profile.id, } )
 
         # we are redirected to task page
         self.assertEqual( response.status_code, 302 )
