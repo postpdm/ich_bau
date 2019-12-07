@@ -14,6 +14,7 @@
 
 <ul class="nav nav-tabs">
   <li role="presentation" {% if filter_type == '' %} class="active" {% endif %}><a href="/project/">Mine</a></li>
+  <li role="presentation" {% if filter_type == 'all_available' %} class="active" {% endif %}><a href="/project/all_available">Available</a></li>
   <li role="presentation" {% if filter_type == 'search_public' %} class="active" {% endif %}><a href="/project/search_public/">Search public</a></li>
   <li role="presentation" {% if filter_type == 'all_public' %} class="active" {% endif %}><a href="/project/all_public/">All public</a></li>
 </ul>

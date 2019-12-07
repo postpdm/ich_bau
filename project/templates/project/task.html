@@ -91,13 +91,13 @@ no history to view
   {% endfor %}
   </ul>
   {% endif %}
-
   {% if user.is_authenticated and user_can_work and task.get_opened %}
 <p class="text-right">
   <a class="btn btn-default" href="/project/add_linked/{{task.id}}/"><i class="fa fa-plus"></i> Add sub task</a>
 </p>
   {% endif %}
 
+  <p class="bg-warning">You can see only available for you linked tasks.</p>
 </li>
 
 <li class="list-group-item">
