@@ -1,4 +1,5 @@
 from django.conf.urls import url
+from django.urls import path
 
 from project import views
 
@@ -16,6 +17,12 @@ urlpatterns = [
     url(r'^project/(?P<project_id>\w+)/$', views.project_view, name='project_view'),
     url(r'^project/(?P<project_id>\w+)/history/$', views.project_history, name='project_history'),
     url(r'^project/(?P<project_id>\w+)/closed_task/$', views.project_view_closed_tasks, name='project_view_closed_tasks'),
+    
+    # django v.2 path
+    path( 'project/<project_id>/task_by_domain/', views.project_view_task_by_domain, name='project_view_task_by_domain'),
+    path( 'project/<project_id>/task_by_domain/<domain_id>/', views.project_view_task_by_domain, name='project_view_task_for_domain'),
+  
+    
     url(r'^project/(?P<project_id>\w+)/search_task/$', views.project_view_search_tasks, name='project_view_search_tasks'),
     url(r'^project/(?P<project_id>\w+)/milestones/$', views.project_view_milestones, name='project_view_milestones'),
     # repo urls
