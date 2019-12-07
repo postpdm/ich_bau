@@ -41,7 +41,11 @@
     <td>{% if t.milestone %} Milestone - <a href="{{t.milestone.get_absolute_url}}">{{t.milestone}} {% if t.milestone.planned_at %} {{ t.milestone.planned_at|date }} {% endif %} </a>{% endif %}
     {% endif %}
     <td>{% if t.holder %} {{t.holder}}{% endif %}</td>
-    <td>{% if t.assignee %} {{t.assignee}} {% endif %}</td>
+    <td>  
+        {% for p in t.get_profiles %}
+            {{p.profile}}<br>
+        {% endfor %}    
+    </td>
     <td>{{t.get_state_name}}</td>
     </tr>
     {% endfor %}

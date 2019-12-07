@@ -2,6 +2,7 @@
 
 {% load bootstrap %}
 {% load thumbnail %}
+{% load profile_tag %}
 
 {% block head_title %}{{task}}{% endblock %}
 
@@ -18,11 +19,11 @@
 </ol>
 
   <div class="panel-heading"><strong>{{task}}
-  
+
    {% if task.kind %}
    ({{ task.kind }})
    {% endif %}
-  </strong> 
+  </strong>
   {% if task.important %}
     <i class="fa fa-exclamation-triangle" style="color:red"></i>
     {% endif %}
@@ -41,7 +42,6 @@
   {% endif %}
 
   <td>{% if task.holder %}<p>Holder: {{task.holder}}</p>{% endif %}</td>
-  {% if task.assignee %}<p>Assignee: {{task.assignee}} </p>{% endif %}
 
   <p class="text-right">
 
@@ -103,18 +103,27 @@ no history to view
 <li class="list-group-item">
   <p><strong>Linked profiles</strong></p>
   {% if profiles %}
-  <ul>
-  {% for p in profiles %}
-  <li><a href="{% url 'profiles_detail' pk=p.profile.id %}">{{p.profile}}</a></li>
-  {% endfor %}
-  </ul>
+      {% regroup profiles by profile.profile_type as plist %}
+      <ul>
+        {% for pt in plist %}
+            <li>{% profile_type_name pt.grouper %}
+                <ul>
+                    {% for p in pt.list %}
+                    <li><a href="{% url 'profiles_detail' pk=p.profile.id %}">{{p.profile}}</a></li>
+                    {% endfor %}
+                </ul>
+            </li>
+        {% endfor %}
+      </ul>
   {% endif %}
 
   {% if user.is_authenticated and user_can_work and task.get_opened %}
     <p class="text-right">
+        <a class="btn btn-default" href="/project/add_user/{{task.id}}/"><i class="fa fa-plus"></i> Assign user from members</a>
         <a class="btn btn-default" href="/project/add_profile/{{task.id}}/"><i class="fa fa-plus"></i> Add profile</a>
     </p>
   {% endif %}
+
 </li>
 
 <li class="list-group-item">

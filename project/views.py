@@ -617,7 +617,7 @@ def task_view(request, task_id):
         subtasks = TaskLink.objects.filter(maintask=task)
         maintasks = TaskLink.objects.filter(subtask=task)
         task_checklist = TaskCheckList.objects.filter( parenttask = task )
-        profiles = task.get_profiles()
+        profiles = task.get_profiles().order_by('profile__profile_type')
         domains = Task2Domain.objects.filter(task=task)
 
         # доступ списку коментов открыт, а форму показывать не надо
@@ -806,12 +806,12 @@ def task_unlink(request, tasklink_id):
     except:
         raise Http404()
 
-@login_required
-def add_profile(request, task_id):
+# add_user - True for user, False for other kind of profiles
+def add_user_or_profile(request, task_id, add_user):
     context = RequestContext(request)
 
     if request.method == 'POST':
-        form = TaskProfileForm(request.POST, argmaintaskid = task_id )
+        form = TaskProfileForm(request.POST, argmaintaskid = task_id, add_user = add_user )
 
         if form.is_valid():
             tp = form.save(commit=False)
@@ -823,11 +823,19 @@ def add_profile(request, task_id):
         else:
             print( form.errors )
     else:
-        form = TaskProfileForm( argmaintaskid = task_id )
+        form = TaskProfileForm( argmaintaskid = task_id, add_user = add_user )
 
     return render( request, 'project/task_add_profile.html',
             {'task_id': task_id,
              'form': form} )
+
+@login_required
+def add_profile(request, task_id):
+    return add_user_or_profile(request, task_id, False)
+
+@login_required
+def add_user(request, task_id):
+    return add_user_or_profile(request, task_id, True )
 
 @login_required
 def add_domain(request, task_id):

@@ -2,6 +2,7 @@
 
 from project.models import Project, Task, GetMemberedProjectList, TASK_STATE_LIST_CHOICES
 
+from ich_bau.profiles.models import Profile, PROFILE_TYPE_USER, PROFILE_TYPE_FOR_TASK
 
 # https://django-filter.readthedocs.io/en/latest/guide/usage.html
 
@@ -22,8 +23,11 @@ class TaskFilter(django_filters.FilterSet):
 
     class Meta:
         model = Task
-        fields = ['fullname', 'description', 'state', 'milestone', 'holder', 'kind' ]
-
+        fields = [ 'fullname', 'description', 'state', 'milestone', 'holder', 'kind', 'profile2task__profile' ]
+    
+    def __init__(self, *args , **kwargs ):
+        super(TaskFilter, self).__init__( *args , **kwargs )
+        self.filters['profile2task__profile'].label = 'Assigned'
 
 def user_projects(request):
     if request is None:
