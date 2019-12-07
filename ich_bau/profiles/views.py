@@ -112,7 +112,7 @@ def notifications_view_prepare(request, arg_new):
     if u is None:
         raise Http404
 
-    OLD_NOTIFICATIONS_VIEW_LIMIT = 11
+    OLD_NOTIFICATIONS_VIEW_LIMIT = 20
     notifications = GetUserNoticationsQ( u, arg_new )
     if arg_new:
         notifications.order_by('sender_user')
