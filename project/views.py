@@ -617,7 +617,7 @@ def task_view(request, task_id):
         subtasks = TaskLink.objects.filter(maintask=task)
         maintasks = TaskLink.objects.filter(subtask=task)
         task_checklist = TaskCheckList.objects.filter( parenttask = task )
-        profiles = task.get_profiles()
+        profiles = task.get_profiles().order_by('profile__profile_type')
         domains = Task2Domain.objects.filter(task=task)
 
         # доступ списку коментов открыт, а форму показывать не надо
