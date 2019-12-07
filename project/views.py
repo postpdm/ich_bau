@@ -631,6 +631,7 @@ def task_view(request, task_id):
                         user_can_comment = True
 
         comments = task.get_comments()
+        # user should see only available tasks - to prevent 404 if attempting to follow the link
         subtasks = TaskLink.objects.filter(maintask=task)
         maintasks = TaskLink.objects.filter(subtask=task)
         task_checklist = TaskCheckList.objects.filter( parenttask = task )
