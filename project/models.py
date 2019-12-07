@@ -262,7 +262,7 @@ def GetMemberedProjectList( arg_user ):
 def GetAvailableProjectList( arg_user ):
     # All public + Membered
     if ( arg_user is None ) or ( not arg_user.is_authenticated ):
-        return { }
+        q = Project.objects.none()
     else:
         q = GetMemberedProjectList( arg_user )
     
