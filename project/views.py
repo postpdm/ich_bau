@@ -639,7 +639,7 @@ def task_view(request, task_id):
 
         comments = task.get_comments()
         # user should see only available tasks - to prevent 404 if attempting to follow the link
-        subtasks = TaskLink.objects.filter(maintask=task)
+        subtasks = TaskLink.objects.filter(maintask=task).filter( subtask__project__in = GetAvailableProjectList( request.user ) )
         maintasks = TaskLink.objects.filter(subtask=task)
         task_checklist = TaskCheckList.objects.filter( parenttask = task )
         profiles = task.get_profiles().order_by('profile__profile_type')
