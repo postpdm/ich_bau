@@ -38,6 +38,7 @@ from project.repo_wrapper import *
 PROJECT_FILTER_MINE = 0
 PROJECT_FILTER_SEARCH_PUBLIC = 1
 PROJECT_FILTER_ALL_PUBLIC = 2
+PROJECT_FILTER_ALL_AVAILABLE = 4
 
 def get_index( request, arg_page = PROJECT_FILTER_MINE ):
     # Получить контекст из HTTP запроса.
@@ -58,7 +59,10 @@ def get_index( request, arg_page = PROJECT_FILTER_MINE ):
             if arg_page == PROJECT_FILTER_ALL_PUBLIC:
                 context_dict = {'projects': GetAllPublicProjectList(), 'filter_type' : 'all_public' }
             else:
-                raise Http404()
+                if arg_page == PROJECT_FILTER_ALL_AVAILABLE    :
+                    context_dict = {'projects': GetAvailableProjectList(request.user), 'filter_type' : 'all_available' }
+                else:
+                    raise Http404()
 
     # check if user has permission to create project (or super user)
     context_dict[ 'can_add_project' ] = request.user.has_perm('project.add_project')
@@ -71,6 +75,9 @@ def index( request ):
 
 def index_search_public( request ):
     return get_index( request, PROJECT_FILTER_SEARCH_PUBLIC )
+
+def index_available( request ):
+    return get_index( request, PROJECT_FILTER_ALL_AVAILABLE )
 
 def index_public( request ):
     return get_index( request, PROJECT_FILTER_ALL_PUBLIC )
