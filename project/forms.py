@@ -13,11 +13,11 @@ class ProjectForm(forms.ModelForm):
     description = TextEditor_Field(arg_required=False)
     # https://docs.djangoproject.com/en/2.2/ref/forms/api/#dynamic-initial-values
     # https://docs.djangoproject.com/en/2.2/ref/forms/widgets/#widgets-inheriting-from-the-select-widget
-    private_type = forms.ChoiceField( label='Project visible level', 
-                                      widget=forms.RadioSelect, 
-                                      choices=PROJECT_VISIBLE_LIST_CHOICES, 
+    private_type = forms.ChoiceField( label='Project visible level',
+                                      widget=forms.RadioSelect,
+                                      choices=PROJECT_VISIBLE_LIST_CHOICES,
                                       initial = PROJECT_VISIBLE_PRIVATE )
-    
+
     class Meta:
         model = Project
         fields = ['fullname', 'private_type', 'active_flag', 'description' ]
@@ -107,19 +107,19 @@ class TaskProfileForm(forms.ModelForm):
 
 class TaskDomainForm(forms.ModelForm):
     taskdomain = TreeNodeChoiceField(queryset=TaskDomain.objects.all())
-        
+
     def __init__(self, *args, **kwargs):
         argmaintaskid = kwargs.pop('argmaintaskid', None)
         super(TaskDomainForm, self).__init__(*args, **kwargs)
 
         if (argmaintaskid != "" ):
             #main_task = Task.objects.get( id = argmaintaskid )
-            self.fields['taskdomain'].queryset = TaskDomain.objects.all().exclude( domain__task = argmaintaskid )
+            self.fields['taskdomain'].queryset = TaskDomain.objects.all().exclude( domain2task__task = argmaintaskid )
 
     class Meta:
         model = Task2Domain
-        fields = ['taskdomain']        
-        
+        fields = ['taskdomain']
+
 class TaskCommentForm(forms.ModelForm):
     comment = TextEditor_Field()
 
