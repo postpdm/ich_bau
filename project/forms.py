@@ -2,6 +2,7 @@
 
 from django import forms
 from project.models import Project, PROJECT_VISIBLE_LIST_CHOICES, PROJECT_VISIBLE_PRIVATE, Task, TaskComment, Milestone, Member, TaskDomain, TaskLink, TaskProfile, TaskCheckList, Task2Domain, Get_Profiles_Available2Task
+from ich_bau.profiles.models import PROFILE_TYPE_USER
 
 from django.forms.widgets import HiddenInput, CheckboxSelectMultiple
 from mptt.forms import TreeNodeChoiceField
@@ -89,11 +90,16 @@ class TaskProfileForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         argmaintaskid = kwargs.pop('argmaintaskid', None)
+        add_user = kwargs.pop('add_user', None)
         super(TaskProfileForm, self).__init__(*args, **kwargs)
 
         if (argmaintaskid != "" ):
             main_task = Task.objects.get( id = argmaintaskid )
-            self.fields['profile'].queryset = Get_Profiles_Available2Task( argmaintaskid )
+            q = Get_Profiles_Available2Task( argmaintaskid ) # base query - all types profiles, unassigned
+            if add_user:
+                self.fields['profile'].queryset = q.filter( profile_type = PROFILE_TYPE_USER ) # only users
+            else:
+                self.fields['profile'].queryset = q.exclude( profile_type = PROFILE_TYPE_USER ) # all except users
 
     class Meta:
         model = TaskProfile

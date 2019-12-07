@@ -111,6 +111,7 @@ no history to view
 
   {% if user.is_authenticated and user_can_work and task.get_opened %}
     <p class="text-right">
+        <a class="btn btn-default" href="/project/add_user/{{task.id}}/"><i class="fa fa-plus"></i> Assign user from members</a>
         <a class="btn btn-default" href="/project/add_profile/{{task.id}}/"><i class="fa fa-plus"></i> Add profile</a>
     </p>
   {% endif %}

@@ -37,6 +37,7 @@ urlpatterns = [
     url(r'^add_linked/(?P<task_id>\w+)/$', views.add_linked, name='add_linked'),
     
     url(r'^add_profile/(?P<task_id>\w+)/$', views.add_profile, name='add_profile'),
+    url(r'^add_user/(?P<task_id>\w+)/$', views.add_user, name='add_user'),
     
     url(r'^add_domain/(?P<task_id>\w+)/$', views.add_domain, name='add_domain'),
 
