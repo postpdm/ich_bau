@@ -127,7 +127,8 @@ def project_edit(request, project_id):
 # константы - фильтры по задачам
 TASK_FILTER_OPEN = 0
 TASK_FILTER_CLOSED = 1
-TASK_FILTER_SEARCH = 2
+TASK_FILTER_BY_DOMAIN = 2
+TASK_FILTER_SEARCH = 3
 
 # Закладки страницы Проекта
 PROJECT_PAGE_TITLE = 0
@@ -146,6 +147,9 @@ def project_view(request, project_id):
 
 def project_view_closed_tasks(request, project_id):
     return get_project_view(request, project_id, arg_task_filter = TASK_FILTER_CLOSED)
+
+def project_view_task_by_domain(request, project_id, domain_id = None ):
+    return get_project_view(request, project_id, arg_task_filter = TASK_FILTER_BY_DOMAIN, arg_domain_id = domain_id )
 
 def project_view_search_tasks(request, project_id):
     return get_project_view(request, project_id, arg_task_filter = TASK_FILTER_SEARCH )
@@ -203,7 +207,7 @@ def project_create_repo(request, project_id):
             else:
                 raise Http404() # хотя такого быть не должно
 
-def get_project_view(request, project_id, arg_task_filter = TASK_FILTER_OPEN, arg_page = PROJECT_PAGE_TITLE ):
+def get_project_view(request, project_id, arg_task_filter = TASK_FILTER_OPEN, arg_page = PROJECT_PAGE_TITLE, arg_domain_id = None ):
     # Получить контекст запроса
     context = RequestContext(request)
     project = get_object_or_404( Project, pk=project_id)
@@ -236,6 +240,8 @@ def get_project_view(request, project_id, arg_task_filter = TASK_FILTER_OPEN, ar
     task_filter = None
     tasks = None
     repo_rel_path = None
+    domains = None
+    selected_domain = None
 
     if arg_page == PROJECT_PAGE_MILESTONES:
         milestones = Get_Milestone_Report_for_Project(project)
@@ -282,7 +288,16 @@ def get_project_view(request, project_id, arg_task_filter = TASK_FILTER_OPEN, ar
                     task_filter.filters['holder'].queryset = p_list
                     tasks = task_filter.qs
                 else:
-                    raise Http404
+                    if arg_task_filter == TASK_FILTER_BY_DOMAIN:
+                        filter_type = 'filter_task_by_domain'
+                        if arg_domain_id:
+                            tasks = base_tasks.filter( task2domain__taskdomain = arg_domain_id )
+                            selected_domain = int(arg_domain_id)
+                        else:
+                            tasks = None
+                        domains = TaskDomain.objects.all()
+                    else:
+                        raise Http404
 
     # Записать список в словарь
     context_dict = { 'project': project,
@@ -300,6 +315,8 @@ def get_project_view(request, project_id, arg_task_filter = TASK_FILTER_OPEN, ar
                      'repo_list' : repo_list,
                      'repo_rel_path' : repo_rel_path,
                      'show_file_page' : show_file_page,
+                     'domains' : domains,
+                     'selected_domain' : selected_domain,
                          }
 
     # Рендерить ответ

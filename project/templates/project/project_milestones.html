@@ -1,4 +1,6 @@
 {% load i18n %}
+{% load template_arithmetic_tag %}
+
 <table class="table table-striped">
 <thead>
 <tr>
@@ -13,7 +15,6 @@
 {% for m in milestones %}
 <tr>
 <td>
-{% load template_arithmetic_tag %}
 <div class="progress">
   <div class="progress-bar" role="progressbar" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100" style="width: {% percent m.count_closed_tasks m.count_tasks %}%;">
     {% percent m.count_closed_tasks m.count_tasks %}%

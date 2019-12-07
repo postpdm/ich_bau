@@ -385,8 +385,8 @@ class Task(BaseStampedModel):
 
 @reversion.register()
 class Task2Domain(BaseStampedModel):
-    taskdomain = TreeForeignKey(TaskDomain, on_delete=models.PROTECT, null=False, blank=False, related_name='domain')
-    task = models.ForeignKey(Task, on_delete=models.CASCADE, null=False, blank=False, related_name='task')
+    taskdomain = TreeForeignKey(TaskDomain, on_delete=models.PROTECT, null=False, blank=False, related_name='domain2task')
+    task = models.ForeignKey(Task, on_delete=models.CASCADE, null=False, blank=False, related_name='task2domain')
     class Meta:
         unique_together = ("taskdomain", "task")
 

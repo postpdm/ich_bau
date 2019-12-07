@@ -113,11 +113,11 @@ def notifications_view_prepare(request, arg_new):
         raise Http404
 
     OLD_NOTIFICATIONS_VIEW_LIMIT = 20
-    notifications = GetUserNoticationsQ( u, arg_new )
+    notifications_q = GetUserNoticationsQ( u, arg_new )
     if arg_new:
-        notifications.order_by('sender_user')
+        notifications = notifications_q.order_by('sender_user')
     else:
-        notifications = notifications[:OLD_NOTIFICATIONS_VIEW_LIMIT]
+        notifications = notifications_q[:OLD_NOTIFICATIONS_VIEW_LIMIT]
 
     context_dict = { 'notifications' : notifications, 'filter_new' : arg_new, 'OLD_NOTIFICATIONS_VIEW_LIMIT' : OLD_NOTIFICATIONS_VIEW_LIMIT }
     return render( request, 'profiles/notifications.html', context_dict )

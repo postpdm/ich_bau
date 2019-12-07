@@ -129,12 +129,11 @@ no history to view
 <li class="list-group-item">
   <p><strong>Linked domains</strong></p>
   {% if domains %}
-  <ul>
-  {% for d in domains %}
-  <li>{{d.taskdomain}}
-  </li>
-  {% endfor %}
-  </ul>
+      <ul>
+          {% for d in domains %} 
+            <li><a href="{% url 'project:project_view_task_for_domain' task.project.pk d.taskdomain.pk %}">{{d.taskdomain}}</a></li>
+          {% endfor %}
+      </ul>
   {% endif %}
 
   {% if user.is_authenticated and user_can_work and task.get_opened %}
