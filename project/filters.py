@@ -24,6 +24,10 @@ class TaskFilter(django_filters.FilterSet):
     class Meta:
         model = Task
         fields = [ 'fullname', 'description', 'state', 'milestone', 'holder', 'kind', 'profile2task__profile' ]
+    
+    def __init__(self, *args , **kwargs ):
+        super(TaskFilter, self).__init__( *args , **kwargs )
+        self.filters['profile2task__profile'].label = 'Assigned'
 
 def user_projects(request):
     if request is None:
