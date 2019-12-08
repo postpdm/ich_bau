@@ -98,15 +98,13 @@
         {% endif %}
     </div>
 
-    {% if can_view_projects_and_tasks %}
-       
-        {% if profile_tasks %}
-            <div class="row">
-                <div class="col-md-12">
-                    <h3>Tasks assigned to{% if current_user_profile %} you{% else %} managed profile{% endif %}</h3>
+    <div class="row">
+        <div class="col-md-12">
+            <h3>{{view_projects_and_tasks_header}}</h3>
+                {% if profile_tasks %}
                     {% include "project/task_list.html" with table_mode='index' tasks=profile_tasks %}
-                </div>
-            </div >
-        {%  endif %}
-    {%  endif %}
+                {%  endif %}
+        </div>
+    </div >
+
 {% endblock %}

@@ -14,7 +14,7 @@ from .models import *
 from account.decorators import login_required
 from reversion.models import Version
 from django.http import HttpResponseRedirect, Http404
-from project.models import Get_User_Tasks, Get_Profile_Tasks
+from project.models import Get_User_Tasks, Get_Profile_Tasks, GetAvailableProjectList
 
 class ProfileEditView(LoginRequiredMixin, UpdateView):
 
@@ -43,28 +43,37 @@ class ProfileDetailView(DetailView):
         Current_User_Profile = False
         context = super(ProfileDetailView, self).get_context_data(**kwargs)
         current_profile = self.get_object()
-        if current_profile.user == self.request.user:
-            # юзер смотрит свой собственный профиль
-            context['user_repo_pw'] = current_profile.repo_pw
-            Current_User_Profile = True
+        profile_is_managed = False
+        view_projects_and_tasks_header = ''
+        profile_tasks = None
 
+        # affiliated profiles
         context['main_profiles'] = current_profile.main_profiles()
         context['sub_profiles'] =  current_profile.sub_profiles()
 
-        Tasks_Is_Avail = False
         if ( current_profile.profile_type == PROFILE_TYPE_USER ) and ( not( current_profile.user is None ) ):
             context['managed_profiles'] = Profile_Manage_User.objects.filter( manager_user = current_profile.user )
-            context['profile_tasks'] = Get_User_Tasks( current_profile.user )
-            Tasks_Is_Avail = True
-        else:
-            if ( current_profile.profile_type in PROFILE_TYPE_FOR_TASK ):
-                context['profile_tasks'] = Get_Profile_Tasks( current_profile )
-                Tasks_Is_Avail = True
+            context['managed_by_user'] = Profile_Manage_User.objects.filter( managed_profile = current_profile )
 
-        context['managed_by_user'] = Profile_Manage_User.objects.filter( managed_profile = current_profile )
+            if self.request.user == current_profile.user:
+                # юзер смотрит свой собственный профиль
+                context['user_repo_pw'] = current_profile.repo_pw
+                Current_User_Profile = True
+                view_projects_and_tasks_header = 'Task assigned to you'
+                profile_tasks = Get_User_Tasks( self.request.user )
+        if not profile_tasks:
+            profile_is_managed = Is_User_Manager( self.request.user, current_profile )
+            if profile_is_managed:
+                profile_tasks = Get_User_Tasks( current_profile.user )
+                view_projects_and_tasks_header = 'Task assigned to managed profiles'
+            else:
+                #if ( current_profile.profile_type in PROFILE_TYPE_FOR_TASK ):
+                profile_tasks = Get_Profile_Tasks( current_profile ).filter( project__in = GetAvailableProjectList( self.request.user ) )
+                view_projects_and_tasks_header = 'Task assigned to profile (for projects available for you)'
 
-        context['can_view_projects_and_tasks'] = Tasks_Is_Avail and ( Current_User_Profile or Is_User_Manager( self.request.user, current_profile ) )
         context['current_user_profile'] = Current_User_Profile
+        context['view_projects_and_tasks_header'] = view_projects_and_tasks_header
+        context['profile_tasks'] = profile_tasks
 
         return context
 
