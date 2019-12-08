@@ -40,22 +40,32 @@ class ProfileDetailView(DetailView):
     context_object_name = "profile"
 
     def get_context_data(self, **kwargs):
+        Current_User_Profile = False
         context = super(ProfileDetailView, self).get_context_data(**kwargs)
         current_profile = self.get_object()
         if current_profile.user == self.request.user:
             # юзер смотрит свой собственный профиль
             context['user_repo_pw'] = current_profile.repo_pw
+            Current_User_Profile = True
 
         context['main_profiles'] = current_profile.main_profiles()
         context['sub_profiles'] =  current_profile.sub_profiles()
+
+        Tasks_Is_Avail = False
+
         if ( current_profile.profile_type == PROFILE_TYPE_USER ) and ( not( current_profile.user is None ) ):
             context['controlled_profiles'] = Profile_Control_User.objects.filter( control_user = current_profile.user )
-            context['user_tasks'] = Get_User_Tasks( current_profile.user )
+            context['profile_tasks'] = Get_User_Tasks( current_profile.user )
+            Tasks_Is_Avail = True
         else:
             if ( current_profile.profile_type in PROFILE_TYPE_FOR_TASK ):
                 context['profile_tasks'] = Get_Profile_Tasks( current_profile )
+                Tasks_Is_Avail = True
 
         context['controlled_by_user'] = Profile_Control_User.objects.filter( controlled_profile = current_profile )
+
+        context['can_view_projects_and_tasks'] = Tasks_Is_Avail and ( Current_User_Profile or Is_User_Has_Control( self.request.user, current_profile ) )
+        context['current_user_profile'] = Current_User_Profile
 
         return context
 

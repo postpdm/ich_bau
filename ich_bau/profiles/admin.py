@@ -36,8 +36,8 @@ admin.site.register(
 admin.site.register(
     Profile_Control_User,
     list_display=[
+        "control_user",
         "controlled_profile", 
-        "control_user"
     ],
     
 )
