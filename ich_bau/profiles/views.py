@@ -54,7 +54,7 @@ class ProfileDetailView(DetailView):
         Tasks_Is_Avail = False
 
         if ( current_profile.profile_type == PROFILE_TYPE_USER ) and ( not( current_profile.user is None ) ):
-            context['controlled_profiles'] = Profile_Control_User.objects.filter( control_user = current_profile.user )
+            context['managed_profiles'] = Profile_Manage_User.objects.filter( manager_user = current_profile.user )
             context['profile_tasks'] = Get_User_Tasks( current_profile.user )
             Tasks_Is_Avail = True
         else:
@@ -62,9 +62,9 @@ class ProfileDetailView(DetailView):
                 context['profile_tasks'] = Get_Profile_Tasks( current_profile )
                 Tasks_Is_Avail = True
 
-        context['controlled_by_user'] = Profile_Control_User.objects.filter( controlled_profile = current_profile )
+        context['managed_by_user'] = Profile_Manage_User.objects.filter( managed_profile = current_profile )
 
-        context['can_view_projects_and_tasks'] = Tasks_Is_Avail and ( Current_User_Profile or Is_User_Has_Control( self.request.user, current_profile ) )
+        context['can_view_projects_and_tasks'] = Tasks_Is_Avail and ( Current_User_Profile or Is_User_Manager( self.request.user, current_profile ) )
         context['current_user_profile'] = Current_User_Profile
 
         return context

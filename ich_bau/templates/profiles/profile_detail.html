@@ -85,15 +85,15 @@
         <a href="{% url 'profile_add_sub' pk=profile.id %}" class="btn btn-default btn-xs"><i class="fa fa-pencil"></i> Add sub</a>
         </div>
         <h2>Mannaging profiles</h2>
-        {% if controlled_profiles %}
-        {% for cp in controlled_profiles %}
-        <li><a href="{% url 'profiles_detail' pk=cp.controlled_profile.id %}">{{ cp.controlled_profile.display_name }}</a></li>
+        {% if managed_profiles %}
+        {% for cp in managed_profiles %}
+        <li><a href="{% url 'profiles_detail' pk=cp.managed_profile.id %}">{{ cp.managed_profile.display_name }}</a></li>
         {% endfor %}
         {% endif %}
         <h2>Managed by users</h2>
-        {% if controlled_by_user %}
-        {% for cu in controlled_by_user %}
-        <li><a href="{% url 'profiles_detail' pk=cu.control_user.profile.id %}">{{ cu.control_user.profile.display_name }}</a></li>
+        {% if managed_by_user %}
+        {% for cu in managed_by_user %}
+        <li><a href="{% url 'profiles_detail' pk=cu.manager_user.profile.id %}">{{ cu.manager_user.profile.display_name }}</a></li>
         {% endfor %}
         {% endif %}
     </div>
