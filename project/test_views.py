@@ -6,7 +6,7 @@ from django.urls import reverse_lazy
 
 from .models import Project, Task, Milestone, Get_Profiles_Available2Task, Get_Profile_Tasks, TaskCheckList, TaskLink, PROJECT_VISIBLE_PRIVATE, PROJECT_VISIBLE_VISIBLE, PROJECT_VISIBLE_OPEN
 
-from ich_bau.profiles.models import Profile, PROFILE_TYPE_RESOURCE
+from ich_bau.profiles.models import Profile, PROFILE_TYPE_RESOURCE, Profile_Manage_User
 
 TEST_USER_NAME  = 'test_user'
 TEST_USER_EMAIL = 'test_user@nothere.com'
@@ -242,8 +242,16 @@ class Project_View_Test_Client(TestCase):
         self.assertEqual( Get_Profile_Tasks( new_resource ).count(), 1 )
 
         response = c.get( reverse_lazy('profiles_detail', args = (new_resource.id, ) ) )
-        self.assertContains(response, test_task_2.fullname, status_code=200 )
+        # can't see the Task in Resource profile - becouse Resource is not managed by test user
+        self.assertNotContains(response, test_task_2.fullname, status_code=200 )
+        
+        # add control from test_user above new_resource
+        npmu = Profile_Manage_User( manager_user = test_user, managed_profile = new_resource )
+        npmu.save()
 
+        response = c.get( reverse_lazy('profiles_detail', args = (new_resource.id, ) ) )
+        # Now can see the Task in Resource profile - becouse Resource is now managed by test user
+        self.assertContains(response, test_task_2.fullname, status_code=200 )
 
         # task check list
         # test wrong task id

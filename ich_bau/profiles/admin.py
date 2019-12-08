@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import Profile, Profile_Affiliation, Profile_Control_User
+from .models import Profile, Profile_Affiliation, Profile_Manage_User
 
 admin.site.register(
     Profile,
@@ -34,10 +34,10 @@ admin.site.register(
 )
 
 admin.site.register(
-    Profile_Control_User,
+    Profile_Manage_User,
     list_display=[
-        "controlled_profile", 
-        "control_user"
+        "manager_user",
+        "managed_profile", 
     ],
     
 )

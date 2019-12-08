@@ -41,7 +41,7 @@
   <p>{{ task.description_html|safe }}</p>
   {% endif %}
 
-  <td>{% if task.holder %}<p>Holder: {{task.holder}}</p>{% endif %}</td>
+  <td>{% if task.holder %}<p>Holder: <a href="{% url 'profiles_detail' pk=task.holder.id %}">{{task.holder}}</a></small></p></p>{% endif %}</td>
 
   <p class="text-right">
 

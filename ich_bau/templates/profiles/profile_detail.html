@@ -84,35 +84,29 @@
         {% endif %}
         <a href="{% url 'profile_add_sub' pk=profile.id %}" class="btn btn-default btn-xs"><i class="fa fa-pencil"></i> Add sub</a>
         </div>
-        <h2>Controlled profiles</h2>
-        {% if controlled_profiles %}
-        {% for cp in controlled_profiles %}
-        <li><a href="{% url 'profiles_detail' pk=cp.controlled_profile.id %}">{{ cp.controlled_profile.display_name }}</a></li>
+        <h2>Mannaging profiles</h2>
+        {% if managed_profiles %}
+        {% for cp in managed_profiles %}
+        <li><a href="{% url 'profiles_detail' pk=cp.managed_profile.id %}">{{ cp.managed_profile.display_name }}</a></li>
         {% endfor %}
         {% endif %}
-        <h2>Controlled by users</h2>
-        {% if controlled_by_user %}
-        {% for cu in controlled_by_user %}
-        <li><a href="{% url 'profiles_detail' pk=cu.control_user.profile.id %}">{{ cu.control_user.profile.display_name }}</a></li>
+        <h2>Managed by users</h2>
+        {% if managed_by_user %}
+        {% for cu in managed_by_user %}
+        <li><a href="{% url 'profiles_detail' pk=cu.manager_user.profile.id %}">{{ cu.manager_user.profile.display_name }}</a></li>
         {% endfor %}
         {% endif %}
     </div>
 
-    {% if user_tasks %}
-        <div class="row">
-            <div class="col-md-12">
-                <h3>User tasks</h3>
-                {% include "project/task_list.html" with table_mode='index' tasks=user_tasks %}
-            </div>
-        </div >
-    {% endif %}
-    
-    {% if profile_tasks %}
-        <div class="row">
-            <div class="col-md-12">
-                <h3>Profile tasks</h3>
-                {% include "project/task_list.html" with table_mode='index' tasks=profile_tasks %}
-            </div>
-        </div >
+    {% if can_view_projects_and_tasks %}
+       
+        {% if profile_tasks %}
+            <div class="row">
+                <div class="col-md-12">
+                    <h3>Tasks assigned to{% if current_user_profile %} you{% else %} managed profile{% endif %}</h3>
+                    {% include "project/task_list.html" with table_mode='index' tasks=profile_tasks %}
+                </div>
+            </div >
+        {%  endif %}
     {%  endif %}
 {% endblock %}
