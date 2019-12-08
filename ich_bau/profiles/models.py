@@ -159,4 +159,7 @@ class Profile_Manage_User(models.Model):
             return super(Profile_Manage_User, self).save(*args, **kwargs)
 
 def Is_User_Manager( arg_user, arg_profile ):
-    return Profile_Manage_User.objects.filter( manager_user = arg_user, managed_profile = arg_profile ).exists()
+    try:
+        return Profile_Manage_User.objects.filter( manager_user = arg_user, managed_profile = arg_profile ).exists()
+    except:
+        return False

@@ -20,9 +20,12 @@ VCS_REPO_FAIL_CALL = 2
 # return True if yes
 def VCS_Configured():
     # SVN_ADMIN_FULL_PATH could be empty (svnadmin is added in the env path) - do not check it
-    if ( settings.REPO_SVN.get('REPO_TYPE') in KNOWN_REPO_TYPES ) and ( settings.REPO_SVN.get('REPO_BASE_URL') and settings.REPO_SVN.get('REPO_LOCAL_ROOT') and settings.REPO_SVN.get('SVN_ADMIN_USER') and settings.REPO_SVN.get('SVN_ADMIN_PASSWORD') ):
-        return True
-    else:
+    try:
+        if ( settings.REPO_SVN.get('REPO_TYPE') in KNOWN_REPO_TYPES ) and ( settings.REPO_SVN.get('REPO_BASE_URL') and settings.REPO_SVN.get('REPO_LOCAL_ROOT') and settings.REPO_SVN.get('SVN_ADMIN_USER') and settings.REPO_SVN.get('SVN_ADMIN_PASSWORD') ):
+            return True
+        else:
+            return False
+    except:
         return False
 
 #return (code,dict)
@@ -102,11 +105,14 @@ def Add_User_To_Main_PassFile( arg_pass_file, arg_dict ):
 
 # const names
 authz_fn  = 'authz'
-if settings.REPO_SVN.get('REPO_TYPE') == svn_serve:
-    passwd_fn = 'passwd'
-else:
-    if settings.REPO_SVN.get('REPO_TYPE') == svn_apache:
-        passwd_fn = 'htpasswd'
+try:
+    if settings.REPO_SVN.get('REPO_TYPE') == svn_serve:
+        passwd_fn = 'passwd'
+    else:
+        if settings.REPO_SVN.get('REPO_TYPE') == svn_apache:
+            passwd_fn = 'htpasswd'
+except:
+    passwd_fn = ''
 
 svnserve_conf_fn = 'svnserve.conf'
 conf_folder_fn = 'conf'
