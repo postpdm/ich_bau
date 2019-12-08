@@ -9,6 +9,8 @@ from django.contrib.auth.models import User
 from django.shortcuts import get_object_or_404
 from django.urls import reverse_lazy
 
+from django.conf import settings
+
 from .messages import decode_json2msg
 from django_cryptography.fields import encrypt
 from project.repo_wrapper import Gen_Repo_User_PW
@@ -79,8 +81,10 @@ class Profile(models.Model):
     created_at = models.DateTimeField(default=timezone.now)
     modified_at = models.DateTimeField(default=timezone.now)
 
-    repo_pw = encrypt( models.CharField(max_length=100, blank=True) )
-    #repo_pw = models.CharField(max_length=100, blank=True)
+    if settings.USE_ENCRYPT_FOR_REPO_PASSWORDS:
+        repo_pw = encrypt( models.CharField(max_length=100, blank=True) )
+    else:
+        repo_pw = models.CharField(max_length=100, blank=True)
 
     def save(self, *args, **kwargs):
         if self.profile_type in PROFILE_TYPE_LIST: # check for profile type

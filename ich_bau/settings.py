@@ -169,3 +169,8 @@ ACCOUNT_USE_AUTH_AUTHENTICATE = True
 AUTHENTICATION_BACKENDS = [
     "account.auth_backends.UsernameAuthenticationBackend",
 ]
+
+# do not change this settings if some Profile.repo_pw is exists. Stored passwords will become unavailable
+# True - for django_cryptography encrypt
+# False - for plain text
+USE_ENCRYPT_FOR_REPO_PASSWORDS = False
