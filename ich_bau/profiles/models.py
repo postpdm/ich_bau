@@ -80,6 +80,7 @@ class Profile(models.Model):
     modified_at = models.DateTimeField(default=timezone.now)
 
     repo_pw = encrypt( models.CharField(max_length=100, blank=True) )
+    #repo_pw = models.CharField(max_length=100, blank=True)
 
     def save(self, *args, **kwargs):
         if self.profile_type in PROFILE_TYPE_LIST: # check for profile type
@@ -140,9 +141,18 @@ class Profile_Affiliation(models.Model):
         else:
             return super(Profile_Affiliation, self).save(*args, **kwargs)
 
-class Profile_Control_User(models.Model):
-    controlled_profile = models.ForeignKey(Profile, on_delete=models.PROTECT, related_name = 'controlled_profile' )
-    control_user = models.ForeignKey(User, on_delete=models.PROTECT, related_name="control_user")
+class Profile_Manage_User(models.Model):
+    manager_user = models.ForeignKey(User, on_delete=models.PROTECT, related_name="manager_user")
+    managed_profile = models.ForeignKey(Profile, on_delete=models.PROTECT, related_name = 'managed_profile' )
 
     class Meta:
-        unique_together = ( "controlled_profile", "control_user" )
+        unique_together = ( "manager_user", "managed_profile" )
+
+    def save(self, *args, **kwargs):
+        if ( self.manager_user == self.managed_profile.user ):
+            raise Exception("Cannot save - user cannot control itself.")
+        else:
+            return super(Profile_Manage_User, self).save(*args, **kwargs)
+
+def Is_User_Manager( arg_user, arg_profile ):
+    return Profile_Manage_User.objects.filter( manager_user = arg_user, managed_profile = arg_profile ).exists()
