@@ -52,7 +52,6 @@ class ProfileDetailView(DetailView):
         context['sub_profiles'] =  current_profile.sub_profiles()
 
         Tasks_Is_Avail = False
-
         if ( current_profile.profile_type == PROFILE_TYPE_USER ) and ( not( current_profile.user is None ) ):
             context['managed_profiles'] = Profile_Manage_User.objects.filter( manager_user = current_profile.user )
             context['profile_tasks'] = Get_User_Tasks( current_profile.user )
