@@ -109,7 +109,11 @@ no history to view
             <li>{% profile_type_name pt.grouper %}
                 <ul>
                     {% for p in pt.list %}
-                    <li><a href="{% url 'profiles_detail' pk=p.profile.id %}">{{p.profile}}</a></li>
+                    <li><a href="{% url 'profiles_detail' pk=p.profile.id %}">{{p.profile}}</a>
+                    
+                    - {%if p.priority%}responsible{%else%}interested{%endif%}
+                    
+                    </li>
                     {% endfor %}
                 </ul>
             </li>
