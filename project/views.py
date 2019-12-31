@@ -832,6 +832,7 @@ def task_unlink(request, tasklink_id):
         raise Http404()
 
 # add_user - True for user, False for other kind of profiles
+@login_required
 def add_user_or_profile(request, task_id, add_user):
     context = RequestContext(request)
 
@@ -853,6 +854,19 @@ def add_user_or_profile(request, task_id, add_user):
     return render( request, 'project/task_add_profile.html',
             {'task_id': task_id,
              'form': form} )
+
+@login_required
+def switch_assign_responsibillty(request, taskprofile_id):
+    tp = get_object_or_404( TaskProfile, pk = taskprofile_id )
+    if tp.priority is None:
+        tp.priority = 1
+    else:
+        tp.priority = None
+    
+    tp.set_change_user(request.user)
+    tp.save()
+    # перебросить пользователя на задание
+    return HttpResponseRedirect('/project/task/' + str( tp.parenttask_id ) )
 
 @login_required
 def add_profile(request, task_id):

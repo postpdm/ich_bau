@@ -110,9 +110,8 @@ no history to view
                 <ul>
                     {% for p in pt.list %}
                     <li><a href="{% url 'profiles_detail' pk=p.profile.id %}">{{p.profile}}</a>
-                    
-                    - {%if p.priority%}responsible{%else%}interested{%endif%}
-                    
+                    -
+                    <a href="{% url 'project:switch_assign_responsibillty' p.pk %}">{%if p.priority%}responsible{%else%}interested{%endif%}</a>
                     </li>
                     {% endfor %}
                 </ul>
@@ -134,7 +133,7 @@ no history to view
   <p><strong>Linked domains</strong></p>
   {% if domains %}
       <ul>
-          {% for d in domains %} 
+          {% for d in domains %}
             <li><a href="{% url 'project:project_view_task_for_domain' task.project.pk d.taskdomain.pk %}">{{d.taskdomain}}</a></li>
           {% endfor %}
       </ul>
