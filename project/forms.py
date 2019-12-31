@@ -87,6 +87,7 @@ class TaskLinkedForm(forms.ModelForm):
 
 class TaskProfileForm(forms.ModelForm):
     profile=forms.ModelChoiceField( Profile.objects, help_text="profile", required=True )
+    priority=forms.BooleanField( label = 'Responsible', help_text="Responsible or interested", required=False )
 
     def __init__(self, *args, **kwargs):
         argmaintaskid = kwargs.pop('argmaintaskid', None)
@@ -103,7 +104,7 @@ class TaskProfileForm(forms.ModelForm):
 
     class Meta:
         model = TaskProfile
-        fields = ['profile']
+        fields = ['profile', 'priority' ]
 
 class TaskDomainForm(forms.ModelForm):
     taskdomain = TreeNodeChoiceField(queryset=TaskDomain.objects.all())
