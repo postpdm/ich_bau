@@ -314,7 +314,7 @@ def get_project_view(request, project_id, arg_task_filter = TASK_FILTER_OPEN, ar
                     else:
                         if arg_task_filter == TASK_FILTER_ASSIGNED:
                             filter_type = 'filter_task_assigned'
-                            tasks = base_tasks.filter( state = TASK_STATE_NEW ).filter( profile2task__priority = 1 )
+                            tasks = base_tasks.filter( state = TASK_STATE_NEW ).filter( profile2task__priority = 1 ).distinct()
                         else:
                             if arg_task_filter == TASK_FILTER_UNASSIGNED:
                                 filter_type = 'filter_task_unassigned'
