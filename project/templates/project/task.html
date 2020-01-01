@@ -109,7 +109,21 @@ no history to view
             <li>{% profile_type_name pt.grouper %}
                 <ul>
                     {% for p in pt.list %}
-                    <li><a href="{% url 'profiles_detail' pk=p.profile.id %}">{{p.profile}}</a></li>
+                    <li><a href="{% url 'profiles_detail' pk=p.profile.id %}">{{p.profile}}</a>
+                    {% if user_can_work and task.get_opened %}
+                        <div class="btn-group">
+                          <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            {%if p.priority%}Responsible{%else%}Interested{%endif%} <span class="caret"></span>
+                          </button>
+                          <ul class="dropdown-menu">
+                            <li><a href="{% url 'project:switch_assign_responsibillty' p.pk %}">{%if p.priority%}Set interested{%else%}Set responsible{%endif%}</a></li>
+                          </ul>
+                        </div>
+                    {% else %}
+                        - {%if p.priority%}responsible{%else%}interested{%endif%}
+                    {% endif %}
+                    </li>
+
                     {% endfor %}
                 </ul>
             </li>
@@ -130,7 +144,7 @@ no history to view
   <p><strong>Linked domains</strong></p>
   {% if domains %}
       <ul>
-          {% for d in domains %} 
+          {% for d in domains %}
             <li><a href="{% url 'project:project_view_task_for_domain' task.project.pk d.taskdomain.pk %}">{{d.taskdomain}}</a></li>
           {% endfor %}
       </ul>

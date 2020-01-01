@@ -53,6 +53,8 @@ no history to view
 <ul class="nav nav-tabs">
   <li role="presentation" {% if filter_type == '' %} class="active" {% endif %}><a href="{{project.get_absolute_url}}">{% trans "Open" %}</a></li>
   <li role="presentation" {% if filter_type == 'filter_task_closed' %} class="active" {% endif %}><a href="{{project.get_absolute_url}}closed_task/">{% trans "Closed" %}</a></li>
+  <li role="presentation" {% if filter_type == 'filter_task_assigned' %} class="active" {% endif %}><a href="{{project.get_absolute_url}}assigned_task/">{% trans "Assigned" %}</a></li>
+  <li role="presentation" {% if filter_type == 'filter_task_unassigned' %} class="active" {% endif %}><a href="{{project.get_absolute_url}}unassigned_task/">{% trans "Unassigned" %}</a></li>
   <li role="presentation" {% if filter_type == 'filter_task_by_domain' %} class="active" {% endif %}><a href="{{project.get_absolute_url}}task_by_domain/">{% trans "Domain" %}</a></li>
   <li role="presentation" {% if filter_type == 'filter_task_search' %} class="active" {% endif %}><a href="{{project.get_absolute_url}}search_task/">{% trans "Search" %}</a></li>
 </ul>

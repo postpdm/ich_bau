@@ -18,6 +18,8 @@ urlpatterns = [
     url(r'^project/(?P<project_id>\w+)/$', views.project_view, name='project_view'),
     url(r'^project/(?P<project_id>\w+)/history/$', views.project_history, name='project_history'),
     url(r'^project/(?P<project_id>\w+)/closed_task/$', views.project_view_closed_tasks, name='project_view_closed_tasks'),
+    url(r'^project/(?P<project_id>\w+)/assigned_task/$', views.project_view_assigned_tasks, name='project_view_assigned_tasks'),
+    url(r'^project/(?P<project_id>\w+)/unassigned_task/$', views.project_view_unassigned_tasks, name='project_view_unassigned_tasks'),
     
     # django v.2 path
     path( 'project/<project_id>/task_by_domain/', views.project_view_task_by_domain, name='project_view_task_by_domain'),
@@ -46,6 +48,7 @@ urlpatterns = [
     
     url(r'^add_profile/(?P<task_id>\w+)/$', views.add_profile, name='add_profile'),
     url(r'^add_user/(?P<task_id>\w+)/$', views.add_user, name='add_user'),
+    url(r'^switch_assign_responsibillty/(?P<taskprofile_id>\w+)/$', views.switch_assign_responsibillty, name='switch_assign_responsibillty'),
     
     url(r'^add_domain/(?P<task_id>\w+)/$', views.add_domain, name='add_domain'),
 

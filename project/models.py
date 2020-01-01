@@ -495,12 +495,14 @@ def taskcomment_post_save_Notifier_Composer(sender, instance, **kwargs):
     Send_Notifications_For_Task( instance.modified_user, message_str, task_users, parent_task.get_absolute_url(), parenttask_holder_user )
 
 def Get_User_Tasks( arg_user ):
-    return Task.objects.filter( state = TASK_STATE_NEW, profile2task__profile__user = arg_user )
+    return Task.objects.filter( state = TASK_STATE_NEW, profile2task__profile__user = arg_user ).order_by( '-profile2task__priority' )
 
 # участники-ресурсы на задачу
 class TaskProfile(BaseStampedModel):
     parenttask=models.ForeignKey( Task, on_delete=models.PROTECT, related_name = 'profile2task' )
     profile=models.ForeignKey( Profile, on_delete=models.PROTECT, related_name = 'task2profile' )
+    priority=models.PositiveSmallIntegerField( blank=False, null=False, default = 0, verbose_name = 'priority' )
+    
     class Meta:
         unique_together = ("parenttask", "profile")
 
