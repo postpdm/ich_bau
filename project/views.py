@@ -136,6 +136,8 @@ TASK_FILTER_OPEN = 0
 TASK_FILTER_CLOSED = 1
 TASK_FILTER_BY_DOMAIN = 2
 TASK_FILTER_SEARCH = 3
+TASK_FILTER_ASSIGNED = 4
+TASK_FILTER_UNASSIGNED = 5
 
 # Закладки страницы Проекта
 PROJECT_PAGE_TITLE = 0
@@ -154,6 +156,12 @@ def project_view(request, project_id):
 
 def project_view_closed_tasks(request, project_id):
     return get_project_view(request, project_id, arg_task_filter = TASK_FILTER_CLOSED)
+
+def project_view_assigned_tasks(request, project_id):
+    return get_project_view(request, project_id, arg_task_filter = TASK_FILTER_ASSIGNED)
+    
+def project_view_unassigned_tasks(request, project_id):
+    return get_project_view(request, project_id, arg_task_filter = TASK_FILTER_UNASSIGNED)
 
 def project_view_task_by_domain(request, project_id, domain_id = None ):
     return get_project_view(request, project_id, arg_task_filter = TASK_FILTER_BY_DOMAIN, arg_domain_id = domain_id )
@@ -304,7 +312,15 @@ def get_project_view(request, project_id, arg_task_filter = TASK_FILTER_OPEN, ar
                             tasks = None
                         domains = TaskDomain.objects.all()
                     else:
-                        raise Http404
+                        if arg_task_filter == TASK_FILTER_ASSIGNED:
+                            filter_type = 'filter_task_assigned'
+                            tasks = base_tasks.filter( state = TASK_STATE_NEW ).filter( profile2task__priority = 1 )
+                        else:
+                            if arg_task_filter == TASK_FILTER_UNASSIGNED:
+                                filter_type = 'filter_task_unassigned'
+                                tasks = base_tasks.filter( state = TASK_STATE_NEW ).exclude( profile2task__priority = 1 )
+                            else:
+                                raise Http404
 
     # Записать список в словарь
     context_dict = { 'project': project,
@@ -858,11 +874,11 @@ def add_user_or_profile(request, task_id, add_user):
 @login_required
 def switch_assign_responsibillty(request, taskprofile_id):
     tp = get_object_or_404( TaskProfile, pk = taskprofile_id )
-    if tp.priority is None:
+    if tp.priority == 0:
         tp.priority = 1
     else:
-        tp.priority = None
-    
+        tp.priority = 0
+
     tp.set_change_user(request.user)
     tp.save()
     # перебросить пользователя на задание

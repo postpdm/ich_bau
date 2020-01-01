@@ -501,7 +501,7 @@ def Get_User_Tasks( arg_user ):
 class TaskProfile(BaseStampedModel):
     parenttask=models.ForeignKey( Task, on_delete=models.PROTECT, related_name = 'profile2task' )
     profile=models.ForeignKey( Profile, on_delete=models.PROTECT, related_name = 'task2profile' )
-    priority=models.PositiveSmallIntegerField( blank=True, null=True, default = None, verbose_name = 'priority' )
+    priority=models.PositiveSmallIntegerField( blank=False, null=False, default = 0, verbose_name = 'priority' )
     
     class Meta:
         unique_together = ("parenttask", "profile")
