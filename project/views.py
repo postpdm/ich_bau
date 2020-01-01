@@ -235,7 +235,11 @@ def get_project_view(request, project_id, arg_task_filter = TASK_FILTER_OPEN, ar
 
     ual = project.user_access_level( request.user )
     if ual == PROJECT_ACCESS_NONE:
-        raise Http404()
+        # если пользователь не авторизован, то доступ только к открытым проектам и только на просмотр
+        if ( request.user is None ) or ( not request.user.is_authenticated ):
+            return handle_redirect_to_login( request, redirect_field_name=REDIRECT_FIELD_NAME, login_url=None )
+        else:
+            raise Http404()
     else:
         if ual == PROJECT_ACCESS_WORK:
             user_can_work = True
