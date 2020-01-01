@@ -302,7 +302,7 @@ def get_project_view(request, project_id, arg_task_filter = TASK_FILTER_OPEN, ar
                 if arg_task_filter == TASK_FILTER_SEARCH:
                     filter_type = 'filter_task_search'
                     task_filter = TaskFilter( request.GET, queryset=base_tasks )
-                    task_filter.filters['milestone'].queryset = milestones
+                    task_filter.filters['milestone'].queryset = Milestone.objects.filter( project = project )
                     p_list = project.GetFullMemberProfiles()
                     task_filter.filters['holder'].queryset = p_list
                     tasks = task_filter.qs
