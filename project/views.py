@@ -318,11 +318,11 @@ def get_project_view(request, project_id, arg_task_filter = TASK_FILTER_OPEN, ar
                     else:
                         if arg_task_filter == TASK_FILTER_ASSIGNED:
                             filter_type = 'filter_task_assigned'
-                            tasks = base_tasks.filter( state = TASK_STATE_NEW ).filter( profile2task__priority = 1 ).distinct()
+                            tasks = base_tasks.filter( state = TASK_STATE_NEW ).filter( profile2task__priority = TASK_PROFILE_PRIORITY_RESPONSIBLE ).distinct()
                         else:
                             if arg_task_filter == TASK_FILTER_UNASSIGNED:
                                 filter_type = 'filter_task_unassigned'
-                                tasks = base_tasks.filter( state = TASK_STATE_NEW ).exclude( profile2task__priority = 1 )
+                                tasks = base_tasks.filter( state = TASK_STATE_NEW ).exclude( profile2task__priority = TASK_PROFILE_PRIORITY_RESPONSIBLE )
                             else:
                                 raise Http404
 
@@ -878,10 +878,10 @@ def add_user_or_profile(request, task_id, add_user):
 @login_required
 def switch_assign_responsibillty(request, taskprofile_id):
     tp = get_object_or_404( TaskProfile, pk = taskprofile_id )
-    if tp.priority == 0:
-        tp.priority = 1
+    if tp.priority == TASK_PROFILE_PRIORITY_INTERESTED:
+        tp.priority = TASK_PROFILE_PRIORITY_RESPONSIBLE
     else:
-        tp.priority = 0
+        tp.priority = TASK_PROFILE_PRIORITY_INTERESTED
 
     tp.set_change_user(request.user)
     tp.save()

@@ -258,14 +258,14 @@ def GetMemberedProjectList( arg_user ):
         return { }
     else:
         return Project.objects.filter( member__member_profile__user = arg_user ).order_by('-active_flag')
-        
+
 def GetAvailableProjectList( arg_user ):
     # All public + Membered
     if ( arg_user is None ) or ( not arg_user.is_authenticated ):
         q = Project.objects.none()
     else:
         q = GetMemberedProjectList( arg_user )
-    
+
     return (q | GetAllPublicProjectList()).distinct()
 
 @reversion.register()
@@ -494,6 +494,10 @@ def taskcomment_post_save_Notifier_Composer(sender, instance, **kwargs):
 
     Send_Notifications_For_Task( instance.modified_user, message_str, task_users, parent_task.get_absolute_url(), parenttask_holder_user )
 
+# Priority for profile assignment to tasks
+TASK_PROFILE_PRIORITY_INTERESTED   = 0
+TASK_PROFILE_PRIORITY_RESPONSIBLE  = 1
+
 def Get_User_Tasks( arg_user ):
     return Task.objects.filter( state = TASK_STATE_NEW, profile2task__profile__user = arg_user ).order_by( '-profile2task__priority' )
 
@@ -501,8 +505,8 @@ def Get_User_Tasks( arg_user ):
 class TaskProfile(BaseStampedModel):
     parenttask=models.ForeignKey( Task, on_delete=models.PROTECT, related_name = 'profile2task' )
     profile=models.ForeignKey( Profile, on_delete=models.PROTECT, related_name = 'task2profile' )
-    priority=models.PositiveSmallIntegerField( blank=False, null=False, default = 0, verbose_name = 'priority' )
-    
+    priority=models.PositiveSmallIntegerField( blank=False, null=False, default = TASK_PROFILE_PRIORITY_INTERESTED, verbose_name = 'priority' )
+
     class Meta:
         unique_together = ("parenttask", "profile")
 
