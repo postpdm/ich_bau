@@ -43,7 +43,7 @@
     <td>{% if t.holder %} {{t.holder}}{% endif %}</td>
     <td>  
         {% for p in t.get_profiles %}
-            {{p.profile}}<br>
+            {% if p.priority %}<strong>{% endif %}{{p.profile}}{% if p.priority %}</strong>{% endif %}<br>
         {% endfor %}    
     </td>
     <td>{{t.get_state_name}}</td>
