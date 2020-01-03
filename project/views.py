@@ -235,7 +235,11 @@ def get_project_view(request, project_id, arg_task_filter = TASK_FILTER_OPEN, ar
 
     ual = project.user_access_level( request.user )
     if ual == PROJECT_ACCESS_NONE:
-        raise Http404()
+        # если пользователь не авторизован, то доступ только к открытым проектам и только на просмотр
+        if ( request.user is None ) or ( not request.user.is_authenticated ):
+            return handle_redirect_to_login( request, redirect_field_name=REDIRECT_FIELD_NAME, login_url=None )
+        else:
+            raise Http404()
     else:
         if ual == PROJECT_ACCESS_WORK:
             user_can_work = True
@@ -298,7 +302,7 @@ def get_project_view(request, project_id, arg_task_filter = TASK_FILTER_OPEN, ar
                 if arg_task_filter == TASK_FILTER_SEARCH:
                     filter_type = 'filter_task_search'
                     task_filter = TaskFilter( request.GET, queryset=base_tasks )
-                    task_filter.filters['milestone'].queryset = milestones
+                    task_filter.filters['milestone'].queryset = Milestone.objects.filter( project = project )
                     p_list = project.GetFullMemberProfiles()
                     task_filter.filters['holder'].queryset = p_list
                     tasks = task_filter.qs
@@ -314,11 +318,11 @@ def get_project_view(request, project_id, arg_task_filter = TASK_FILTER_OPEN, ar
                     else:
                         if arg_task_filter == TASK_FILTER_ASSIGNED:
                             filter_type = 'filter_task_assigned'
-                            tasks = base_tasks.filter( state = TASK_STATE_NEW ).filter( profile2task__priority = 1 ).distinct()
+                            tasks = base_tasks.filter( state = TASK_STATE_NEW ).filter( profile2task__priority = TASK_PROFILE_PRIORITY_RESPONSIBLE ).distinct()
                         else:
                             if arg_task_filter == TASK_FILTER_UNASSIGNED:
                                 filter_type = 'filter_task_unassigned'
-                                tasks = base_tasks.filter( state = TASK_STATE_NEW ).exclude( profile2task__priority = 1 )
+                                tasks = base_tasks.filter( state = TASK_STATE_NEW ).exclude( profile2task__priority = TASK_PROFILE_PRIORITY_RESPONSIBLE )
                             else:
                                 raise Http404
 
@@ -874,10 +878,10 @@ def add_user_or_profile(request, task_id, add_user):
 @login_required
 def switch_assign_responsibillty(request, taskprofile_id):
     tp = get_object_or_404( TaskProfile, pk = taskprofile_id )
-    if tp.priority == 0:
-        tp.priority = 1
+    if tp.priority == TASK_PROFILE_PRIORITY_INTERESTED:
+        tp.priority = TASK_PROFILE_PRIORITY_RESPONSIBLE
     else:
-        tp.priority = 0
+        tp.priority = TASK_PROFILE_PRIORITY_INTERESTED
 
     tp.set_change_user(request.user)
     tp.save()

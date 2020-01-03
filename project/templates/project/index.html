@@ -50,12 +50,15 @@ Please, log in to see your projects.
 
 {% endif %}
 
+{% if filter_type == '' %}
+
 <h3>Tasks assigned to you</h3>
 
 {% if not request.user.is_authenticated %}
 Please, log in to see your tasks.
 {% else %}
 {% include "project/task_list.html" with table_mode='index' %}
+{% endif %}
 {% endif %}
 
         </div>
