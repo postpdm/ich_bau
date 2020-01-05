@@ -1,6 +1,6 @@
 ﻿from project.models import *
 from project.forms import ProjectForm, TaskForm, TaskCommentForm, MilestoneForm, MemberForm, TaskLinkedForm, TaskProfileForm, TaskCheckListForm, TaskDomainForm
-
+from ich_bau.profiles.models import Get_Users_Profiles
 from django.forms.models import modelformset_factory
 
 from django.utils import timezone
@@ -30,7 +30,7 @@ from django.db import transaction
 import reversion
 from reversion.models import Version
 
-from project.filters import ProjectFilter, TaskFilter, TaskFilter_for_Linking
+from project.filters import ProjectFilter, BaseTaskFilter, TaskFilter, TaskFilter_for_Linking
 
 from project.repo_wrapper import *
 
@@ -39,6 +39,7 @@ PROJECT_FILTER_MINE = 0
 PROJECT_FILTER_SEARCH_PUBLIC = 1
 PROJECT_FILTER_ALL_PUBLIC = 2
 PROJECT_FILTER_ALL_AVAILABLE = 4
+PROJECT_TASK_SEARCH = 5
 
 def get_index( request, arg_page = PROJECT_FILTER_MINE ):
     # Получить контекст из HTTP запроса.
@@ -59,10 +60,21 @@ def get_index( request, arg_page = PROJECT_FILTER_MINE ):
             if arg_page == PROJECT_FILTER_ALL_PUBLIC:
                 context_dict = {'projects': GetAllPublicProjectList(), 'filter_type' : 'all_public' }
             else:
-                if arg_page == PROJECT_FILTER_ALL_AVAILABLE    :
+                if arg_page == PROJECT_FILTER_ALL_AVAILABLE:
                     context_dict = {'projects': GetAvailableProjectList(request.user), 'filter_type' : 'all_available' }
                 else:
-                    raise Http404()
+                    if arg_page == PROJECT_TASK_SEARCH:
+                        task_filter = BaseTaskFilter( request.GET, queryset=Task.objects.filter( project__in = GetAvailableProjectList(request.user) ) )
+                        p_list = Get_Users_Profiles()
+                        task_filter.filters['holder'].queryset = p_list
+                        tasks = task_filter.qs
+                        
+                        context_dict = { 'projects': None, 'filter_type' : 'task_search',
+                                         'filter': task_filter,
+                                         'tasks' : tasks,
+                        }
+                    else:
+                        raise Http404()
 
     # check if user has permission to create project (or super user)
     context_dict[ 'can_add_project' ] = request.user.has_perm('project.add_project')
@@ -81,6 +93,9 @@ def index_available( request ):
 
 def index_public( request ):
     return get_index( request, PROJECT_FILTER_ALL_PUBLIC )
+
+def index_task_search( request ):
+    return get_index( request, PROJECT_TASK_SEARCH )
 
 class ProjectCreateView( LoginRequiredMixin, PermissionRequiredMixin, CreateView):
 
@@ -159,7 +174,7 @@ def project_view_closed_tasks(request, project_id):
 
 def project_view_assigned_tasks(request, project_id):
     return get_project_view(request, project_id, arg_task_filter = TASK_FILTER_ASSIGNED)
-    
+
 def project_view_unassigned_tasks(request, project_id):
     return get_project_view(request, project_id, arg_task_filter = TASK_FILTER_UNASSIGNED)
 

@@ -11,6 +11,7 @@ urlpatterns = [
     url(r'^all_available/$', views.index_available, name='all_available'),
     url(r'^all_public/$', views.index_public, name='all_public'),
     url(r'^search_public/$', views.index_search_public, name='search_public'),
+    url(r'^task_search/$', views.index_task_search, name='task_search'),
 
     url(r'^project_add/$', views.ProjectCreateView.as_view(), name='project_add'),
     url(r'^project/(?P<project_id>\w+)/project_edit/$', views.project_edit, name='project_edit'),
