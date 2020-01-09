@@ -76,8 +76,6 @@ class TaskLinkedForm(forms.ModelForm):
         arg_qs = kwargs.pop('arg_qs', None)
         super(TaskLinkedForm, self).__init__(*args, **kwargs)
 
-        self.fields['subtasks'].queryset = arg_qs
-
         if ( arg_qs != "" ):
             self.fields['subtasks'].queryset = arg_qs
 
