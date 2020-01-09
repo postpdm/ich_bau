@@ -1,6 +1,6 @@
 ﻿from project.models import *
 from project.forms import ProjectForm, TaskForm, TaskCommentForm, MilestoneForm, MemberForm, TaskLinkedForm, TaskProfileForm, TaskCheckListForm, TaskDomainForm
-
+from ich_bau.profiles.models import Get_Users_Profiles
 from django.forms.models import modelformset_factory
 
 from django.utils import timezone
@@ -30,7 +30,7 @@ from django.db import transaction
 import reversion
 from reversion.models import Version
 
-from project.filters import ProjectFilter, TaskFilter, TaskFilter_for_Linking
+from project.filters import ProjectFilter, BaseTaskFilter, TaskFilter, TaskFilter_for_Linking
 
 from project.repo_wrapper import *
 
@@ -39,6 +39,7 @@ PROJECT_FILTER_MINE = 0
 PROJECT_FILTER_SEARCH_PUBLIC = 1
 PROJECT_FILTER_ALL_PUBLIC = 2
 PROJECT_FILTER_ALL_AVAILABLE = 4
+PROJECT_TASK_SEARCH = 5
 
 def get_index( request, arg_page = PROJECT_FILTER_MINE ):
     # Получить контекст из HTTP запроса.
@@ -59,10 +60,25 @@ def get_index( request, arg_page = PROJECT_FILTER_MINE ):
             if arg_page == PROJECT_FILTER_ALL_PUBLIC:
                 context_dict = {'projects': GetAllPublicProjectList(), 'filter_type' : 'all_public' }
             else:
-                if arg_page == PROJECT_FILTER_ALL_AVAILABLE    :
+                if arg_page == PROJECT_FILTER_ALL_AVAILABLE:
                     context_dict = {'projects': GetAvailableProjectList(request.user), 'filter_type' : 'all_available' }
                 else:
-                    raise Http404()
+                    if arg_page == PROJECT_TASK_SEARCH:
+                        task_filter = BaseTaskFilter( request.GET, queryset=Task.objects.filter( project__in = GetAvailableProjectList(request.user) ) )
+                        p_list = Get_Users_Profiles()
+                        task_filter.filters['holder'].queryset = p_list
+                        
+                        if task_filter.Search_is_new():
+                            tasks = None
+                        else:
+                            tasks = task_filter.qs
+                        
+                        context_dict = { 'projects': None, 'filter_type' : 'task_search',
+                                         'filter': task_filter,
+                                         'tasks' : tasks,
+                        }
+                    else:
+                        raise Http404()
 
     # check if user has permission to create project (or super user)
     context_dict[ 'can_add_project' ] = request.user.has_perm('project.add_project')
@@ -81,6 +97,9 @@ def index_available( request ):
 
 def index_public( request ):
     return get_index( request, PROJECT_FILTER_ALL_PUBLIC )
+
+def index_task_search( request ):
+    return get_index( request, PROJECT_TASK_SEARCH )
 
 class ProjectCreateView( LoginRequiredMixin, PermissionRequiredMixin, CreateView):
 
@@ -159,7 +178,7 @@ def project_view_closed_tasks(request, project_id):
 
 def project_view_assigned_tasks(request, project_id):
     return get_project_view(request, project_id, arg_task_filter = TASK_FILTER_ASSIGNED)
-    
+
 def project_view_unassigned_tasks(request, project_id):
     return get_project_view(request, project_id, arg_task_filter = TASK_FILTER_UNASSIGNED)
 
@@ -305,7 +324,10 @@ def get_project_view(request, project_id, arg_task_filter = TASK_FILTER_OPEN, ar
                     task_filter.filters['milestone'].queryset = Milestone.objects.filter( project = project )
                     p_list = project.GetFullMemberProfiles()
                     task_filter.filters['holder'].queryset = p_list
-                    tasks = task_filter.qs
+                    if task_filter.Search_is_new():
+                        tasks = None
+                    else:
+                        tasks = task_filter.qs
                 else:
                     if arg_task_filter == TASK_FILTER_BY_DOMAIN:
                         filter_type = 'filter_task_by_domain'
@@ -814,10 +836,14 @@ def add_linked(request, task_id):
 
     main_task = get_object_or_404( Task, pk=task_id )
     task_filter = TaskFilter_for_Linking( data = request.GET, request=request, queryset= Task.objects.filter(project__in=GetMemberedProjectList(request.user)).exclude(id=task_id).exclude( sub__maintask = task_id ) )
-
+    
+    if task_filter.Search_is_new():
+        qs = Task.objects.filter( pk = 0 ) # do not use None - query set is required for FORM
+    else:
+        qs = task_filter.qs
 
     if request.method == 'POST':
-        form = TaskLinkedForm( request.POST, arg_qs = task_filter.qs )
+        form = TaskLinkedForm( request.POST, arg_qs = qs )
         if form.is_valid():
             for st in form.cleaned_data['subtasks']:
                 tl = TaskLink()
@@ -829,7 +855,7 @@ def add_linked(request, task_id):
         else:
             print( form.errors )
     else:
-        form = TaskLinkedForm( arg_qs = task_filter.qs )
+        form = TaskLinkedForm( arg_qs = qs )
 
     return render( request, 'project/task_add_link.html',
             {'task_id': task_id,

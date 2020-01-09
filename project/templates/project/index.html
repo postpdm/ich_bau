@@ -17,6 +17,7 @@
   <li role="presentation" {% if filter_type == 'all_available' %} class="active" {% endif %}><a href="/project/all_available">Available</a></li>
   <li role="presentation" {% if filter_type == 'search_public' %} class="active" {% endif %}><a href="/project/search_public/">Search public</a></li>
   <li role="presentation" {% if filter_type == 'all_public' %} class="active" {% endif %}><a href="/project/all_public/">All public</a></li>
+  <li role="presentation" {% if filter_type == 'task_search' %} class="active" {% endif %}><a href="/project/task_search/">Task search</a></li>
 </ul>
 
 <p></p>
@@ -45,7 +46,24 @@
 Please, log in to see your projects.
 
 {% else %}
-{% include "project/project_list.html" %}
+
+{% if filter_type == 'task_search' %}
+    <div class="row">
+        <div class="col-md-5">
+
+    <form action="" method="get">
+        {{ filter.form|bootstrap }}
+        <input type="submit" class="btn btn-info" />
+    </form>
+    </div>
+    </div>
+    <h2>Search for tasks</h2>
+    {% include "project/task_list.html" with table_mode='index' %}
+{% else %}
+    {% include "project/project_list.html" %}
+{% endif %}
+
+
 {% endif %}
 
 {% endif %}
