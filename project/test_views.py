@@ -296,7 +296,7 @@ class Project_View_Test_Client(TestCase):
         self.assertEqual( TaskLink.objects.filter( maintask = test_task_1 ).count(), 0 )
         self.assertEqual( TaskLink.objects.filter( maintask = test_task_2 ).count(), 0 )
 
-        response = c.post( reverse_lazy('project:add_linked', args = (test_task_1.id, ) ), { 'subtasks' : test_task_2.id }, )
+        response = c.post( reverse_lazy('project:add_linked', args = (test_task_1.id, ) ) + '?project=' + str( test_project_1.pk ), { 'subtasks' : test_task_2.id }, )
 
         self.assertEqual( response.status_code, 302 )
 
