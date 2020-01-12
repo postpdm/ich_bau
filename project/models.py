@@ -1,4 +1,5 @@
 ﻿from django.db import models
+from django.urls import reverse_lazy
 
 from commons.models import BaseStampedModel
 from django.contrib.auth.models import User
@@ -206,7 +207,7 @@ class Member(BaseStampedModel):
         # послать уведомление. самому себе посылать не надо.
         if ( self.member_profile.user != self.modified_user ) and ( self.member_accept is None ):
             message_str = project_msg2json_str( MSG_NOTIFY_TYPE_ASK_ACCEPT_ID, arg_project_name = self.project.fullname )
-            Send_Notification( self.modified_user, self.member_profile.user, message_str, self.project.get_absolute_url() )
+            Send_Notification( self.modified_user, self.member_profile.user, message_str, reverse_lazy('project:project_view_members', kwargs={ 'project_id': self.project.id} ) )
 
     def set_user_want_join( self, arg_user ):
         self.member_profile = arg_user.profile
