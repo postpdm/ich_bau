@@ -98,7 +98,7 @@ class Project_Collaboration_View_Test_Client(TestCase):
         notification = GetUserNoticationsQ( test_worker_user, True).first()
         self.assertEqual( notification.sender_user, test_admin_user)
         self.assertEqual( notification.reciever_user, test_worker_user)
-        self.assertEqual( notification.msg_url, test_project_1.get_absolute_url() )
+        self.assertEqual( notification.msg_url, reverse_lazy('project:project_view_members', kwargs={ 'project_id': test_project_1.id} ) )
 
         # visit the notification link
         response = c_w.get( reverse_lazy('notification_read', args = (notification.id,)  ) )

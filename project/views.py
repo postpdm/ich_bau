@@ -15,7 +15,6 @@ from django.contrib.auth.mixins import PermissionRequiredMixin
 
 from django.shortcuts import get_object_or_404, render
 from django.http import HttpResponseRedirect, Http404
-from django.urls import reverse_lazy
 from django.views import generic
 from django.contrib import messages
 
@@ -67,12 +66,12 @@ def get_index( request, arg_page = PROJECT_FILTER_MINE ):
                         task_filter = BaseTaskFilter( request.GET, queryset=Task.objects.filter( project__in = GetAvailableProjectList(request.user) ) )
                         p_list = Get_Users_Profiles()
                         task_filter.filters['holder'].queryset = p_list
-                        
+
                         if task_filter.Search_is_new():
                             tasks = None
                         else:
                             tasks = task_filter.qs
-                        
+
                         context_dict = { 'projects': None, 'filter_type' : 'task_search',
                                          'filter': task_filter,
                                          'tasks' : tasks,
@@ -160,12 +159,14 @@ TASK_FILTER_UNASSIGNED = 5
 
 # Закладки страницы Проекта
 PROJECT_PAGE_TITLE = 0
+PROJECT_PAGE_MEMBERS = 5
 PROJECT_PAGE_FILES = 10
 PROJECT_PAGE_MILESTONES = 15
 
 # Для передачи в шаблон
 PROJECT_PAGE_FILTER = {
   PROJECT_PAGE_TITLE : 'title',
+  PROJECT_PAGE_MEMBERS : 'members',
   PROJECT_PAGE_FILES : 'files',
   PROJECT_PAGE_MILESTONES : 'milestones' ,
 }
@@ -190,6 +191,9 @@ def project_view_search_tasks(request, project_id):
 
 def project_view_milestones(request, project_id):
     return get_project_view(request, project_id, arg_page = PROJECT_PAGE_MILESTONES )
+
+def project_view_members(request, project_id):
+    return get_project_view(request, project_id, arg_page = PROJECT_PAGE_MEMBERS )
 
 def project_view_files(request, project_id):
     return get_project_view(request, project_id, arg_page = PROJECT_PAGE_FILES )
@@ -308,7 +312,6 @@ def get_project_view(request, project_id, arg_task_filter = TASK_FILTER_OPEN, ar
 
     # prepare tasks only for title page
     if arg_page == PROJECT_PAGE_TITLE:
-        members = project.GetMemberList()
         base_tasks = project.Get_Tasks()
 
         if arg_task_filter == TASK_FILTER_OPEN:
@@ -347,6 +350,9 @@ def get_project_view(request, project_id, arg_task_filter = TASK_FILTER_OPEN, ar
                                 tasks = base_tasks.filter( state = TASK_STATE_NEW ).exclude( profile2task__priority = TASK_PROFILE_PRIORITY_RESPONSIBLE )
                             else:
                                 raise Http404
+
+    if arg_page == PROJECT_PAGE_MEMBERS:
+        members = project.GetMemberList()
 
     # Записать список в словарь
     context_dict = { 'project': project,
@@ -836,7 +842,7 @@ def add_linked(request, task_id):
 
     main_task = get_object_or_404( Task, pk=task_id )
     task_filter = TaskFilter_for_Linking( data = request.GET, request=request, queryset= Task.objects.filter(project__in=GetMemberedProjectList(request.user)).exclude(id=task_id).exclude( sub__maintask = task_id ) )
-    
+
     if task_filter.Search_is_new():
         qs = Task.objects.filter( pk = 0 ) # do not use None - query set is required for FORM
     else:

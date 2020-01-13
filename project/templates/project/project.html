@@ -23,6 +23,7 @@
 
 <ul class="nav nav-tabs">
   <li role="presentation" {% if show_page == 'title' %} class="active" {% endif %}><a href="{{project.get_absolute_url}}">{% trans "Project" %}</a></li>
+  <li role="presentation" {% if show_page == 'members' %} class="active" {% endif %}><a href="{{project.get_absolute_url}}members/">{% trans "Members" %}</a></li>
   {% if show_file_page %}
     <li role="presentation" {% if show_page == 'files' %} class="active" {% endif %}><a href="{% url 'project:project_view_files' project_id=project.pk %}">{% trans "Files" %}</a></li>
   {% endif %}
@@ -100,12 +101,16 @@ no history to view
 
 {% include "project/task_list.html" with table_mode='project' %}
 
+{% comment %} end if TITLE {% endcomment %}
+{% endif %}
+
+{% if show_page == 'members' %} 
+  
 <h2>{% trans "Members" %} {% if user_can_admin %}<a class="btn btn-default" href="/project/member_add/{{project.id}}/"><i class="fa fa-plus"></i> {% trans "Add member" %}</a>{% endif %}</h2>
 
 {% include "project/project_members_list.html" %}
-
-{% comment %} end if TITLE {% endcomment %}
 {% endif %}
+
 
 {% if show_page == 'files' %}
 <h2>Files</h2>

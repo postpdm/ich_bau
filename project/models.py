@@ -1,4 +1,5 @@
 ﻿from django.db import models
+from django.urls import reverse_lazy
 
 from commons.models import BaseStampedModel
 from django.contrib.auth.models import User
@@ -206,7 +207,7 @@ class Member(BaseStampedModel):
         # послать уведомление. самому себе посылать не надо.
         if ( self.member_profile.user != self.modified_user ) and ( self.member_accept is None ):
             message_str = project_msg2json_str( MSG_NOTIFY_TYPE_ASK_ACCEPT_ID, arg_project_name = self.project.fullname )
-            Send_Notification( self.modified_user, self.member_profile.user, message_str, self.project.get_absolute_url() )
+            Send_Notification( self.modified_user, self.member_profile.user, message_str, reverse_lazy('project:project_view_members', kwargs={ 'project_id': self.project.id} ) )
 
     def set_user_want_join( self, arg_user ):
         self.member_profile = arg_user.profile
@@ -498,8 +499,20 @@ def taskcomment_post_save_Notifier_Composer(sender, instance, **kwargs):
 TASK_PROFILE_PRIORITY_INTERESTED   = 0
 TASK_PROFILE_PRIORITY_RESPONSIBLE  = 1
 
+def Get_Tasks_Ordered_By_Priority():
+    return Task.objects.all().order_by( '-profile2task__priority' )
+
 def Get_User_Tasks( arg_user ):
-    return Task.objects.filter( state = TASK_STATE_NEW, profile2task__profile__user = arg_user ).order_by( '-profile2task__priority' )
+    return Get_Tasks_Ordered_By_Priority().filter( state = TASK_STATE_NEW, profile2task__profile__user = arg_user )
+
+def Get_Profile_Tasks( arg_profile ):
+    return Get_Tasks_Ordered_By_Priority().filter( profile2task__profile = arg_profile )
+
+def Get_Profiles_Available2Task( arg_task_id ):
+    p = Task.objects.get( pk=arg_task_id ).project
+    #только принявшие приглашение и на назначенные + неназначенные не пользователи (организации и проч)
+    q = ( ( p.GetFullMemberProfiles() | Profile.objects.filter( profile_type__in = PROFILE_TYPE_FOR_TASK ) ).distinct() ).exclude( task2profile__parenttask = arg_task_id )
+    return q
 
 # участники-ресурсы на задачу
 class TaskProfile(BaseStampedModel):
@@ -528,12 +541,3 @@ def taskprofile_post_save_Notifier_Composer(sender, instance, **kwargs):
         if assigned_profile.user != sender_user:
             message_str = project_msg2json_str( MSG_NOTIFY_TYPE_PROJECT_TASK_ASSIGNED_ID, arg_project_name = task.project.fullname, arg_task_name = task.fullname )
             Send_Notification( sender_user, assigned_profile.user, message_str, task.get_absolute_url() )
-
-def Get_Profiles_Available2Task( arg_task_id ):
-    p = Task.objects.get( pk=arg_task_id ).project
-    #только принявшие приглашение и на назначенные + неназначенные не пользователи (организации и проч)
-    q = ( ( p.GetFullMemberProfiles() | Profile.objects.filter( profile_type__in = PROFILE_TYPE_FOR_TASK ) ).distinct() ).exclude( task2profile__parenttask = arg_task_id )
-    return q
-
-def Get_Profile_Tasks( arg_profile ):
-    return Task.objects.filter( profile2task__profile = arg_profile )
