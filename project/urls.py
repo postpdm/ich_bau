@@ -21,13 +21,14 @@ urlpatterns = [
     url(r'^project/(?P<project_id>\w+)/closed_task/$', views.project_view_closed_tasks, name='project_view_closed_tasks'),
     url(r'^project/(?P<project_id>\w+)/assigned_task/$', views.project_view_assigned_tasks, name='project_view_assigned_tasks'),
     url(r'^project/(?P<project_id>\w+)/unassigned_task/$', views.project_view_unassigned_tasks, name='project_view_unassigned_tasks'),
-    
+
     # django v.2 path
     path( 'project/<project_id>/task_by_domain/', views.project_view_task_by_domain, name='project_view_task_by_domain'),
     path( 'project/<project_id>/task_by_domain/<domain_id>/', views.project_view_task_by_domain, name='project_view_task_for_domain'),
-  
-    
+
     url(r'^project/(?P<project_id>\w+)/search_task/$', views.project_view_search_tasks, name='project_view_search_tasks'),
+
+    url(r'^project/(?P<project_id>\w+)/last_actions/$', views.project_view_last_actions, name='project_view_last_actions'),
     url(r'^project/(?P<project_id>\w+)/members/$', views.project_view_members, name='project_view_members'),
     url(r'^project/(?P<project_id>\w+)/milestones/$', views.project_view_milestones, name='project_view_milestones'),
     # repo urls
@@ -47,11 +48,11 @@ urlpatterns = [
     url(r'^task/(?P<task_id>\w+)/$', views.task_view, name='task_view'),
     url(r'^task/(?P<task_id>\w+)/history/$', views.task_history, name='task_history'),
     url(r'^add_linked/(?P<task_id>\w+)/$', views.add_linked, name='add_linked'),
-    
+
     url(r'^add_profile/(?P<task_id>\w+)/$', views.add_profile, name='add_profile'),
     url(r'^add_user/(?P<task_id>\w+)/$', views.add_user, name='add_user'),
     url(r'^switch_assign_responsibillty/(?P<taskprofile_id>\w+)/$', views.switch_assign_responsibillty, name='switch_assign_responsibillty'),
-    
+
     url(r'^add_domain/(?P<task_id>\w+)/$', views.add_domain, name='add_domain'),
 
     url(r'^task_link/(?P<tasklink_id>\w+)/unlink/$', views.task_unlink, name='task_unlink'),
