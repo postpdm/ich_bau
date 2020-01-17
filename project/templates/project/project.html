@@ -24,6 +24,8 @@
 <ul class="nav nav-tabs">
   <li role="presentation" {% if show_page == 'title' %} class="active" {% endif %}><a href="{{project.get_absolute_url}}">{% trans "Project" %}</a></li>
   <li role="presentation" {% if show_page == 'members' %} class="active" {% endif %}><a href="{{project.get_absolute_url}}members/">{% trans "Members" %}</a></li>
+  <li role="presentation" {% if show_page == 'last_actions' %} class="active" {% endif %}><a href="{{project.get_absolute_url}}last_actions/">{% trans "Last activities" %}</a></li>
+
   {% if show_file_page %}
     <li role="presentation" {% if show_page == 'files' %} class="active" {% endif %}><a href="{% url 'project:project_view_files' project_id=project.pk %}">{% trans "Files" %}</a></li>
   {% endif %}
@@ -81,8 +83,8 @@ no history to view
                     <li class="list-group-item" >
                     {% if node.pk == selected_domain %}<strong>{% endif %}
                     <a href="{% url 'project:project_view_task_for_domain' project.pk node.pk %}">{{node.name}}</a>
-                    
-                    
+
+
                     {% if node.pk == selected_domain %}</strong>{% endif %}
 
                         {% if not node.is_leaf_node %}
@@ -104,11 +106,39 @@ no history to view
 {% comment %} end if TITLE {% endcomment %}
 {% endif %}
 
-{% if show_page == 'members' %} 
-  
+{% if show_page == 'members' %}
+
 <h2>{% trans "Members" %} {% if user_can_admin %}<a class="btn btn-default" href="/project/member_add/{{project.id}}/"><i class="fa fa-plus"></i> {% trans "Add member" %}</a>{% endif %}</h2>
 
 {% include "project/project_members_list.html" %}
+{% endif %}
+
+{% if show_page == 'last_actions' %}
+
+<h2>{% trans "Recent project activity" %}</h2>
+
+<table class="table table-striped">
+<thead>
+<tr>
+    <th>Date time</th>
+    <th>User</th>
+    <th>Comment</th>
+    <th>Task</th>
+</tr>
+</thead>
+
+<tbody>
+    {% for c in last_actions %}
+        <tr>
+            <td>{{c.modified_at}}</td>
+            <td>{{c.modified_user}}</td>
+            <td>{{c.comment|safe|truncatewords_html:12}}</td>
+            <td><a href="{{c.parenttask.get_absolute_url}}">{{c.parenttask}}</a></td>
+        </tr>
+    {%endfor%}
+</tbody>
+</table>
+
 {% endif %}
 
 

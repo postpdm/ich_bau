@@ -160,6 +160,7 @@ TASK_FILTER_UNASSIGNED = 5
 # Закладки страницы Проекта
 PROJECT_PAGE_TITLE = 0
 PROJECT_PAGE_MEMBERS = 5
+PROJECT_PAGE_LAST_ACTIONS = 8
 PROJECT_PAGE_FILES = 10
 PROJECT_PAGE_MILESTONES = 15
 
@@ -167,6 +168,7 @@ PROJECT_PAGE_MILESTONES = 15
 PROJECT_PAGE_FILTER = {
   PROJECT_PAGE_TITLE : 'title',
   PROJECT_PAGE_MEMBERS : 'members',
+  PROJECT_PAGE_LAST_ACTIONS : 'last_actions',
   PROJECT_PAGE_FILES : 'files',
   PROJECT_PAGE_MILESTONES : 'milestones' ,
 }
@@ -188,6 +190,9 @@ def project_view_task_by_domain(request, project_id, domain_id = None ):
 
 def project_view_search_tasks(request, project_id):
     return get_project_view(request, project_id, arg_task_filter = TASK_FILTER_SEARCH )
+
+def project_view_last_actions(request, project_id):
+    return get_project_view(request, project_id, arg_page = PROJECT_PAGE_LAST_ACTIONS )
 
 def project_view_milestones(request, project_id):
     return get_project_view(request, project_id, arg_page = PROJECT_PAGE_MILESTONES )
@@ -284,6 +289,7 @@ def get_project_view(request, project_id, arg_task_filter = TASK_FILTER_OPEN, ar
     repo_rel_path = None
     domains = None
     selected_domain = None
+    last_actions = None
 
     if arg_page == PROJECT_PAGE_MILESTONES:
         milestones = Get_Milestone_Report_for_Project(project)
@@ -354,6 +360,9 @@ def get_project_view(request, project_id, arg_task_filter = TASK_FILTER_OPEN, ar
     if arg_page == PROJECT_PAGE_MEMBERS:
         members = project.GetMemberList()
 
+    if arg_page == PROJECT_PAGE_LAST_ACTIONS:
+        last_actions = TaskComment.objects.filter( parenttask__project = project ).order_by('-modified_at')[:10]
+
     # Записать список в словарь
     context_dict = { 'project': project,
                      'members':members,
@@ -372,6 +381,7 @@ def get_project_view(request, project_id, arg_task_filter = TASK_FILTER_OPEN, ar
                      'show_file_page' : show_file_page,
                      'domains' : domains,
                      'selected_domain' : selected_domain,
+                     'last_actions' : last_actions,
                          }
 
     # Рендерить ответ
