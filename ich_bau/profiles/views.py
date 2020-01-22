@@ -123,30 +123,48 @@ class ProfileCreateSubView(LoginRequiredMixin, CreateView):
 
 from .models import Notification, GetUserNoticationsQ
 
+VIEW_NOTIFICATIONS_NEW_BY_USER = 1
+VIEW_NOTIFICATIONS_NEW_BY_TYPE = 2
+VIEW_NOTIFICATIONS_OLD         = 3
+
 @login_required
-def notifications_view_prepare(request, arg_new):
+def notifications_view_prepare(request, arg_kind):
     context = RequestContext(request)
     u = request.user
     if u is None:
         raise Http404
 
     OLD_NOTIFICATIONS_VIEW_LIMIT = 20
-    notifications_q = GetUserNoticationsQ( u, arg_new )
-    if arg_new:
-        notifications = notifications_q.order_by('sender_user')
-    else:
-        notifications = notifications_q[:OLD_NOTIFICATIONS_VIEW_LIMIT]
+    filter_name = ''
 
-    context_dict = { 'notifications' : notifications, 'filter_new' : arg_new, 'OLD_NOTIFICATIONS_VIEW_LIMIT' : OLD_NOTIFICATIONS_VIEW_LIMIT }
+    if arg_kind == VIEW_NOTIFICATIONS_NEW_BY_USER:
+        notifications = GetUserNoticationsQ( u, True ).order_by('sender_user', '-created_at' )
+        filter_name = 'new_by_user'
+    else:
+        if arg_kind == VIEW_NOTIFICATIONS_NEW_BY_TYPE:
+            notifications = GetUserNoticationsQ( u, True ).order_by(  'content_type', 'object_id', '-created_at' )
+            filter_name = 'new_by_type'
+        else:
+            if arg_kind == VIEW_NOTIFICATIONS_OLD:
+                notifications = GetUserNoticationsQ( u, False ).order_by('-created_at')[:OLD_NOTIFICATIONS_VIEW_LIMIT]
+                filter_name = 'old'
+            else:
+                raise Http404
+
+    context_dict = { 'notifications' : notifications, 'filter_name' : filter_name, 'OLD_NOTIFICATIONS_VIEW_LIMIT' : OLD_NOTIFICATIONS_VIEW_LIMIT }
     return render( request, 'profiles/notifications.html', context_dict )
 
 @login_required
 def notifications_view_unread(request):
-    return notifications_view_prepare( request, True )
+    return notifications_view_prepare( request, VIEW_NOTIFICATIONS_NEW_BY_USER )
+
+@login_required
+def notifications_view_unread_by_type(request):
+    return notifications_view_prepare( request, VIEW_NOTIFICATIONS_NEW_BY_TYPE )
 
 @login_required
 def notifications_view_read(request):
-    return notifications_view_prepare( request, False )
+    return notifications_view_prepare( request, VIEW_NOTIFICATIONS_OLD )
 
 @login_required
 def notification_read( request, notification_id ):

@@ -1,6 +1,6 @@
 ﻿from project.models import *
 from project.forms import ProjectForm, TaskForm, TaskCommentForm, MilestoneForm, MemberForm, TaskLinkedForm, TaskProfileForm, TaskCheckListForm, TaskDomainForm
-from ich_bau.profiles.models import Get_Users_Profiles
+from ich_bau.profiles.models import Get_Users_Profiles, Close_All_Unread_Notifications_For_Task_For_One_User
 from django.forms.models import modelformset_factory
 
 from django.utils import timezone
@@ -10,6 +10,7 @@ from account.mixins import LoginRequiredMixin
 from django.views.generic.edit import CreateView, UpdateView
 
 from django.contrib.auth.mixins import PermissionRequiredMixin
+from django.contrib.contenttypes.models import ContentType
 
 # Create your views here.
 
@@ -694,6 +695,11 @@ def task_view(request, task_id):
                 else:
                     if ual == PROJECT_ACCESS_VIEW and task.get_opened() and request.user.is_authenticated:
                         user_can_comment = True
+
+        # user has an access, so go close all unreaded notifications about this task
+        if ( not request.user is None ) and ( request.user.is_authenticated ):
+            task_type = ContentType.objects.get(app_label='project', model='task')
+            Close_All_Unread_Notifications_For_Task_For_One_User( request.user, task_type, task.id )
 
         comments = task.get_comments()
         # user should see only available tasks - to prevent 404 if attempting to follow the link

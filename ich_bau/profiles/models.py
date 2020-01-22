@@ -2,6 +2,9 @@ import os
 import uuid
 
 from django.db import models
+from django.contrib.contenttypes.fields import GenericForeignKey
+from django.contrib.contenttypes.models import ContentType
+
 from django.utils import timezone
 
 from django.contrib.auth.models import User
@@ -23,6 +26,11 @@ class Notification(models.Model):
     msg_txt = models.CharField(max_length=255, blank=False)
     msg_url = models.URLField(max_length=75, blank=True, null = True)
 
+    content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
+    object_id = models.PositiveIntegerField()
+    content_object = GenericForeignKey('content_type', 'object_id')
+    msg_notify_type = models.PositiveIntegerField()
+
     def decode_msg( self ):
         return decode_json2msg( self.msg_txt )
 
@@ -39,7 +47,13 @@ class Notification(models.Model):
         return "/notification/%i/" % self.id
 
 def GetUserNoticationsQ( arg_user, arg_new ):
-    return Notification.objects.filter(reciever_user = arg_user, readed_at__isnull=arg_new).order_by('-created_at')
+    return Notification.objects.filter(reciever_user = arg_user, readed_at__isnull=arg_new)
+
+def Close_All_Unread_Notifications_For_Task_For_One_User( arg_user, arg_content_type, arg_task_id ):
+    q = GetUserNoticationsQ( arg_user, True ).filter( content_type = arg_content_type, object_id = arg_task_id )
+
+    for n in q:
+        n.mark_readed()
 
 def avatar_upload(instance, filename):
     ext = filename.split(".")[-1]
