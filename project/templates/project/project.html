@@ -41,7 +41,7 @@
 {% endif %}
 
 {% if user_can_admin %}
-<a class="btn btn-default" href="{{project.get_absolute_url}}project_edit"><i class="fa fa-pencil-square-o"></i> {% trans "Edit projects" %}</a>
+<a class="btn btn-default" href="{{project.get_absolute_url}}project_edit"><i class="fa fa-pencil-square-o"></i> {% trans "Edit project" %}</a>
 {% endif %}
 
 {% if project.created_at == project.modified_at %}
