@@ -1,4 +1,5 @@
 ﻿from django.db import models
+from django.contrib.contenttypes.models import ContentType
 from django.urls import reverse_lazy
 
 from commons.models import BaseStampedModel
@@ -16,6 +17,9 @@ from ich_bau.profiles.models import Profile, PROFILE_TYPE_USER, PROFILE_TYPE_FOR
 from ich_bau.profiles.messages import *
 
 from project.repo_wrapper import *
+
+def Get_ContentType( arg_model ):
+    return ContentType.objects.get( app_label = 'project', model = arg_model )
 
 # access level
 PROJECT_ACCESS_NONE  = 0 # нет доступа
@@ -207,7 +211,8 @@ class Member(BaseStampedModel):
         # послать уведомление. самому себе посылать не надо.
         if ( self.member_profile.user != self.modified_user ) and ( self.member_accept is None ):
             message_str = project_msg2json_str( MSG_NOTIFY_TYPE_ASK_ACCEPT_ID, arg_project_name = self.project.fullname )
-            Send_Notification( self.modified_user, self.member_profile.user, message_str, reverse_lazy('project:project_view_members', kwargs={ 'project_id': self.project.id} ) )
+            project_type = Get_ContentType( arg_model='project' )
+            Send_Notification( self.modified_user, self.member_profile.user, project_type, self.project.id, MSG_NOTIFY_TYPE_ASK_ACCEPT_ID, message_str, reverse_lazy('project:project_view_members', kwargs={ 'project_id': self.project.id} ) )
 
     def set_user_want_join( self, arg_user ):
         self.member_profile = arg_user.profile
@@ -215,8 +220,10 @@ class Member(BaseStampedModel):
         self.set_change_user(arg_user)
         self.save()
         message_str = project_msg2json_str( MSG_NOTIFY_TYPE_USER_WANT_JOIN_ID, arg_project_name = self.project.fullname )
+        project_type = Get_ContentType( arg_model='project')
+
         for a in self.project.GetFullMemberAdminList():
-            Send_Notification( arg_user, a.member_profile.user, message_str, self.project.get_absolute_url() )
+            Send_Notification( arg_user, a.member_profile.user, project_type, self.project.id, MSG_NOTIFY_TYPE_USER_WANT_JOIN_ID, message_str, self.project.get_absolute_url() )
 
     def set_team_accept( self ):
         self.team_accept = timezone.now()
@@ -246,9 +253,10 @@ def project_post_save_Notifier_Composer(sender, instance, **kwargs):
     member_users = instance.GetFullMemberUsers().exclude( id = instance.modified_user.id )
 
     message_str = project_msg2json_str( MSG_NOTIFY_TYPE_PROJECT_CHANGED_ID, arg_project_name = instance.fullname )
+    project_type = Get_ContentType( arg_model='project')
 
     for mu in member_users:
-        Send_Notification( instance.modified_user, mu, message_str, instance.get_absolute_url() )
+        Send_Notification( instance.modified_user, mu, project_type, instance.id, MSG_NOTIFY_TYPE_PROJECT_CHANGED_ID, message_str, instance.get_absolute_url() )
 
 def GetAllPublicProjectList( ):
     return Project.objects.filter( private_type__in = ( PROJECT_VISIBLE_VISIBLE, PROJECT_VISIBLE_OPEN ) )
@@ -295,8 +303,9 @@ def milestone_post_save_Notifier_Composer(sender, instance, **kwargs):
     # веха изменилась - разослать уведомление всем участникам проекта - кроме автора изменений
     member_users = instance.project.GetFullMemberUsers().exclude( id = instance.modified_user.id )
     message_str = project_msg2json_str( MSG_NOTIFY_TYPE_PROJECT_MILESTONE_CHANGED_ID, arg_project_name = instance.project.fullname, arg_milestone_name = instance.fullname )
+    milestone_type = Get_ContentType( arg_model='milestone' )
     for mu in member_users:
-        Send_Notification( instance.modified_user, mu, message_str, instance.get_absolute_url() )
+        Send_Notification( instance.modified_user, mu, milestone_type, instance.id, MSG_NOTIFY_TYPE_PROJECT_MILESTONE_CHANGED_ID, message_str, instance.get_absolute_url() )
 
 # состояния задач
 
@@ -456,12 +465,13 @@ def GetTaskAssignedUser( arg_task, arg_exclude_user = None ):
     r = User.objects.filter( id__in = p ).distinct()
     return r
 
-def Send_Notifications_For_Task( arg_sender_user, arg_msg, arg_list, arg_url, arg_task_holder ):
+def Send_Notifications_For_Task( arg_task_id, arg_sender_user, Arg_MSG_TYPE, arg_msg, arg_list, arg_url, arg_task_holder ):
+    task_type = Get_ContentType( arg_model='task')
     for m in arg_list:
-        Send_Notification( arg_sender_user, m, arg_msg, arg_url )
+        Send_Notification( arg_sender_user, m, task_type, arg_task_id, Arg_MSG_TYPE, arg_msg, arg_url )
 
     if not ( arg_task_holder is None ) and ( arg_task_holder != arg_sender_user ) and not ( arg_task_holder in arg_list ):
-        Send_Notification( arg_sender_user, arg_task_holder, arg_msg, arg_url )
+        Send_Notification( arg_sender_user, arg_task_holder, task_type, arg_task_id, Arg_MSG_TYPE, arg_msg, arg_url )
 
 @receiver(post_save, sender=Task)
 def task_post_save_Notifier_Composer(sender, instance, **kwargs):
@@ -474,7 +484,7 @@ def task_post_save_Notifier_Composer(sender, instance, **kwargs):
     if ( not ( instance.holder is None ) ) and ( not ( instance.holder.user is None ) ):
         holder_user = instance.holder.user
 
-    Send_Notifications_For_Task( instance.modified_user, message_str, task_users, instance.get_absolute_url(), holder_user )
+    Send_Notifications_For_Task( instance.id, instance.modified_user, MSG_NOTIFY_TYPE_PROJECT_TASK_CHANGED_ID, message_str, task_users, instance.get_absolute_url(), holder_user )
 
 @receiver(post_save, sender=TaskComment)
 def taskcomment_post_save_Notifier_Composer(sender, instance, **kwargs):
@@ -493,7 +503,7 @@ def taskcomment_post_save_Notifier_Composer(sender, instance, **kwargs):
     if ( not ( parent_task.holder is None ) ) and ( not ( parent_task.holder.user is None ) ):
         parenttask_holder_user = parent_task.holder.user
 
-    Send_Notifications_For_Task( instance.modified_user, message_str, task_users, parent_task.get_absolute_url(), parenttask_holder_user )
+    Send_Notifications_For_Task( parent_task.id, instance.modified_user, msg_type, message_str, task_users, parent_task.get_absolute_url(), parenttask_holder_user )
 
 # Priority for profile assignment to tasks
 TASK_PROFILE_PRIORITY_INTERESTED   = 0
@@ -540,4 +550,5 @@ def taskprofile_post_save_Notifier_Composer(sender, instance, **kwargs):
 
         if assigned_profile.user != sender_user:
             message_str = project_msg2json_str( MSG_NOTIFY_TYPE_PROJECT_TASK_ASSIGNED_ID, arg_project_name = task.project.fullname, arg_task_name = task.fullname )
-            Send_Notification( sender_user, assigned_profile.user, message_str, task.get_absolute_url() )
+            task_type = Get_ContentType( arg_model='task' )
+            Send_Notification( sender_user, assigned_profile.user, task_type, task.id, MSG_NOTIFY_TYPE_PROJECT_TASK_ASSIGNED_ID, message_str, task.get_absolute_url() )

@@ -1,5 +1,6 @@
 from django.contrib.auth.models import User
 from django.test import TestCase
+from django.contrib.contenttypes.models import ContentType
 
 from .models import *
 from .messages import *
@@ -26,5 +27,8 @@ class Message_Test(TestCase):
     def test_Send_Notification(self):
         test_user = User.objects.create_user( username = TEST_USER_NAME, password = TEST_USER_PW )
         self.assertEqual( GetUserNoticationsQ( test_user, True).count(), 0 )
-        Send_Notification( test_user, test_user, 'Arg_MsgTxt', 'Arg_Url' )
+
+        user_type = ContentType.objects.get(app_label='auth', model='user')
+
+        Send_Notification( test_user, test_user, user_type, 1, MSG_NOTIFY_TYPE_USER_WANT_JOIN_ID, 'Arg_MsgTxt', 'Arg_Url' )
         self.assertEqual( GetUserNoticationsQ( test_user, True).count(), 1 )

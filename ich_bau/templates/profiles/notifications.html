@@ -11,13 +11,14 @@
 <h1>Notifications</h1>
 
 <ul class="nav nav-tabs">
-  <li role="presentation" {% if filter_new %} class="active" {% endif %}><a href="{% url 'unread_notifications_view' %}">New</a></li>
-  <li role="presentation" {% if not filter_new %} class="active" {% endif %}><a href="{% url 'read_notifications_view' %}">Old</a></li>
+  <li role="presentation" {% if filter_name == 'new_by_user' %} class="active" {% endif %}><a href="{% url 'unread_notifications_view' %}">New</a></li>
+  <li role="presentation" {% if filter_name == 'new_by_type' %} class="active" {% endif %}><a href="{% url 'unread_notifications_view_by_type' %}">New by type</a></li>
+  <li role="presentation" {% if filter_name == 'old' %} class="active" {% endif %}><a href="{% url 'read_notifications_view' %}">Old</a></li>
 </ul>
 
 <p></p>
 
-{% if filter_new %} 
+{% if filter_name == 'new_by_user' %}
 
 {% regroup notifications by sender_user as nlist %}
 
@@ -35,6 +36,26 @@
 
 {% else %}
 
+{% if filter_name == 'new_by_type' %}
+
+{% regroup notifications by content_type as nlist %}
+
+<ul>
+{% for ncontent_type in nlist %}
+    <li>{{ ncontent_type.grouper }}
+    <ol>
+        {% for n in ncontent_type.list %}
+         <li><a href="{{n.get_absolute_url}}">{{n.decode_msg}}</a> {{n.created_at}} by {{n.sender_user}}</li>
+        {% endfor %}
+    </ol>
+    </li>
+{% endfor %}
+</ul>
+
+
+
+
+{% else %}
 <ol>
 {% for n in notifications %}
   <li><a href="{{n.get_absolute_url}}">{{n.decode_msg}}</a> {{n.created_at}} by {{n.sender_user}}</li>
@@ -43,6 +64,7 @@
 
 <p>Last {{OLD_NOTIFICATIONS_VIEW_LIMIT}} notifications shown.</p>
 
+{% endif %}
 {% endif %}
 
 

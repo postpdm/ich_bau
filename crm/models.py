@@ -6,10 +6,6 @@ from django.contrib.auth.models import User
 from django.db import transaction
 import reversion
 
-from ich_bau.profiles.notification_helper import Send_Notification
-from ich_bau.profiles.models import Profile
-from ich_bau.profiles.messages import *
-
 @reversion.register()
 class Contract(BaseStampedModel):
     shortname = models.CharField(max_length=255, blank=True, null=True)
