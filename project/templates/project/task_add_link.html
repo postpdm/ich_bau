@@ -13,11 +13,15 @@ Create link
 
 {% endblock %}
 
-
 {% block body %}
 <div class="row">
 <div class="col-md-9">
 
+                {% if link.pk %}
+                    <h2>Edit link</h2>
+                {% else %}
+                    <h2>Add link to <a href="{{main_task.get_absolute_url}}">{{main_task}}</a></h2>
+                {% endif %}
 
 <div class="row">
         <div class="col-md-5">
