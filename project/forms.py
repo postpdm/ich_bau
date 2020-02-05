@@ -20,7 +20,7 @@ class ProjectForm(forms.ModelForm):
 
     class Meta:
         model = Project
-        fields = ['fullname', 'private_type', 'active_flag', 'description' ]
+        fields = ['fullname', 'private_type', 'active_flag', 'use_sub_projects', 'description' ]
 
 class MilestoneForm(forms.ModelForm):
     planned_at = DateTime_Field( False )
