@@ -57,7 +57,7 @@ class Project(BaseStampedModel):
     active_flag=models.BooleanField(blank=True, default=True)
     # доступность проекта для пользователей
     private_type=models.PositiveSmallIntegerField( blank=False, null=False, default = PROJECT_VISIBLE_PRIVATE, verbose_name = 'Private project' )
-
+    use_sub_projects=models.BooleanField(blank=False, default=False)
     description = models.TextField(blank=True, null=True)
     repo_name = models.CharField( max_length=255, blank=True, null = True )
 
