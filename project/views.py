@@ -2,6 +2,7 @@
 from project.forms import ProjectForm, TaskForm, TaskCommentForm, MilestoneForm, MemberForm, TaskLinkedForm, TaskProfileForm, TaskCheckListForm, TaskDomainForm
 from ich_bau.profiles.models import Get_Users_Profiles, Close_All_Unread_Notifications_For_Task_For_One_User
 from django.forms.models import modelformset_factory
+from django.urls import reverse
 
 from django.utils import timezone
 from django.http import HttpResponseForbidden
@@ -528,7 +529,7 @@ class AddMemberCreateView(LoginRequiredMixin, CreateView):
         #    reversion.set_user(self.request.user)
 
         messages.success(self.request, "You successfully send an invite to member! User got an invite and could accept it.")
-        return HttpResponseRedirect(self.object.project.get_absolute_url() )
+        return HttpResponseRedirect( reverse( 'project:project_view_members', args = [project_id] ) ) #to member list!
 
 # пользователь принял приглашение в участники проекта
 @login_required
