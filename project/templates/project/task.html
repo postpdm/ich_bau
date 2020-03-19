@@ -201,7 +201,7 @@ no history to view
 
   <br>
  {% endifequal %}
-<small>{{c.created_at}} by <a href="{% url 'profiles_detail' pk=c.created_user.profile.pk %}">{{c.created_user}}</a></small></p>
+<small>{{c.created_at}} by <a href="{% url 'profiles_detail' pk=c.created_user.profile.pk %}">{{c.created_user.profile}}</a></small></p>
 
 </li>
 {% endfor %}
