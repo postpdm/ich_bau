@@ -677,6 +677,8 @@ def task_view(request, task_id):
         user_can_work = False
         user_can_admin = False
 
+        user_comment_actions = { }
+
         ual = task.project.user_access_level( request.user )
         if ual == PROJECT_ACCESS_NONE:
             # если пользователь не авторизован, то доступ только к открытым проектам и только на просмотр
@@ -710,10 +712,15 @@ def task_view(request, task_id):
         profiles = task.get_profiles().order_by('profile__profile_type')
         domains = Task2Domain.objects.filter(task=task)
 
+        if task.state == TASK_STATE_NEW:
+            user_comment_actions = TASK_OPEN_DETAIL_STATE_TITLES
+        else:
+            user_comment_actions = {}
+
+        wanted_detailed_task_state = 0
         # доступ списку коментов открыт, а форму показывать не надо
         if request.user.is_authenticated:
             if request.method == "POST":
-
                 if 'submit' in request.POST:
                     # добавить коментарий
                     wanted_task_state = TASK_STATE_NEW
@@ -724,8 +731,16 @@ def task_view(request, task_id):
                         if 'submit_and_reopen' in request.POST:
                             wanted_task_state = TASK_STATE_NEW
                         else:
-                            raise Exception("Inknown task state!")
+                            # анализ подвидов состояний
+                            some_state_found = False
+                            for s in TASK_OPEN_DETAIL_STATE_TITLES:
+                                if str( s ) in request.POST:
+                                    some_state_found = True
+                                    wanted_task_state = TASK_STATE_NEW
+                                    wanted_detailed_task_state = s
 
+                            if not some_state_found:
+                                raise Exception("Inknown task state!")
 
                 task_comment_form = TaskCommentForm(request.POST)
 
@@ -738,8 +753,8 @@ def task_view(request, task_id):
                         c.set_change_user(request.user)
                         c.save()
 
-                    if wanted_task_state != task.state :
-                        task.set_task_state(request.user, wanted_task_state )
+                    if ( wanted_task_state != task.state ) or ( wanted_detailed_task_state > 0 ) :
+                        task.set_task_state(request.user, wanted_task_state, wanted_detailed_task_state )
                     return HttpResponseRedirect( task.get_absolute_url() )
             else:
                 task_comment_form = TaskCommentForm()
@@ -758,6 +773,7 @@ def task_view(request, task_id):
                          'user_can_work' : user_can_work,
                          'user_can_admin' : user_can_admin,
                          'user_can_comment' : user_can_comment,
+                         'user_comment_actions' : user_comment_actions,
                          }
 
     except Task.DoesNotExist:

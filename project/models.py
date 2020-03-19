@@ -321,6 +321,19 @@ TASK_STATE_LIST_CHOICES = (
     ( TASK_STATE_CLOSED, 'Closed' ),
     )
 
+# task detailed states
+TASK_DETAIL_STATE_ON_PAUSE = 1000
+TASK_DETAIL_STATE_NEED_INFO = 1050
+TASK_DETAIL_STATE_IN_WORK = 1100
+TASK_DETAIL_STATE_READY_TO_TEST = 1200
+
+TASK_OPEN_DETAIL_STATE_TITLES = {
+  TASK_DETAIL_STATE_ON_PAUSE : 'PAUSE',
+  TASK_DETAIL_STATE_NEED_INFO : 'Need info from holder',
+  TASK_DETAIL_STATE_IN_WORK  : 'In work',
+  TASK_DETAIL_STATE_READY_TO_TEST : 'Ready to test',
+}
+
 class TaskKind(models.Model):
     name = models.CharField(max_length=255, verbose_name = 'Kind name!' )
     def __str__(self):
@@ -346,6 +359,7 @@ class Task(BaseStampedModel):
     holder = models.ForeignKey(Profile, on_delete=models.PROTECT, blank=True, null=True, related_name = "Holder" )
 
     state = models.PositiveSmallIntegerField( blank=False, null=False, default = TASK_STATE_NEW )
+    detailed_state = models.PositiveSmallIntegerField( blank=True, null=True )
     # 0 - новая задача
     milestone = models.ForeignKey(Milestone, on_delete=models.PROTECT, blank=True, null=True )
     finished_fact_at = models.DateTimeField( blank=True, null=True )
@@ -355,29 +369,38 @@ class Task(BaseStampedModel):
     class Meta:
         ordering = ['-important']
 
-    def set_task_state(self, argUser, argWantedState):
-        if ( argWantedState != self.state ):
-            if argWantedState in TASK_STATE_LIST:
-                with transaction.atomic(), reversion.create_revision():
-                    reversion.set_user(argUser)
+    def set_task_state(self, argUser, argWantedState, argWantedDetailedState = 0 ):
+        if ( argWantedState != self.state ) or ( argWantedDetailedState > 0 ):
+            if not ( argWantedState in TASK_STATE_LIST ):
+                raise Exception("Wrong task state!")
 
-                    self.set_change_user(argUser)
+            with transaction.atomic(), reversion.create_revision():
+                reversion.set_user(argUser)
+
+                self.set_change_user(argUser)
+                if argWantedState != self.state:
                     self.state = argWantedState
                     if ( argWantedState == TASK_STATE_NEW ) and ( not ( self.finished_fact_at is None ) ):
                         self.finished_fact_at = None
                     else:
                         if ( argWantedState == TASK_STATE_CLOSED ) and ( self.finished_fact_at is None ):
                             self.finished_fact_at = timezone.now()
-                    self.save()
-            else:
-                raise Exception("Wrong task state!")
+                    self.detailed_state = None
+                else:
+                    if ( argWantedDetailedState > 0 ):
+                        self.detailed_state = argWantedDetailedState
+
+                self.save()
 
     # состояний, в которых задача закрыта, можно выдумать много
     def get_opened(self):
         return self.finished_fact_at is None
 
     def get_state_name(self):
-        return TASK_STATE_LIST_CHOICES[ self.state ][1]
+        s = TASK_STATE_LIST_CHOICES[ self.state ][1]
+        if self.detailed_state:
+            s = s + ' (' + TASK_OPEN_DETAIL_STATE_TITLES[self.detailed_state] + ')'
+        return s
 
     def __str__(self):
         return self.fullname
