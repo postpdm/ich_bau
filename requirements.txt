@@ -5,7 +5,7 @@ Pinax==0.9a2
 pinax-theme-bootstrap==8.0.1
 pinax-eventlog==2.0.3
 
-django-filter==1.1.0
+django-filter==2.2
 django-reversion==2.0.13
 django-mptt==0.10.0
 
