@@ -1,4 +1,4 @@
-Django==2.2.11
+Django==2.0.13
 django-user-accounts==3.0.0
 django-bootstrap-form==3.4
 Pinax==0.9a2
