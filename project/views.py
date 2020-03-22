@@ -6,6 +6,7 @@ from django.urls import reverse
 
 from django.utils import timezone
 from django.http import HttpResponseForbidden
+from django.utils.html import strip_tags
 
 from account.mixins import LoginRequiredMixin
 from django.views.generic.edit import CreateView, UpdateView
@@ -747,6 +748,8 @@ def task_view(request, task_id):
                 if task_comment_form.is_valid():
                     c = task_comment_form.save(commit=False)
                     c.parenttask = task
+                    if ( strip_tags( c.comment ) == '' ) and ( wanted_detailed_task_state > 0 ):
+                        c.comment = TASK_OPEN_DETAIL_STATE_TITLES[ wanted_detailed_task_state ]
 
                     with transaction.atomic(), reversion.create_revision():
                         reversion.set_user(request.user)
