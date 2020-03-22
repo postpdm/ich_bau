@@ -42,12 +42,21 @@
 
 <ul>
 {% for ncontent_type in nlist %}
-    <li>{{ ncontent_type.grouper }}
-    <ol>
-        {% for n in ncontent_type.list %}
-         <li><a href="{{n.get_absolute_url}}">{{n.decode_msg}}</a> {{n.created_at}} by {{n.sender_user}}</li>
+    <li><strong>{{ ncontent_type.grouper }}</strong>
+    <ul>
+        {% regroup ncontent_type.list by object_id as n_object_list %}
+        {% for n_object in n_object_list %}
+            <li><strong>{{n_object.list.0.get_title}}</strong>
+            <ol>
+            {% for n in n_object.list %}
+             <li>
+             <a href="{{n.get_absolute_url}}">{{n.decode_msg}}</a> {{n.created_at}} by {{n.sender_user}}</li>
+            {% endfor %}
+            </ol>
+            </li>
         {% endfor %}
-    </ol>
+
+    </ul>
     </li>
 {% endfor %}
 </ul>

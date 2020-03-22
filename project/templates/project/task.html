@@ -31,7 +31,7 @@
 
    {% if task.milestone %} targeted to <a href="{{task.milestone.get_absolute_url}}">{{task.milestone}}</a> milestone {% endif %}
 
-   {% if not task.get_opened %}
+   {% if not task.get_opened or task.detailed_state %}
    <span class="label label-primary">{{task.get_state_name}}</span>
    {% endif %}
   </div>
@@ -201,7 +201,7 @@ no history to view
 
   <br>
  {% endifequal %}
-<small>{{c.created_at}} by <a href="{% url 'profiles_detail' pk=c.created_user.profile.pk %}">{{c.created_user}}</a></small></p>
+<small>{{c.created_at}} by <a href="{% url 'profiles_detail' pk=c.created_user.profile.pk %}">{{c.created_user.profile}}</a></small></p>
 
 </li>
 {% endfor %}
@@ -228,6 +228,13 @@ no history to view
             <button class="btn btn-primary" type="submit" name="submit">Post comment</button>
             &nbsp;&nbsp;&nbsp;&nbsp;
             {% if user_can_work %}
+            <br>
+            <br>
+            {% for k, v in user_comment_actions.items %}
+                <button class="btn btn-info" type="submit" name="{{ k }}">{{v}}</button>
+            {% endfor %}
+            <br>
+            <br>
             <button class="btn btn-warning" type="submit" name="submit_and_close">Close task</button>
             {% endif %}
             {% else %}
