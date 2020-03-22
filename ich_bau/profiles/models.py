@@ -14,7 +14,7 @@ from django.urls import reverse_lazy
 
 from django.conf import settings
 
-from .messages import decode_json2msg
+from .messages import decode_json2msg, decode_json2title
 from django_cryptography.fields import encrypt
 from project.repo_wrapper import Gen_Repo_User_PW
 
@@ -33,6 +33,9 @@ class Notification(models.Model):
 
     def decode_msg( self ):
         return decode_json2msg( self.msg_txt )
+
+    def get_title( self ):
+        return decode_json2title( self.msg_txt )
 
     def get_unreaded( self ):
         return self.readed_at is None
