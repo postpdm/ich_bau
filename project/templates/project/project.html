@@ -77,25 +77,20 @@ no history to view
         {% load mptt_tags %}
 
         <div class="row">
-
-            <ul class="list-group">
+            <ul>
                 {% recursetree domains %}
-                    <li class="list-group-item" >
+                    <li>
                     {% if node.pk == selected_domain %}<strong>{% endif %}
                     <a href="{% url 'project:project_view_task_for_domain' project.pk node.pk %}">{{node.name}}</a>
-
-
                     {% if node.pk == selected_domain %}</strong>{% endif %}
-
                         {% if not node.is_leaf_node %}
-                            <ul class="list-group">
+                            <ul>
                             {{ children }}
                             </ul>
                         {% endif %}
                     </li>
                 {% endrecursetree %}
             </ul>
-
         </div>
     {% endif %}
 
