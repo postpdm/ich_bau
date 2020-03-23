@@ -77,6 +77,8 @@ no history to view
         {% load mptt_tags %}
 
         <div class="row">
+          <div class="col-md-5">
+            <br>
             <ul>
                 {% recursetree domains %}
                     <li>
@@ -91,6 +93,7 @@ no history to view
                     </li>
                 {% endrecursetree %}
             </ul>
+          </div>
         </div>
     {% endif %}
 
