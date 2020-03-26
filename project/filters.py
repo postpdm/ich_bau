@@ -1,6 +1,6 @@
 ﻿import django_filters
 
-from project.models import Project, Task, GetMemberedProjectList, TASK_STATE_LIST_CHOICES
+from project.models import Project, Task, GetMemberedProjectList, TASK_STATE_LIST_CHOICES, TASK_OPEN_DETAIL_STATE_TITLES_TUPL
 
 from ich_bau.profiles.models import Profile, PROFILE_TYPE_USER, PROFILE_TYPE_FOR_TASK
 
@@ -22,10 +22,11 @@ class BaseTaskFilter(BaseFilter):
     fullname = django_filters.CharFilter(lookup_expr='icontains')
     description = django_filters.CharFilter(lookup_expr='icontains')
     state = django_filters.ChoiceFilter(choices=TASK_STATE_LIST_CHOICES)
+    detailed_state = django_filters.ChoiceFilter( choices = TASK_OPEN_DETAIL_STATE_TITLES_TUPL )
 
     class Meta:
         model = Task
-        fields = [ 'fullname', 'description', 'state', 'holder', 'kind', 'profile2task__profile', 'task2domain__taskdomain' ]
+        fields = [ 'fullname', 'description', 'state', 'detailed_state', 'holder', 'kind', 'profile2task__profile', 'task2domain__taskdomain' ]
     
     def __init__(self, *args , **kwargs ):
         super(BaseTaskFilter, self).__init__( *args , **kwargs )
@@ -35,7 +36,7 @@ class BaseTaskFilter(BaseFilter):
 class TaskFilter(BaseTaskFilter):
     class Meta:
         model = Task
-        fields = [ 'fullname', 'description', 'state', 'milestone', 'holder', 'kind', 'profile2task__profile', 'task2domain__taskdomain' ]
+        fields = [ 'fullname', 'description', 'state', 'detailed_state', 'milestone', 'holder', 'kind', 'profile2task__profile', 'task2domain__taskdomain' ]
 
 def user_projects(request):
     if request is None:

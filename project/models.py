@@ -336,6 +336,8 @@ TASK_OPEN_DETAIL_STATE_TITLES = {
   TASK_DETAIL_STATE_READY_TO_TEST : 'Ready to test',
 }
 
+TASK_OPEN_DETAIL_STATE_TITLES_TUPL = [(v, k) for v, k in TASK_OPEN_DETAIL_STATE_TITLES.items()]
+
 class TaskKind(models.Model):
     name = models.CharField(max_length=255, verbose_name = 'Kind name!' )
     def __str__(self):
