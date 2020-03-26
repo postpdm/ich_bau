@@ -13,7 +13,7 @@
 <div class="panel panel-default">
 
 <ol class="breadcrumb">
-<li>  <a href="{% url 'project:index' %}">Projects</a></li></li>
+<li> <a id="top"></a> <a href="{% url 'project:index' %}">Projects</a></li></li>
 <li>  <a href="{{ task.project.get_absolute_url }}">{{ task.project }}</a></li>
 {% if task.milestone %}<li> <a href="{{task.milestone.get_absolute_url}}">{{task.milestone}}</a> </li>{% endif %}
 </ol>
@@ -34,6 +34,7 @@
    {% if not task.get_opened or task.detailed_state %}
    <span class="label label-primary">{{task.get_state_name}}</span>
    {% endif %}
+   <p class="navbar-text navbar-right"><a href="#last_comment" class="navbar-link">go down to last comment</a></p>
   </div>
 
   <div class="panel-body">
@@ -207,6 +208,8 @@ no history to view
 {% endfor %}
 {% endif %}
   </ul>
+
+  <a id="last_comment"></a>
 </div>
 
     {% if task_comment_form and user_can_comment%}
@@ -254,7 +257,38 @@ no history to view
 
 </div>
 </div>
+<br>
+
+    <div class="row">
+        <div class="col-md-12">
+
+<div class="panel panel-default">
+
+  <div class="panel-heading"><strong>{{task}}
+
+   {% if task.kind %}
+   ({{ task.kind }})
+   {% endif %}
+  </strong>
+  {% if task.important %}
+    <i class="fa fa-exclamation-triangle" style="color:red"></i>
+    {% endif %}
+
+
+   {% if task.milestone %} targeted to <a href="{{task.milestone.get_absolute_url}}">{{task.milestone}}</a> milestone {% endif %}
+
+   {% if not task.get_opened or task.detailed_state %}
+   <span class="label label-primary">{{task.get_state_name}}</span>
+   {% endif %}
+   <p class="navbar-text navbar-right"><a href="#top" class="navbar-link">go top</a></p>
+  </div>
+</div>
+</div>
+</div>
+
 
 <small>This page was last modified on {{ task.modified_at }}</small>
+
+
 
 {% endblock %}
