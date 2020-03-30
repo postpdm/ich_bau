@@ -399,7 +399,16 @@ def get_project_view(request, project_id, arg_task_filter = TASK_FILTER_OPEN, ar
     return render( request, 'project/project.html', context_dict )
 
 def project_view_report_all_tasks(request, project_id ):
-    pass
+    context = RequestContext(request)
+    project = get_object_or_404( Project, pk=project_id)
+
+    if not project.can_view( request.user ):
+        raise Http404()
+
+    context_dict = { 'tasks' : project.project2tasks.all().order_by('created_at'), 'project' : project }
+
+    return render( request, 'project/project_report_all_tasks.html',
+                   context_dict )
 
 def project_view_file_commit_view(request, project_id, rev_id):
     context = RequestContext(request)

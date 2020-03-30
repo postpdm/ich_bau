@@ -355,7 +355,7 @@ class TaskDomain(MPTTModel):
 
 @reversion.register()
 class Task(BaseStampedModel):
-    project = models.ForeignKey(Project, on_delete=models.PROTECT, blank=False, null=False )
+    project = models.ForeignKey(Project, on_delete=models.PROTECT, blank=False, null=False, related_name = "project2tasks" )
     fullname = models.CharField(max_length=255, verbose_name = 'Full name!' )
     description = models.TextField(blank=True, null=True)
     # была мысль, что applicant - это тикет в Servicedesk от определенного клиента. Но если тикеты в SD будут отдельно, то достаточно и holder
