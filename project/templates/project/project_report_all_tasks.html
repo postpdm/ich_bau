@@ -1,0 +1,45 @@
+<table border="1">
+<thead>
+<tr>
+
+<th>ID</th>
+<th>Task</th>
+<th>Important</th>
+<th>Kind</th>
+<th>Target milestone</th>
+<th>Description</th>
+<th>Holder</th>
+<th>Assignee</th>
+<th>State</th>
+<th>Created at</th>
+<th>Finished fact</th>
+<th>Domains</th>
+</tr>
+</thead>
+<tbody>
+    {% for t in tasks %}
+    <tr>
+
+    <td>{{t.id}}</td>
+    <td>{{t}}</td>
+    <td>{{ t.important }}</td>
+    <td>{%if t.kind %}{{t.kind}}{% endif %}</td>
+    {% if table_mode != 'milestone' %}
+    <td>{% if t.milestone %} Milestone - {{t.milestone}} {% if t.milestone.planned_at %} {{ t.milestone.planned_at|date }} {% endif %}{% endif %}
+    {% endif %}
+    <td>{{t.description|safe}}</td>
+    <td>{% if t.holder %} {{t.holder}}{% endif %}</td>
+    <td>
+        {% for p in t.get_profiles %}
+            {% if p.priority %}<strong>{% endif %}{{p.profile}}{% if p.priority %}</strong>{% endif %}<br>
+        {% endfor %}
+    </td>
+    <td>{{t.get_state_name}}</td>
+    <td>{{t.created_at}}</td>
+    <td>{{t.finished_fact_at}}</td>
+    <td>{% for d in t.task2domain.all %}[{{d.taskdomain}}]<br>{% endfor %}</td>
+    
+    </tr>
+    {% endfor %}
+</tbody>
+</table>
