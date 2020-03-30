@@ -492,13 +492,18 @@ def GetTaskAssignedUser( arg_task, arg_exclude_user = None ):
     r = User.objects.filter( id__in = p ).distinct()
     return r
 
-def Send_Notifications_For_Task( arg_task_id, arg_sender_user, Arg_MSG_TYPE, arg_msg, arg_list, arg_url, arg_task_holder ):
-    task_type = Get_ContentType( arg_model='task')
+def Send_Notifications_For_Task( arg_task, arg_sender_user, Arg_MSG_TYPE, arg_msg, arg_list, arg_url, arg_task_holder ):
+    task_content_type = Get_ContentType( arg_model='task')
+
+    Additional_Msg_Tags = [ ]
+    for d in arg_task.task2domain.all():
+        Additional_Msg_Tags.append( d.taskdomain.name )
+
     for m in arg_list:
-        Send_Notification( arg_sender_user, m, task_type, arg_task_id, Arg_MSG_TYPE, arg_msg, arg_url )
+        Send_Notification( arg_sender_user, m, task_content_type, arg_task.id, Arg_MSG_TYPE, arg_msg, arg_url, Additional_Msg_Tags )
 
     if not ( arg_task_holder is None ) and ( arg_task_holder != arg_sender_user ) and not ( arg_task_holder in arg_list ):
-        Send_Notification( arg_sender_user, arg_task_holder, task_type, arg_task_id, Arg_MSG_TYPE, arg_msg, arg_url )
+        Send_Notification( arg_sender_user, arg_task_holder, task_content_type, arg_task.id, Arg_MSG_TYPE, arg_msg, arg_url, Additional_Msg_Tags )
 
 @receiver(post_save, sender=Task)
 def task_post_save_Notifier_Composer(sender, instance, **kwargs):
@@ -511,7 +516,7 @@ def task_post_save_Notifier_Composer(sender, instance, **kwargs):
     if ( not ( instance.holder is None ) ) and ( not ( instance.holder.user is None ) ):
         holder_user = instance.holder.user
 
-    Send_Notifications_For_Task( instance.id, instance.modified_user, MSG_NOTIFY_TYPE_PROJECT_TASK_CHANGED_ID, message_str, task_users, instance.get_absolute_url(), holder_user )
+    Send_Notifications_For_Task( instance, instance.modified_user, MSG_NOTIFY_TYPE_PROJECT_TASK_CHANGED_ID, message_str, task_users, instance.get_absolute_url(), holder_user )
 
 @receiver(post_save, sender=TaskComment)
 def taskcomment_post_save_Notifier_Composer(sender, instance, **kwargs):
@@ -530,7 +535,7 @@ def taskcomment_post_save_Notifier_Composer(sender, instance, **kwargs):
     if ( not ( parent_task.holder is None ) ) and ( not ( parent_task.holder.user is None ) ):
         parenttask_holder_user = parent_task.holder.user
 
-    Send_Notifications_For_Task( parent_task.id, instance.modified_user, msg_type, message_str, task_users, parent_task.get_absolute_url(), parenttask_holder_user )
+    Send_Notifications_For_Task( parent_task, instance.modified_user, msg_type, message_str, task_users, parent_task.get_absolute_url(), parenttask_holder_user )
 
 # Priority for profile assignment to tasks
 TASK_PROFILE_PRIORITY_INTERESTED   = 0
