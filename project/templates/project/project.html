@@ -30,6 +30,7 @@
     <li role="presentation" {% if show_page == 'files' %} class="active" {% endif %}><a href="{% url 'project:project_view_files' project_id=project.pk %}">{% trans "Files" %}</a></li>
   {% endif %}
   <li role="presentation" {% if show_page == 'milestones' %} class="active" {% endif %}><a href="{{project.get_absolute_url}}milestones/">{% trans "Milestones" %}</a></li>
+  <li role="presentation" {% if show_page == 'reports' %} class="active" {% endif %}><a href="{{project.get_absolute_url}}reports/">{% trans "Reports" %}</a></li>
 </ul>
 
 {% if show_page == 'title' %}
@@ -156,6 +157,15 @@ no history to view
 
 {% comment %} end if MILESTONES {% endcomment %}
 {% endif %}
+
+
+{% if show_page == 'reports' %}
+<h2>{% trans "Reports" %}</h2>
+
+<p><a href="#">Download all tasks report</a></p>
+
+{% endif %}
+
 
 </div>
 </div>

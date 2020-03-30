@@ -166,6 +166,7 @@ PROJECT_PAGE_MEMBERS = 5
 PROJECT_PAGE_LAST_ACTIONS = 8
 PROJECT_PAGE_FILES = 10
 PROJECT_PAGE_MILESTONES = 15
+PROJECT_PAGE_REPORTS = 25
 
 # Для передачи в шаблон
 PROJECT_PAGE_FILTER = {
@@ -174,6 +175,7 @@ PROJECT_PAGE_FILTER = {
   PROJECT_PAGE_LAST_ACTIONS : 'last_actions',
   PROJECT_PAGE_FILES : 'files',
   PROJECT_PAGE_MILESTONES : 'milestones' ,
+  PROJECT_PAGE_REPORTS : 'reports' ,
 }
 
 def project_view(request, project_id):
@@ -205,6 +207,9 @@ def project_view_members(request, project_id):
 
 def project_view_files(request, project_id):
     return get_project_view(request, project_id, arg_page = PROJECT_PAGE_FILES )
+
+def project_view_reports(request, project_id):
+    return get_project_view(request, project_id, arg_page = PROJECT_PAGE_REPORTS )
 
 def project_history(request, project_id):
     context = RequestContext(request)
@@ -365,6 +370,9 @@ def get_project_view(request, project_id, arg_task_filter = TASK_FILTER_OPEN, ar
 
     if arg_page == PROJECT_PAGE_LAST_ACTIONS:
         last_actions = TaskComment.objects.filter( parenttask__project = project ).order_by('-modified_at')[:10]
+
+    if arg_page == PROJECT_PAGE_REPORTS:
+        pass
 
     # Записать список в словарь
     context_dict = { 'project': project,
