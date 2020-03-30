@@ -6,8 +6,14 @@ from .models import *
 from .messages import *
 from .notification_helper import *
 
+from django.conf import settings
+from django.core import mail
+
 TEST_USER_NAME = 'USER'
 TEST_USER_PW = 'USER_PW'
+TEST_USER_EMAIL = 'email@mail.mail'
+
+SERVER_EMAIL = 'server@mail.mail'
 
 class Message_Test(TestCase):
     def test_Encode_Decode_Project_MSG(self):
@@ -41,3 +47,25 @@ class Message_Test(TestCase):
 
         Send_Notification( test_user, test_user, user_type, 1, MSG_NOTIFY_TYPE_USER_WANT_JOIN_ID, 'Arg_MsgTxt', 'Arg_Url' )
         self.assertEqual( GetUserNoticationsQ( test_user, True).count(), 1 )
+
+    def test_Send_Notification_Check_Email(self):
+
+        mail.outbox = []
+        self.assertEqual(len(mail.outbox), 0)
+
+        settings.EMAIL_HOST_USER = SERVER_EMAIL
+
+        test_user = User.objects.create_user( username = TEST_USER_NAME, password = TEST_USER_PW, email = TEST_USER_EMAIL )
+        self.assertEqual( GetUserNoticationsQ( test_user, True).count(), 0 )
+
+        user_type = ContentType.objects.get(app_label='auth', model='user')
+
+        Send_Notification( test_user, test_user, user_type, 1, MSG_NOTIFY_TYPE_USER_WANT_JOIN_ID, '{"msg_type": 1, "project_name": "test"}', 'Arg_Url' )
+        self.assertEqual( GetUserNoticationsQ( test_user, True).count(), 1 )
+        self.assertEqual(len(mail.outbox), 1)
+
+        e_letter = mail.outbox[0]
+
+        self.assertEqual( e_letter.from_email, SERVER_EMAIL )
+        self.assertIn( TEST_USER_EMAIL, e_letter.to )
+        self.assertEqual( e_letter.subject, 'You are asked to accept the membership of \'test\' project team!' )
