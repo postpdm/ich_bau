@@ -60,7 +60,10 @@ class Message_Test(TestCase):
 
         user_type = ContentType.objects.get(app_label='auth', model='user')
 
-        Send_Notification( test_user, test_user, user_type, 1, MSG_NOTIFY_TYPE_USER_WANT_JOIN_ID, '{"msg_type": 1, "project_name": "test"}', 'Arg_Url' )
+        msg_str = project_msg2json_str( MSG_NOTIFY_TYPE_ASK_ACCEPT_ID, arg_project_name = 'test' )
+        self.assertEqual( msg_str, '{"msg_type": 1, "project_name": "test"}' )
+
+        Send_Notification( test_user, test_user, user_type, 1, MSG_NOTIFY_TYPE_ASK_ACCEPT_ID, msg_str, 'Arg_Url' )
         self.assertEqual( GetUserNoticationsQ( test_user, True).count(), 1 )
         self.assertEqual(len(mail.outbox), 1)
 
