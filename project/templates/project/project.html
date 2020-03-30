@@ -162,7 +162,7 @@ no history to view
 {% if show_page == 'reports' %}
 <h2>{% trans "Reports" %}</h2>
 
-<p><a href="#">Download all tasks report</a></p>
+<p><a href="{% url 'project:project_view_report_all_tasks' project.id %}">Download all tasks report</a></p>
 
 {% endif %}
 

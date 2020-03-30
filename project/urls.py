@@ -32,6 +32,7 @@ urlpatterns = [
     url(r'^project/(?P<project_id>\w+)/members/$', views.project_view_members, name='project_view_members'),
     url(r'^project/(?P<project_id>\w+)/milestones/$', views.project_view_milestones, name='project_view_milestones'),
     url(r'^project/(?P<project_id>\w+)/reports/$', views.project_view_reports, name='project_view_reports'),
+    url(r'^project/(?P<project_id>\w+)/report_all_tasks/$', views.project_view_report_all_tasks, name='project_view_report_all_tasks'),
     # repo urls
     url(r'^project/(?P<project_id>\w+)/files/$', views.project_view_files, name='project_view_files'),
     url(r'^project/(?P<project_id>\w+)/files/commit/(?P<rev_id>\w+)/$', views.project_view_file_commit_view, name='project_view_file_commit_view'),
