@@ -24,6 +24,15 @@ class Message_Test(TestCase):
         test_user = User.objects.create_user( username = TEST_USER_NAME, password = TEST_USER_PW )
         self.assertEqual( Get_Users_Profiles().count(), 1 )
 
+    def test_Send_Notification_Wrong_Arg_MSG_TYPE(self):
+        test_user = User.objects.create_user( username = TEST_USER_NAME, password = TEST_USER_PW )
+        self.assertEqual( GetUserNoticationsQ( test_user, True).count(), 0 )
+
+        user_type = ContentType.objects.get(app_label='auth', model='user')
+
+        with self.assertRaises(Exception):
+            Send_Notification( test_user, test_user, user_type, 1, -1, 'Arg_MsgTxt', 'Arg_Url' ) # try to raise 'Wrong message type'
+
     def test_Send_Notification(self):
         test_user = User.objects.create_user( username = TEST_USER_NAME, password = TEST_USER_PW )
         self.assertEqual( GetUserNoticationsQ( test_user, True).count(), 0 )
