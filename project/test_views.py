@@ -314,3 +314,11 @@ class Project_View_Test_Client(TestCase):
         self.assertEqual( response.status_code, 302 )
         self.assertEqual( TaskLink.objects.filter( maintask = test_task_1 ).count(), 0 )
         self.assertEqual( TaskLink.objects.filter( maintask = test_task_2 ).count(), 0 )
+
+
+        # test report
+        response = c.post( reverse_lazy('project:project_view_report_all_tasks', args = (test_project_1.id, ) ) )
+        self.assertEqual( response.status_code, 200 )
+
+        self.assertContains(response, test_task_1.fullname, status_code=200 )
+        self.assertContains(response, test_task_2.fullname, status_code=200 )
