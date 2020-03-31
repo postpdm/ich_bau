@@ -59,6 +59,7 @@ urlpatterns = [
 
     url(r'^task_link/(?P<tasklink_id>\w+)/unlink/$', views.task_unlink, name='task_unlink'),
 
+    path( 'task_domain/<taskdomain_id>/unlink', views.project_task_domain_unlink, name='project_task_domain_unlink'),
 
     url(r'^task_comment/(?P<task_comment_id>\w+)/edit/$', views.edit_task_comment, name='edit_task_comment'),
     url(r'^task_comment/(?P<task_comment_id>\w+)/history/$', views.task_comment_history, name='task_comment_history'),
