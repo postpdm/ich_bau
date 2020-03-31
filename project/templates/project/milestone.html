@@ -10,8 +10,9 @@
         <div class="col-md-12">
         
 <ol class="breadcrumb">
-<li>  <a href="{% url 'project:index' %}">Projects</a></li></li>
-<li>  <a href="{{ milestone.project.get_absolute_url }}">{{ milestone.project }}</a></li>
+<li> <a href="{% url 'project:index' %}">Projects</a></li></li>
+<li> <a href="{{ milestone.project.get_absolute_url }}">{{ milestone.project }}</a></li>
+<li> <a href="{% url 'project:project_view_milestones' milestone.project.id %}">{{ milestone.project }} milestones</a> </li>
 </ol>
         
 <h1>{{milestone}}</h1>
