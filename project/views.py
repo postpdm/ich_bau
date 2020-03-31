@@ -936,8 +936,32 @@ def task_unlink(request, tasklink_id):
     try:
         tasklink = TaskLink.objects.get( id = tasklink_id )
         maintask = tasklink.maintask
-        tasklink.delete()
-        return HttpResponseRedirect( maintask.get_absolute_url() )
+        ual = maintask.project.user_access_level( request.user )
+        if ual in ( PROJECT_ACCESS_WORK, PROJECT_ACCESS_ADMIN ):
+            tasklink.delete()
+            messages.success(request, "You've unlink the subtask from task!")
+            return HttpResponseRedirect( maintask.get_absolute_url() )
+        else:
+            raise Http404()
+    except:
+        raise Http404()
+
+@login_required
+def project_task_domain_unlink(request, taskdomain_id):
+    context = RequestContext(request)
+
+    # если запись не будет найдена, то дальше будет редирект на 404
+    maintask = None
+    try:
+        taskdomain = Task2Domain.objects.get( id = taskdomain_id )
+        maintask = taskdomain.task
+        ual = maintask.project.user_access_level( request.user )
+        if ual in ( PROJECT_ACCESS_WORK, PROJECT_ACCESS_ADMIN ):
+            taskdomain.delete()
+            messages.success(request, "You've unlink the domain from task!")
+            return HttpResponseRedirect( maintask.get_absolute_url() )
+        else:
+            raise Http404()
     except:
         raise Http404()
 
