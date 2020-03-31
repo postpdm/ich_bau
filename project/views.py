@@ -936,9 +936,8 @@ def task_unlink(request, tasklink_id):
     try:
         tasklink = TaskLink.objects.get( id = tasklink_id )
         maintask = tasklink.maintask
-
         ual = maintask.project.user_access_level( request.user )
-        if ual == PROJECT_ACCESS_WORK:
+        if ual in ( PROJECT_ACCESS_WORK, PROJECT_ACCESS_ADMIN ):
             tasklink.delete()
             messages.success(request, "You've unlink the subtask from task!")
             return HttpResponseRedirect( maintask.get_absolute_url() )
@@ -957,7 +956,7 @@ def project_task_domain_unlink(request, taskdomain_id):
         taskdomain = Task2Domain.objects.get( id = taskdomain_id )
         maintask = taskdomain.task
         ual = maintask.project.user_access_level( request.user )
-        if ual == PROJECT_ACCESS_WORK:
+        if ual in ( PROJECT_ACCESS_WORK, PROJECT_ACCESS_ADMIN ):
             taskdomain.delete()
             messages.success(request, "You've unlink the domain from task!")
             return HttpResponseRedirect( maintask.get_absolute_url() )
