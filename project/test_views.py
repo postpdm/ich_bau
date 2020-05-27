@@ -31,6 +31,11 @@ class Project_View_Test_Client(TestCase):
         response = c.get( reverse_lazy('project:all_public') )
         self.assertEqual( response.status_code, 200 )
 
+    def test_Project_All_Available(self):
+        c = Client()
+        response = c.get( reverse_lazy('project:all_available') )
+        self.assertEqual( response.status_code, 200 )
+
     def test_Search_Project_Page_is_200(self):
         c = Client()
         response = c.get( reverse_lazy('project:search_public') )
