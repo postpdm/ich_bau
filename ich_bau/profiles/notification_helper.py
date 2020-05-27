@@ -29,10 +29,13 @@ def Send_Notification( ArgFromUser, Arg2User, Arg_ContentType, Arg_ObjectID, Arg
                 arg_additional_msg = arg_additional_msg + '<p>[' + t + ']</p>'
             html_message_text = html_message_text + '<hr>' + arg_additional_msg
 
-        send_mail( decode_json2msg( Arg_MsgTxt ),
-                   html_message_text,
-                   settings.EMAIL_HOST_USER,
-                   [n.reciever_user.email],
-                   fail_silently=False,
-                   html_message=html_message_text
-                 )
+        try:
+            send_mail( decode_json2msg( Arg_MsgTxt ),
+                       html_message_text,
+                       settings.EMAIL_HOST_USER,
+                       [n.reciever_user.email],
+                       fail_silently=False,
+                       html_message=html_message_text
+                     )
+        except:
+            print( 'Fail to send email' )
