@@ -14,7 +14,7 @@ from .models import *
 from account.decorators import login_required
 from reversion.models import Version
 from django.http import HttpResponseRedirect, Http404
-from project.models import Get_User_Tasks, Get_Profile_Tasks, GetAvailableProjectList
+from project.models import Get_User_Tasks, Get_Profile_Tasks, GetAvailableProjectList, GetMemberedProjectList
 
 class ProfileEditView(LoginRequiredMixin, UpdateView):
 
@@ -46,6 +46,7 @@ class ProfileDetailView(DetailView):
         profile_is_managed = False
         view_projects_and_tasks_header = ''
         profile_tasks = None
+        profile_projects = None
 
         # affiliated profiles
         context['main_profiles'] = current_profile.main_profiles()
@@ -59,21 +60,30 @@ class ProfileDetailView(DetailView):
                 # юзер смотрит свой собственный профиль
                 context['user_repo_pw'] = current_profile.repo_pw
                 Current_User_Profile = True
-                view_projects_and_tasks_header = 'Task assigned to you'
+                view_projects_and_tasks_header = 'Projects and task assigned to you'
                 profile_tasks = Get_User_Tasks( self.request.user )
+                profile_projects = GetMemberedProjectList( self.request.user )
         if not profile_tasks:
             profile_is_managed = Is_User_Manager( self.request.user, current_profile )
             if profile_is_managed:
                 profile_tasks = Get_User_Tasks( current_profile.user )
-                view_projects_and_tasks_header = 'Task assigned to managed profiles'
+
+                if current_profile.has_account:
+                    profile_projects = GetMemberedProjectList( current_profile.user )
+
+                view_projects_and_tasks_header = 'Projects and task assigned to managed profiles'
             else:
-                #if ( current_profile.profile_type in PROFILE_TYPE_FOR_TASK ):
                 profile_tasks = Get_Profile_Tasks( current_profile ).filter( project__in = GetAvailableProjectList( self.request.user ) )
-                view_projects_and_tasks_header = 'Task assigned to profile (for projects available for you)'
+
+                if current_profile.has_account:
+                    profile_projects = GetMemberedProjectList( current_profile.user ).distinct() & GetAvailableProjectList( self.request.user )
+
+                view_projects_and_tasks_header = 'Projects and task assigned to profile (for projects available for you)'
 
         context['current_user_profile'] = Current_User_Profile
         context['view_projects_and_tasks_header'] = view_projects_and_tasks_header
         context['profile_tasks'] = profile_tasks
+        context['profile_projects'] = profile_projects
 
         return context
 
