@@ -249,7 +249,7 @@ class Project_View_Test_Client(TestCase):
         response = c.get( reverse_lazy('profiles_detail', args = (new_resource.id, ) ) )
         # can't see the Task in Resource profile - becouse Resource is not managed by test user
         self.assertContains(response, test_task_2.fullname, status_code=200 )
-        self.assertContains(response, 'Task assigned to profile (for projects available for you)', status_code=200 )
+        self.assertContains(response, 'Projects and tasks assigned to profile (for projects available for you)', status_code=200 )
 
         response = c.get( reverse_lazy('profiles_detail', args = (new_resource.id, ) ) )
         # can't see the Task in Resource profile - becouse Resource is not managed by test user
@@ -262,7 +262,7 @@ class Project_View_Test_Client(TestCase):
         response = c.get( reverse_lazy('profiles_detail', args = (new_resource.id, ) ) )
         # Now can see the Task in Resource profile - becouse Resource is now managed by test user
         self.assertContains(response, test_task_2.fullname, status_code=200 )
-        self.assertContains(response, 'Task assigned to managed profiles', status_code=200 )
+        self.assertContains(response, 'Projects and tasks assigned to managed profiles', status_code=200 )
 
         # task check list
         # test wrong task id
