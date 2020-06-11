@@ -44,7 +44,7 @@ class ProfileDetailView(DetailView):
         context = super(ProfileDetailView, self).get_context_data(**kwargs)
         current_profile = self.get_object()
         profile_is_managed = False
-        view_projects_and_tasks_header = ''
+        view_projects_and_tasks_header = None
         profile_tasks = None
         profile_projects = None
 
@@ -60,7 +60,7 @@ class ProfileDetailView(DetailView):
                 # юзер смотрит свой собственный профиль
                 context['user_repo_pw'] = current_profile.repo_pw
                 Current_User_Profile = True
-                view_projects_and_tasks_header = 'Projects and tasks assigned to you'
+                view_projects_and_tasks_header = 'to_you'
                 profile_tasks = Get_User_Tasks( self.request.user )
                 profile_projects = GetMemberedProjectList( self.request.user )
         if not profile_tasks:
@@ -71,14 +71,14 @@ class ProfileDetailView(DetailView):
                 if current_profile.has_account:
                     profile_projects = GetMemberedProjectList( current_profile.user )
 
-                view_projects_and_tasks_header = 'Projects and tasks assigned to managed profiles'
+                view_projects_and_tasks_header = 'to_managed'
             else:
                 profile_tasks = Get_Profile_Tasks( current_profile ).filter( project__in = GetAvailableProjectList( self.request.user ) )
 
                 if current_profile.has_account:
                     profile_projects = GetMemberedProjectList( current_profile.user ).distinct() & GetAvailableProjectList( self.request.user )
 
-                view_projects_and_tasks_header = 'Projects and tasks assigned to profile (for projects available for you)'
+                view_projects_and_tasks_header = 'to_profile'
 
         context['current_user_profile'] = Current_User_Profile
         context['view_projects_and_tasks_header'] = view_projects_and_tasks_header

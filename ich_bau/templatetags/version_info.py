@@ -4,4 +4,4 @@ register = template.Library()
 
 @register.simple_tag(name='site_version_info')
 def site_version_info():
-    return 'v0.0024 at 27.05.2020'
+    return 'v0.0025 at 11.06.2020'
