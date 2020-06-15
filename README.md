@@ -62,7 +62,7 @@ manage.py runserver
 
 For your instance, please create `production_settings.py` in `ich_bau` folder.
 
-Set up the [SITE](https://docs.djangoproject.com/en/2.0/ref/contrib/sites/) settings.
+Set up the [SITE](https://docs.djangoproject.com/en/2.0/ref/contrib/sites/) settings. Follow the Django documentation - do not print http(s) protocol in this settings.
 
 
 ### Customization
