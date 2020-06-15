@@ -30,15 +30,7 @@ def Send_Notification( ArgFromUser, Arg2User, Arg_ContentType, Arg_ObjectID, Arg
                          'msg_txt' : decode_json2msg( Arg_MsgTxt ),
                          'domains' : Arg_Additional_Msg_Tags, }
 
-
         html_message_text = render_to_string( 'profiles/email_notification.txt', context_dict )
-
-        #html_message_text = '<p><a href="' + Site.objects.get_current().domain + n.get_absolute_url() + '">' + decode_json2msg( Arg_MsgTxt ) + '</a></p>'
-        #if Arg_Additional_Msg_Tags:
-        #    arg_additional_msg = '<strong>Domains</strong>'
-        #    for t in Arg_Additional_Msg_Tags:
-        #        arg_additional_msg = arg_additional_msg + '<p>[' + t + ']</p>'
-        #    html_message_text = html_message_text + '<hr>' + arg_additional_msg
 
         try:
             send_mail( decode_json2msg( Arg_MsgTxt ),
