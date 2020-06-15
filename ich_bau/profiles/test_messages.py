@@ -48,7 +48,7 @@ class Message_Test(TestCase):
         Send_Notification( test_user, test_user, user_type, 1, MSG_NOTIFY_TYPE_USER_WANT_JOIN_ID, 'Arg_MsgTxt', 'Arg_Url' )
         self.assertEqual( GetUserNoticationsQ( test_user, True).count(), 1 )
 
-    def test_Send_Notification_Check_Email(self):
+    def test_Send_Notification_Check_Email_ASK_ACCEPT(self):
 
         mail.outbox = []
         self.assertEqual(len(mail.outbox), 0)
@@ -72,3 +72,5 @@ class Message_Test(TestCase):
         self.assertEqual( e_letter.from_email, SERVER_EMAIL )
         self.assertIn( TEST_USER_EMAIL, e_letter.to )
         self.assertEqual( e_letter.subject, 'You are asked to accept the membership of \'test\' project team!' )
+
+        self.assertIn( 'You are asked to accept the membership of &#39;test&#39; project team!', e_letter.body )

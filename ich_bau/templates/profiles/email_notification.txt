@@ -1,0 +1,8 @@
+<a href="{{current_domain}}{{n.get_absolute_url}}">{{msg_txt}}</a>
+
+{% if domains %}
+<strong>Domains</strong>
+{% for d in domains %}
+<p>[{{d}}]</p>
+{% endfor %}
+{% endif %}
