@@ -24,6 +24,9 @@ class Message_Test(TestCase):
     def test_decode_json2msg_Fail(self):
         self.assertEqual( decode_json2msg( '-' ), None )
 
+    def test_decode_json2title_Fail(self):
+        self.assertEqual( decode_json2title( '-' ), None )
+
     def test_Encode_Project_MSG_Fail(self):
         s = project_msg2json_str( -1, arg_project_name = '*' )
         self.assertFalse( s )
