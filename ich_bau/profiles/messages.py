@@ -61,32 +61,33 @@ def project_msg2json_str( arg_msg_type, arg_project_name = None, arg_milestone_n
     else:
         return None
 
-def decode_json2msg( arg_str ):
+# function to decode the json to message or to title
+def decode_json2something( arg_str, only_title = False ):
     try:
         j_obj = json.loads( arg_str )
         key_type = j_obj[MSG_NOTIFY_JSON_KEY_TYPE]
         if key_type in ( MSG_NOTIFY_TYPE_ASK_ACCEPT_ID, MSG_NOTIFY_TYPE_PROJECT_CHANGED_ID, MSG_NOTIFY_TYPE_USER_WANT_JOIN_ID ):
-            return MSGS[key_type].format(j_obj[MSG_NOTIFY_JSON_KEY_PROJECT_NAME])
+            if only_title:
+                return j_obj[MSG_NOTIFY_JSON_KEY_PROJECT_NAME]
+            else:
+                return MSGS[key_type].format(j_obj[MSG_NOTIFY_JSON_KEY_PROJECT_NAME])
         else:
             if key_type == MSG_NOTIFY_TYPE_PROJECT_MILESTONE_CHANGED_ID:
-                return MSGS[key_type].format(j_obj[MSG_NOTIFY_JSON_KEY_MILESTONE_PROJECT_NAME],j_obj[MSG_NOTIFY_JSON_KEY_PROJECT_NAME])
+                if only_title:
+                    return j_obj[MSG_NOTIFY_JSON_KEY_MILESTONE_PROJECT_NAME]
+                else:
+                    return MSGS[key_type].format(j_obj[MSG_NOTIFY_JSON_KEY_MILESTONE_PROJECT_NAME],j_obj[MSG_NOTIFY_JSON_KEY_PROJECT_NAME])
             else:
                 if key_type in (MSG_NOTIFY_TYPE_PROJECT_TASK_CHANGED_ID, MSG_NOTIFY_TYPE_PROJECT_TASK_ASSIGNED_ID, MSG_NOTIFY_TYPE_PROJECT_TASK_NEW_COMMENT_ID, MSG_NOTIFY_TYPE_PROJECT_TASK_CHANGED_COMMENT_ID):
-                    return MSGS[key_type].format(j_obj[MSG_NOTIFY_JSON_KEY_TASK_PROJECT_NAME],j_obj[MSG_NOTIFY_JSON_KEY_PROJECT_NAME])
+                    if only_title:
+                        return j_obj[MSG_NOTIFY_JSON_KEY_TASK_PROJECT_NAME]
+                    else:
+                        return MSGS[key_type].format(j_obj[MSG_NOTIFY_JSON_KEY_TASK_PROJECT_NAME],j_obj[MSG_NOTIFY_JSON_KEY_PROJECT_NAME])
     except:
         return None
 
+def decode_json2msg( arg_str ):
+    return decode_json2something( arg_str )
+
 def decode_json2title( arg_str ):
-    try:
-        j_obj = json.loads( arg_str )
-        key_type = j_obj[MSG_NOTIFY_JSON_KEY_TYPE]
-        if key_type in ( MSG_NOTIFY_TYPE_ASK_ACCEPT_ID, MSG_NOTIFY_TYPE_PROJECT_CHANGED_ID, MSG_NOTIFY_TYPE_USER_WANT_JOIN_ID ):
-            return j_obj[MSG_NOTIFY_JSON_KEY_PROJECT_NAME]
-        else:
-            if key_type == MSG_NOTIFY_TYPE_PROJECT_MILESTONE_CHANGED_ID:
-                return j_obj[MSG_NOTIFY_JSON_KEY_MILESTONE_PROJECT_NAME]
-            else:
-                if key_type in (MSG_NOTIFY_TYPE_PROJECT_TASK_CHANGED_ID, MSG_NOTIFY_TYPE_PROJECT_TASK_ASSIGNED_ID, MSG_NOTIFY_TYPE_PROJECT_TASK_NEW_COMMENT_ID, MSG_NOTIFY_TYPE_PROJECT_TASK_CHANGED_COMMENT_ID):
-                    return j_obj[MSG_NOTIFY_JSON_KEY_TASK_PROJECT_NAME]
-    except:
-        return None
+    return decode_json2something( arg_str, True )
