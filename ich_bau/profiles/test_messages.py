@@ -27,6 +27,18 @@ class Message_Test(TestCase):
     def test_decode_json2title_Fail(self):
         self.assertEqual( decode_json2title( '-' ), None )
 
+    def test_decode_json_some_task(self):
+        s = '{"msg_type": 50, "project_name": "test", "task_name": "some task"}'
+        self.assertEqual( decode_json2title( s ), 'some task' )
+
+    def test_decode_json2title_is_a_part_of_decode_json2msg_some_project(self):
+        s = '{"msg_type": 20, "project_name": "some project"}'
+        self.assertIn( decode_json2title( s ), decode_json2msg( s ) )
+
+    def test_decode_json2title_is_a_part_of_decode_json2msg_some_task(self):
+        s = '{"msg_type": 50, "project_name": "test", "task_name": "some task"}'
+        self.assertIn( decode_json2title( s ), decode_json2msg( s ) )
+
     def test_Encode_Project_MSG_Fail(self):
         s = project_msg2json_str( -1, arg_project_name = '*' )
         self.assertFalse( s )
