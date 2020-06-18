@@ -35,6 +35,10 @@ class Message_Test(TestCase):
         s = '{"msg_type": 20, "project_name": "some project"}'
         self.assertIn( decode_json2title( s ), decode_json2msg( s ) )
 
+    def test_decode_json2title_is_a_part_of_decode_json2msg_some_milestone(self):
+        s = '{"msg_type": 30, "project_name": "some project", "milestone_name": "some milestone"}'
+        self.assertIn( decode_json2title( s ), decode_json2msg( s ) )
+
     def test_decode_json2title_is_a_part_of_decode_json2msg_some_task(self):
         s = '{"msg_type": 50, "project_name": "test", "task_name": "some task"}'
         self.assertIn( decode_json2title( s ), decode_json2msg( s ) )
