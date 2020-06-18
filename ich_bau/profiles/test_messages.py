@@ -21,6 +21,9 @@ class Message_Test(TestCase):
         self.assertEqual( s, '{"msg_type": 20, "project_name": "some project"}' )
         self.assertEqual( decode_json2msg(s), "Changes in the 'some project' project." )
 
+    def test_decode_json2msg_Fail(self):
+        self.assertEqual( decode_json2msg( '-' ), None )
+
     def test_Encode_Project_MSG_Fail(self):
         s = project_msg2json_str( -1, arg_project_name = '*' )
         self.assertFalse( s )
