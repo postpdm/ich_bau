@@ -352,7 +352,9 @@ def get_project_view(request, project_id, arg_task_filter = TASK_FILTER_OPEN, ar
                             tasks = base_tasks.filter( task2domain__taskdomain = arg_domain_id )
                             selected_domain = int(arg_domain_id)
                         else:
-                            tasks = None
+                            # without domains
+                            tasks = base_tasks.filter( task2domain__taskdomain = None )
+                            selected_domain = None
                         domains = TaskDomain.objects.all()
                     else:
                         if arg_task_filter == TASK_FILTER_ASSIGNED:

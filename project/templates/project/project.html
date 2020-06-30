@@ -81,6 +81,14 @@ no history to view
           <div class="col-md-5">
             <br>
             <ul>
+                {% if selected_domain == None %}
+                <strong>
+                {% endif %}
+                <p><a href="{{project.get_absolute_url}}task_by_domain/">Tasks without domains</a></p>
+                {% if selected_domain == None %}
+                </strong>
+                {% endif %}
+
                 {% recursetree domains %}
                     <li>
                     {% if node.pk == selected_domain %}<strong>{% endif %}
