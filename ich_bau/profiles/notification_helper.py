@@ -11,6 +11,9 @@ def Send_Notification( ArgFromUser, Arg2User, Arg_ContentType, Arg_ObjectID, Arg
     if not Arg_MSG_TYPE in MSG_NOTFY_TYPES:
         raise Exception ("Wrong type for Arg_MSG_TYPE")
 
+    if not Arg_MsgTxt:
+        raise Exception ("Empty Arg_MsgTxt")
+
     n = Notification()
     n.sender_user = ArgFromUser
     n.reciever_user = Arg2User

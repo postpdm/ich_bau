@@ -4,7 +4,7 @@ from django.urls import reverse_lazy
 
 from commons.models import BaseStampedModel
 from django.contrib.auth.models import User
-from django.db.models.signals import post_save
+from django.db.models.signals import post_save, post_delete
 from django.dispatch import receiver
 from django.utils import timezone
 
@@ -584,3 +584,24 @@ def taskprofile_post_save_Notifier_Composer(sender, instance, **kwargs):
             message_str = project_msg2json_str( MSG_NOTIFY_TYPE_PROJECT_TASK_ASSIGNED_ID, arg_project_name = task.project.fullname, arg_task_name = task.fullname )
             task_type = Get_ContentType( arg_model='task' )
             Send_Notification( sender_user, assigned_profile.user, task_type, task.id, MSG_NOTIFY_TYPE_PROJECT_TASK_ASSIGNED_ID, message_str, task.get_absolute_url() )
+
+@receiver(post_delete, sender=TaskProfile)
+def taskprofile_post_delete_Notifier_Composer(sender, instance, **kwargs):
+    # профиль снят с задачи
+
+    assigned_profile = instance.profile
+    if assigned_profile.profile_type == PROFILE_TYPE_USER:
+        task = instance.parenttask
+
+        sender_user = None
+        if ( not ( task.holder is None ) ) and ( not ( task.holder.user is None ) ):
+            sender_user = task.holder.user
+
+        # task holder could be empty
+        if ( sender_user is None ):
+            sender_user = instance.created_user
+
+        if assigned_profile.user != sender_user:
+            message_str = project_msg2json_str( MSG_NOTIFY_TYPE_PROJECT_TASK_UNASSIGNED_ID, arg_project_name = task.project.fullname, arg_task_name = task.fullname )
+            task_type = Get_ContentType( arg_model='task' )
+            Send_Notification( sender_user, assigned_profile.user, task_type, task.id, MSG_NOTIFY_TYPE_PROJECT_TASK_UNASSIGNED_ID, message_str, task.get_absolute_url() )

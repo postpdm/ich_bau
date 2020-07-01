@@ -42,6 +42,7 @@ urlpatterns = [
     url(r'^member_want_join/(?P<project_id>\w+)/$', views.member_want_join, name='member_want_join'),
     url(r'^member/(?P<member_id>\w+)/member_accept/$', views.member_accept, name='member_accept'),
     url(r'^member/(?P<member_id>\w+)/team_accept/$', views.team_accept, name='team_accept'),
+    url(r'^member/(?P<member_id>\w+)/remove/$', views.member_remove, name='member_remove'),
 
     url(r'^task_add/(?P<project_id>\w+)/$', views.TaskCreateView.as_view(), name='task_add'),
     url(r'^task_add_to_milestone/(?P<milestone_id>\w+)/$', views.TaskCreateView.as_view(), name='task_add_to_milestone'),
@@ -54,6 +55,7 @@ urlpatterns = [
     url(r'^add_profile/(?P<task_id>\w+)/$', views.add_profile, name='add_profile'),
     url(r'^add_user/(?P<task_id>\w+)/$', views.add_user, name='add_user'),
     url(r'^switch_assign_responsibillty/(?P<taskprofile_id>\w+)/$', views.switch_assign_responsibillty, name='switch_assign_responsibillty'),
+    url(r'^remove_assign_responsibillty/(?P<taskprofile_id>\w+)/$', views.remove_assign_responsibillty, name='remove_assign_responsibillty'),
 
     url(r'^add_domain/(?P<task_id>\w+)/$', views.add_domain, name='add_domain'),
 

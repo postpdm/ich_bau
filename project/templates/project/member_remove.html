@@ -1,0 +1,20 @@
+{% extends 'site_base.html' %}
+
+{% load bootstrap %}
+
+{% block head_title %}{{member}}{% endblock %}
+
+{% block body %}
+    <div class="row">
+        <div class="col-md-12">
+        
+<h1>Remove {{member.member_profile}} from <a href="{{project.get_absolute_url}}">{{project}}</a> members</h1>
+
+{{member.member_profile}}
+
+</div>
+</div>
+
+
+    
+{% endblock %}
