@@ -118,7 +118,7 @@ no history to view
                           </button>
                           <ul class="dropdown-menu">
                             <li><a href="{% url 'project:switch_assign_responsibillty' p.pk %}">{%if p.priority%}Set interested{%else%}Set responsible{%endif%}</a></li>
-                            <li>-<li>
+                            <li class="divider"></li>
                             <li><a href="{% url 'project:remove_assign_responsibillty' p.pk %}">Remove</a></li>
                             </li>
                           </ul>
