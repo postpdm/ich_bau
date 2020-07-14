@@ -34,7 +34,10 @@
    {% if not task.get_opened or task.detailed_state %}
    <span class="label label-primary">{{task.get_state_name}}</span>
    {% endif %}
-   <p class="navbar-text navbar-right"><a href="#last_comment" class="navbar-link">go down to last comment</a></p>
+   <p class="navbar-text navbar-right"><a href="#post_comment" class="navbar-link">go down to commenting</a></p>
+   {% if comments %}
+      <p class="navbar-text navbar-right"><a href="#last_comment" class="navbar-link">go down to last comment</a></p>
+   {% endif %}
   </div>
 
   <div class="panel-body">
@@ -196,6 +199,11 @@ no history to view
 <li class="list-group-item"><strong>Comments:</strong></li>
 {% for c in comments %}
 <li class="list-group-item">
+
+{% if c == comments.last  %}
+<a id="last_comment"></a>
+{% endif %}
+
 <p>{{c.comment_html|safe}}</p>
 
 <p class="text-right">
@@ -212,11 +220,12 @@ no history to view
 <small>{{c.created_at}} by <a href="{% url 'profiles_detail' pk=c.created_user.profile.pk %}">{{c.created_user.profile}}</a></small></p>
 
 </li>
+
 {% endfor %}
 {% endif %}
   </ul>
 
-  <a id="last_comment"></a>
+  <a id="post_comment"></a>
 </div>
 
     {% if task_comment_form and user_can_comment%}
