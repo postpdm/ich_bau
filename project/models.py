@@ -4,7 +4,7 @@ from django.urls import reverse_lazy
 
 from commons.models import BaseStampedModel
 from django.contrib.auth.models import User
-from django.db.models.signals import post_save, post_delete
+from django.db.models.signals import post_save, pre_delete, post_delete
 from django.dispatch import receiver
 from django.utils import timezone
 
@@ -246,6 +246,13 @@ class Member(BaseStampedModel):
 
 # http://stackoverflow.com/questions/25929165/create-model-after-group-has-been-created-django
 post_save.connect(Member.make_admin_after_project_create, sender=Project)
+
+# check for Member has no tasks in project
+@receiver(pre_delete, sender=Member)
+def pre_save_handler(sender, instance, *args, **kwargs):
+    # some case
+    if ( Get_User_Project_Tasks( instance.member_profile.user, instance.project ).exists() ):
+        raise Exception('Can''t remove member from project, because some tasks still assigned.')
 
 @receiver(post_save, sender=Project)
 def project_post_save_Notifier_Composer(sender, instance, **kwargs):
@@ -546,6 +553,9 @@ def Get_Tasks_Ordered_By_Priority():
 
 def Get_User_Tasks( arg_user ):
     return Get_Tasks_Ordered_By_Priority().filter( state = TASK_STATE_NEW, profile2task__profile__user = arg_user )
+
+def Get_User_Project_Tasks( arg_user, arg_project ):
+    return Get_User_Tasks( arg_user ).filter( project = arg_project )
 
 def Get_Profile_Tasks( arg_profile ):
     return Get_Tasks_Ordered_By_Priority().filter( profile2task__profile = arg_profile )

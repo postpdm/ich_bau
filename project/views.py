@@ -583,6 +583,40 @@ def team_accept(request, member_id):
         # сбой - юзер не тот!!!
         return HttpResponseForbidden()
 
+@login_required
+def member_remove_check(request, member_id):
+    return member_remove(request, member_id, True )
+
+@login_required
+def member_remove_confirm(request, member_id):
+    return member_remove(request, member_id, False )
+
+def member_remove(request, member_id, arg_confirm_step ):
+    member = get_object_or_404( Member, pk = member_id )
+    project = member.project
+
+    # проверить - админ ли
+    if ( project.is_admin( request.user ) ):
+
+        tasks = Get_User_Project_Tasks( member.member_profile.user, project )
+
+        can_remove = ( tasks.count() == 0 )
+
+        context_dict = { 'project' : project,
+                         'member' : member,
+                         'tasks' : tasks,
+                         'can_remove' : can_remove,
+                        }
+        return render( request, 'project/member_remove.html', context_dict )
+
+        #member.set_team_accept()
+        #member.set_change_user( request.user )
+        #member.save()
+        #return HttpResponseRedirect( project.get_absolute_url() )
+    else:
+        # сбой - юзер не тот!!!
+        return HttpResponseForbidden()
+
 # текущий пользователь хочет присоединится к участникам проекта
 @login_required
 def member_want_join(request, project_id):
@@ -1001,6 +1035,15 @@ def switch_assign_responsibillty(request, taskprofile_id):
 
     tp.set_change_user(request.user)
     tp.save()
+    # перебросить пользователя на задание
+    return HttpResponseRedirect('/project/task/' + str( tp.parenttask_id ) )
+
+@login_required
+def remove_assign_responsibillty(request, taskprofile_id):
+    tp = get_object_or_404( TaskProfile, pk = taskprofile_id )
+
+    tp.delete()
+
     # перебросить пользователя на задание
     return HttpResponseRedirect('/project/task/' + str( tp.parenttask_id ) )
 
