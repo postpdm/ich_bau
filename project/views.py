@@ -585,11 +585,11 @@ def team_accept(request, member_id):
 
 @login_required
 def member_remove_check(request, member_id):
-    return member_remove(request, member_id, True )
+    return member_remove(request, member_id, False )
 
 @login_required
 def member_remove_confirm(request, member_id):
-    return member_remove(request, member_id, False )
+    return member_remove(request, member_id, True )
 
 def member_remove(request, member_id, arg_confirm_step ):
     member = get_object_or_404( Member, pk = member_id )
@@ -602,17 +602,17 @@ def member_remove(request, member_id, arg_confirm_step ):
 
         can_remove = ( tasks.count() == 0 )
 
-        context_dict = { 'project' : project,
-                         'member' : member,
-                         'tasks' : tasks,
-                         'can_remove' : can_remove,
-                        }
-        return render( request, 'project/member_remove.html', context_dict )
-
-        #member.set_team_accept()
-        #member.set_change_user( request.user )
-        #member.save()
-        #return HttpResponseRedirect( project.get_absolute_url() )
+        if arg_confirm_step and can_remove:
+            member.delete()
+            messages.success(request, "You was removed the member from project!")
+            return HttpResponseRedirect( reverse( 'project:project_view_members', args = [project.pk] ) ) #to member list!
+        else:
+            context_dict = { 'project' : project,
+                             'member' : member,
+                             'tasks' : tasks,
+                             'can_remove' : can_remove,
+                           }
+            return render( request, 'project/member_remove.html', context_dict )
     else:
         # сбой - юзер не тот!!!
         return HttpResponseForbidden()

@@ -7,35 +7,24 @@
 {% block body %}
     <div class="row">
         <div class="col-md-12">
-        
+
 <h1>Remove <a href="{{member.member_profile.get_absolute_url}}">{{member.member_profile}}</a> from <a href="{{project.get_absolute_url}}">{{project}}</a> members</h1>
 
 {% if can_remove %}
-
-<p>No tasks is assigned to member. You can remove the member from project.</p>
-<a href="{% url 'project:member_remove_confirm' member.pk %}" type="button" class="btn btn-danger">Remove</a>
-
+    <p>No tasks is assigned to member. You can remove the member from project.</p>
+    <a href="{% url 'project:member_remove_confirm' member.pk %}" type="button" class="btn btn-danger">Remove</a>
 {% else %}
-
-<p class="bg-warning">Can't remove member from project until some task is assigned</p>
-<ul>
-{%for t in tasks %}
-<li><a href="{{t.get_absolute_url}}">{{t}}</a></li>
-{% endfor %}
-</ul>
-
+    <p class="bg-warning">Can't remove member from project until some task is assigned</p>
+    <ul>
+    {%for t in tasks %}
+        <li><a href="{{t.get_absolute_url}}">{{t}}</a></li>
+    {% endfor %}
+    </ul>
 
 {% endif %}
 
 
-
-
-
-</ul>
-
 </div>
 </div>
 
-
-    
 {% endblock %}

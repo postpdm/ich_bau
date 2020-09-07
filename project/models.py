@@ -249,7 +249,7 @@ post_save.connect(Member.make_admin_after_project_create, sender=Project)
 
 # check for Member has no tasks in project
 @receiver(pre_delete, sender=Member)
-def pre_save_handler(sender, instance, *args, **kwargs):
+def pre_delete_member_handler(sender, instance, *args, **kwargs):
     # some case
     if ( Get_User_Project_Tasks( instance.member_profile.user, instance.project ).exists() ):
         raise Exception('Can''t remove member from project, because some tasks still assigned.')
