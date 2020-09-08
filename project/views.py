@@ -593,19 +593,23 @@ def member_remove_confirm(request, member_id):
 
 def member_remove(request, member_id, arg_confirm_step ):
     member = get_object_or_404( Member, pk = member_id )
+    member_user = member.member_profile.user
     project = member.project
 
     # проверить - админ ли
     if ( project.is_admin( request.user ) ):
 
-        tasks = Get_User_Project_Tasks( member.member_profile.user, project )
+        tasks = Get_User_Project_Tasks( member_user, project )
 
         can_remove = ( tasks.count() == 0 )
 
         if arg_confirm_step and can_remove:
             member.delete()
             messages.success(request, "You was removed the member from project!")
-            return HttpResponseRedirect( reverse( 'project:project_view_members', args = [project.pk] ) ) #to member list!
+            if request.user == member_user: # you was delete yourselves and may loose the access to this project
+                return HttpResponseRedirect( reverse( 'project:index' ) ) #to projects list!
+            else:
+                return HttpResponseRedirect( reverse( 'project:project_view_members', args = [project.pk] ) ) #to member list!
         else:
             context_dict = { 'project' : project,
                              'member' : member,
