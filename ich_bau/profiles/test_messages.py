@@ -21,6 +21,28 @@ class Message_Test(TestCase):
         self.assertEqual( s, '{"msg_type": 20, "project_name": "some project"}' )
         self.assertEqual( decode_json2msg(s), "Changes in the 'some project' project." )
 
+    def test_decode_json2msg_Fail(self):
+        self.assertEqual( decode_json2msg( '-' ), None )
+
+    def test_decode_json2title_Fail(self):
+        self.assertEqual( decode_json2title( '-' ), None )
+
+    def test_decode_json_some_task(self):
+        s = '{"msg_type": 50, "project_name": "test", "task_name": "some task"}'
+        self.assertEqual( decode_json2title( s ), 'some task' )
+
+    def test_decode_json2title_is_a_part_of_decode_json2msg_some_project(self):
+        s = '{"msg_type": 20, "project_name": "some project"}'
+        self.assertIn( decode_json2title( s ), decode_json2msg( s ) )
+
+    def test_decode_json2title_is_a_part_of_decode_json2msg_some_milestone(self):
+        s = '{"msg_type": 30, "project_name": "some project", "milestone_name": "some milestone"}'
+        self.assertIn( decode_json2title( s ), decode_json2msg( s ) )
+
+    def test_decode_json2title_is_a_part_of_decode_json2msg_some_task(self):
+        s = '{"msg_type": 50, "project_name": "test", "task_name": "some task"}'
+        self.assertIn( decode_json2title( s ), decode_json2msg( s ) )
+
     def test_Encode_Project_MSG_Fail(self):
         s = project_msg2json_str( -1, arg_project_name = '*' )
         self.assertFalse( s )
@@ -74,3 +96,30 @@ class Message_Test(TestCase):
         self.assertEqual( e_letter.subject, 'You are asked to accept the membership of \'test\' project team!' )
 
         self.assertIn( 'You are asked to accept the membership of &#39;test&#39; project team!', e_letter.body )
+
+    def test_Send_Notification_Check_Email_TASK_ASSIGN(self):
+
+        mail.outbox = []
+        self.assertEqual(len(mail.outbox), 0)
+
+        settings.EMAIL_HOST_USER = SERVER_EMAIL
+
+        test_user = User.objects.create_user( username = TEST_USER_NAME, password = TEST_USER_PW, email = TEST_USER_EMAIL )
+        self.assertEqual( GetUserNoticationsQ( test_user, True).count(), 0 )
+
+        user_type = ContentType.objects.get(app_label='auth', model='user')
+
+        msg_str = project_msg2json_str( MSG_NOTIFY_TYPE_PROJECT_TASK_ASSIGNED_ID, arg_project_name = 'test', arg_task_name = 'test_task' )
+        self.assertEqual( msg_str, '{"msg_type": 45, "project_name": "test", "task_name": "test_task"}' )
+
+        Send_Notification( test_user, test_user, user_type, 1, MSG_NOTIFY_TYPE_PROJECT_TASK_ASSIGNED_ID, msg_str, 'Arg_Url' )
+        self.assertEqual( GetUserNoticationsQ( test_user, True).count(), 1 )
+        self.assertEqual(len(mail.outbox), 1)
+
+        e_letter = mail.outbox[0]
+
+        self.assertEqual( e_letter.from_email, SERVER_EMAIL )
+        self.assertIn( TEST_USER_EMAIL, e_letter.to )
+        self.assertEqual( e_letter.subject, 'You are assigned at a \'test_task\' task of \'test\' project.' )
+
+        self.assertIn( 'You are assigned at a &#39;test_task&#39; task of &#39;test&#39; project', e_letter.body )

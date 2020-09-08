@@ -53,6 +53,17 @@
             </div>
         </div>
     </section>
+
+    {% if apps_html_blocks %}
+        <section>
+            <div class="container">
+                <p class="lead text-center">
+                    {{apps_html_blocks|safe}}
+                </p>
+            </div>
+        </section>
+    {% endif %}
+
     <section>
         <div class="container">
             <p class="lead text-center">

@@ -5,7 +5,8 @@
 {%endif%}
 <ul>
 {% for m in members %}
-<li>{{m.member_profile.user}}
+<li>
+<a href="{% url 'profiles_detail' pk=m.member_profile.pk %}">{{m.member_profile.user}}</a>
 
 {% if m.admin_flag %}
 {% trans "(admin)" %}
@@ -24,6 +25,15 @@
 {% if request.user.is_authenticated and request.user == m.member_profile.user %}
 <a class="btn btn-primary" href="/project/member/{{m.pk}}/member_accept/"><i class="fa fa-chevron-down"></i> {% trans "Accept membership" %}</a>
 {% endif %}
+{% endif %}
+
+{% if user_can_admin %}
+    <div class="btn-group">
+        <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Admin actions <span class="caret"></span> </button>
+            <ul class="dropdown-menu">
+                <li><a href="{% url 'project:member_remove_check' m.pk %}">Remove</a></li>
+            </ul>
+    </div>
 {% endif %}
 
 </li>

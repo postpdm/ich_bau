@@ -352,7 +352,9 @@ def get_project_view(request, project_id, arg_task_filter = TASK_FILTER_OPEN, ar
                             tasks = base_tasks.filter( task2domain__taskdomain = arg_domain_id )
                             selected_domain = int(arg_domain_id)
                         else:
-                            tasks = None
+                            # without domains
+                            tasks = base_tasks.filter( task2domain__taskdomain = None )
+                            selected_domain = None
                         domains = TaskDomain.objects.all()
                     else:
                         if arg_task_filter == TASK_FILTER_ASSIGNED:
@@ -577,6 +579,44 @@ def team_accept(request, member_id):
         member.set_change_user( request.user )
         member.save()
         return HttpResponseRedirect( project.get_absolute_url() )
+    else:
+        # сбой - юзер не тот!!!
+        return HttpResponseForbidden()
+
+@login_required
+def member_remove_check(request, member_id):
+    return member_remove(request, member_id, False )
+
+@login_required
+def member_remove_confirm(request, member_id):
+    return member_remove(request, member_id, True )
+
+def member_remove(request, member_id, arg_confirm_step ):
+    member = get_object_or_404( Member, pk = member_id )
+    member_user = member.member_profile.user
+    project = member.project
+
+    # проверить - админ ли
+    if ( project.is_admin( request.user ) ):
+
+        tasks = Get_User_Project_Tasks( member_user, project )
+
+        can_remove = ( tasks.count() == 0 )
+
+        if arg_confirm_step and can_remove:
+            member.delete()
+            messages.success(request, "You was removed the member from project!")
+            if request.user == member_user: # you was delete yourselves and may loose the access to this project
+                return HttpResponseRedirect( reverse( 'project:index' ) ) #to projects list!
+            else:
+                return HttpResponseRedirect( reverse( 'project:project_view_members', args = [project.pk] ) ) #to member list!
+        else:
+            context_dict = { 'project' : project,
+                             'member' : member,
+                             'tasks' : tasks,
+                             'can_remove' : can_remove,
+                           }
+            return render( request, 'project/member_remove.html', context_dict )
     else:
         # сбой - юзер не тот!!!
         return HttpResponseForbidden()
@@ -999,6 +1039,15 @@ def switch_assign_responsibillty(request, taskprofile_id):
 
     tp.set_change_user(request.user)
     tp.save()
+    # перебросить пользователя на задание
+    return HttpResponseRedirect('/project/task/' + str( tp.parenttask_id ) )
+
+@login_required
+def remove_assign_responsibillty(request, taskprofile_id):
+    tp = get_object_or_404( TaskProfile, pk = taskprofile_id )
+
+    tp.delete()
+
     # перебросить пользователя на задание
     return HttpResponseRedirect('/project/task/' + str( tp.parenttask_id ) )
 

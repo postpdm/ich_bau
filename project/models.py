@@ -4,7 +4,7 @@ from django.urls import reverse_lazy
 
 from commons.models import BaseStampedModel
 from django.contrib.auth.models import User
-from django.db.models.signals import post_save
+from django.db.models.signals import post_save, pre_delete, post_delete
 from django.dispatch import receiver
 from django.utils import timezone
 
@@ -246,6 +246,13 @@ class Member(BaseStampedModel):
 
 # http://stackoverflow.com/questions/25929165/create-model-after-group-has-been-created-django
 post_save.connect(Member.make_admin_after_project_create, sender=Project)
+
+# check for Member has no tasks in project
+@receiver(pre_delete, sender=Member)
+def pre_delete_member_handler(sender, instance, *args, **kwargs):
+    # some case
+    if ( Get_User_Project_Tasks( instance.member_profile.user, instance.project ).exists() ):
+        raise Exception('Can''t remove member from project, because some tasks still assigned.')
 
 @receiver(post_save, sender=Project)
 def project_post_save_Notifier_Composer(sender, instance, **kwargs):
@@ -547,6 +554,9 @@ def Get_Tasks_Ordered_By_Priority():
 def Get_User_Tasks( arg_user ):
     return Get_Tasks_Ordered_By_Priority().filter( state = TASK_STATE_NEW, profile2task__profile__user = arg_user )
 
+def Get_User_Project_Tasks( arg_user, arg_project ):
+    return Get_User_Tasks( arg_user ).filter( project = arg_project )
+
 def Get_Profile_Tasks( arg_profile ):
     return Get_Tasks_Ordered_By_Priority().filter( profile2task__profile = arg_profile )
 
@@ -584,3 +594,24 @@ def taskprofile_post_save_Notifier_Composer(sender, instance, **kwargs):
             message_str = project_msg2json_str( MSG_NOTIFY_TYPE_PROJECT_TASK_ASSIGNED_ID, arg_project_name = task.project.fullname, arg_task_name = task.fullname )
             task_type = Get_ContentType( arg_model='task' )
             Send_Notification( sender_user, assigned_profile.user, task_type, task.id, MSG_NOTIFY_TYPE_PROJECT_TASK_ASSIGNED_ID, message_str, task.get_absolute_url() )
+
+@receiver(post_delete, sender=TaskProfile)
+def taskprofile_post_delete_Notifier_Composer(sender, instance, **kwargs):
+    # профиль снят с задачи
+
+    assigned_profile = instance.profile
+    if assigned_profile.profile_type == PROFILE_TYPE_USER:
+        task = instance.parenttask
+
+        sender_user = None
+        if ( not ( task.holder is None ) ) and ( not ( task.holder.user is None ) ):
+            sender_user = task.holder.user
+
+        # task holder could be empty
+        if ( sender_user is None ):
+            sender_user = instance.created_user
+
+        if assigned_profile.user != sender_user:
+            message_str = project_msg2json_str( MSG_NOTIFY_TYPE_PROJECT_TASK_UNASSIGNED_ID, arg_project_name = task.project.fullname, arg_task_name = task.fullname )
+            task_type = Get_ContentType( arg_model='task' )
+            Send_Notification( sender_user, assigned_profile.user, task_type, task.id, MSG_NOTIFY_TYPE_PROJECT_TASK_UNASSIGNED_ID, message_str, task.get_absolute_url() )
