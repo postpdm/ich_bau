@@ -1169,8 +1169,8 @@ def unschedule_one_task( request, schedule_item_id, task_id ):
 
     schedule = get_object_or_404( ScheduleItem, pk=schedule_item_id )
     schedule_task = get_object_or_404( ScheduleItem_Task, schedule_item = schedule_item_id, scheduledtask = task_id )
-
+    task_name = str( schedule_task.scheduledtask )
     schedule_task.delete()
 
-    messages.success(request, "Task was excluded from schedule!" )
+    messages.success(request, "Task " + task_name  +  " was excluded from schedule!" )
     return HttpResponseRedirect( reverse( 'project:schedule_item_view', args = [schedule_item_id]  ) )
