@@ -1101,7 +1101,7 @@ def task_check_switch(request, task_check_id):
 @login_required
 def index_schedule(request):
 
-    schedules = ScheduleItem.objects.filter( schedule_profile = request.user.profile )
+    schedules = ScheduleItem.objects.filter( schedule_profile = request.user.profile ).order_by( '-schedule_date_start' )
     n = datetime.today()
 
     offer_to_create_this_week = not schedules.filter( schedule_date_start__lte = n, schedule_date_end__gte = n ).exists()
