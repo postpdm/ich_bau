@@ -1133,6 +1133,9 @@ def create_schedule(request):
 def schedule_item_view(request, schedule_item_id ):
     schedule = get_object_or_404( ScheduleItem, pk=schedule_item_id )
 
+    if schedule.schedule_profile.user != request.user:
+        raise Http404()
+
     my_task = Get_User_Tasks(request.user)
 
     scheduled_tasks = ScheduleItem_Task.objects.filter( schedule_item = schedule )
