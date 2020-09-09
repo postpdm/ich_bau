@@ -5,6 +5,9 @@ from django.forms.models import modelformset_factory
 from django.urls import reverse
 
 from django.utils import timezone
+from datetime import *
+
+
 from django.http import HttpResponseForbidden
 from django.utils.html import strip_tags
 
@@ -1094,3 +1097,48 @@ def task_check_switch(request, task_check_id):
 
     # перебросить пользователя на задание
     return HttpResponseRedirect('/project/task/%i' % check.parenttask_id )
+
+@login_required
+def index_schedule(request):
+
+    schedules = ScheduleItem.objects.filter( schedule_profile = request.user.profile )
+    offer_to_create_this_week = True
+
+    return render( request, 'project/schedule_index.html',
+            { 'schedules' : schedules,
+              'offer_to_create_this_week' : offer_to_create_this_week,
+            } )
+
+@login_required
+def create_schedule(request):
+
+    schedule_item = ScheduleItem( schedule_profile = request.user.profile )
+    #schedule_item.schedule_date_start = timezone.now().isocalendar().isoweekday()
+
+    n = datetime.today()
+
+    n = ( n - timedelta(n.weekday()) ).replace( hour = 0, minute = 0, second = 0, microsecond = 0 )
+    schedule_item.schedule_date_start = n
+
+    schedule_item.schedule_date_end = n + timedelta( days = 7 ) - timedelta( microseconds = 1 )
+
+    schedule_item.set_change_user(request.user)
+    schedule_item.save()
+
+
+    return HttpResponseRedirect( reverse( 'project:index_schedule' ) )
+
+@login_required
+def schedule_item_view(request, schedule_item_id ):
+    schedule = get_object_or_404( ScheduleItem, pk=schedule_item_id )
+
+    scheduled_tasks = None
+    unscheduled_tasks = None
+
+    return render( request, 'project/schedule_item.html',
+            { 'schedule' : schedule,
+              'scheduled_tasks' : scheduled_tasks,
+              'unscheduled_tasks' : unscheduled_tasks,
+
+            } )
+

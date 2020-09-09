@@ -68,6 +68,12 @@ Please, log in to see your projects.
 
 {% endif %}
 
+{% if request.user.is_authenticated %}
+<h3>Your schedule</h3>
+    <a href="{% url 'project:index_schedule' %}" >Schedule</a>
+
+{% endif %}
+
 {% if filter_type == '' %}
 
 <h3>Tasks assigned to you</h3>
