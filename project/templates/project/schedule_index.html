@@ -10,9 +10,8 @@
         <div class="col-md-12">
 <h1>Your schedule</h1>
 
-{{schedules}}
 <p>
-{%for s in  schedules%}
+{% for s in schedules %}
 <a href="{{s.get_absolute_url}}">{{s.schedule_date_start}} - {{s.schedule_date_end}}</a>
 
 
