@@ -36,11 +36,11 @@
         <td>{{v.field_dict.description|safe}}</td>
         <td><a href="{% url 'profiles_detail' pk=v.field_dict.holder_id %}">{{v.field_dict.holder_id}}</a></td>
         <td>{{v.field_dict.state}}</td>
-        <td>{{v.field_dict.detailed_state}}</td>
-        <td>{{v.field_dict.milestone_id}}</td>
+        <td>{{v.field_dict.detailed_state|default_if_none:''}}</td>
+        <td>{{v.field_dict.milestone_id|default_if_none:''}}</td>
         <td>{{v.field_dict.finished_fact_at|date}}</td>
         <td>{% if v.field_dict.important %}<i class="fa fa-exclamation-triangle" style="color:red"></i>{%endif%}</td>
-        <td>{{v.field_dict.kind_id}}</td>
+        <td>{{v.field_dict.kind_id|default_if_none:''}}</td>
         <td><a href="{% url 'profiles_detail' pk=v.revision.user.profile.id %}">{{v.revision.user.profile}}</a></td>
         </tr>
         {% endfor %}

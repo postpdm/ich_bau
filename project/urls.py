@@ -74,4 +74,11 @@ urlpatterns = [
     url(r'^milestone/(?P<milestone_id>\w+)/$', views.milestone_view, name='milestone_view'),
     url(r'^milestone/(?P<milestone_id>\w+)/history/$', views.milestone_history, name='milestone_history'),
 
+    url(r'^schedule/$', views.index_schedule, name='index_schedule'),
+    url(r'^schedule_add/$', views.create_schedule, name='create_schedule'),
+    url(r'^schedule/(?P<schedule_item_id>\w+)/$', views.schedule_item_view, name='schedule_item_view'),
+
+    url(r'^schedule/(?P<schedule_item_id>\w+)/schedule_one_task/(?P<task_id>\w+)$', views.schedule_one_task, name='schedule_one_task'),
+    url(r'^schedule/(?P<schedule_item_id>\w+)/unschedule_one_task/(?P<task_id>\w+)$', views.unschedule_one_task, name='unschedule_one_task'),
+
     ]

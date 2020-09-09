@@ -5,3 +5,6 @@
     <li><a href="{{p.get_absolute_url}}">{{p.fullname}}</a></li>
 {% endfor %}
 </ul>
+
+<p>Your schedule</p>
+    <a href="{% url 'project:index_schedule' %}" >Schedule</a>

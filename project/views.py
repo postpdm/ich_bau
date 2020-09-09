@@ -5,6 +5,9 @@ from django.forms.models import modelformset_factory
 from django.urls import reverse
 
 from django.utils import timezone
+from datetime import *
+
+
 from django.http import HttpResponseForbidden
 from django.utils.html import strip_tags
 
@@ -1094,3 +1097,80 @@ def task_check_switch(request, task_check_id):
 
     # перебросить пользователя на задание
     return HttpResponseRedirect('/project/task/%i' % check.parenttask_id )
+
+@login_required
+def index_schedule(request):
+
+    schedules = ScheduleItem.objects.filter( schedule_profile = request.user.profile ).order_by( '-schedule_date_start' )
+    n = datetime.today()
+
+    offer_to_create_this_week = not schedules.filter( schedule_date_start__lte = n, schedule_date_end__gte = n ).exists()
+
+    return render( request, 'project/schedule_index.html',
+            { 'schedules' : schedules,
+              'offer_to_create_this_week' : offer_to_create_this_week,
+            } )
+
+@login_required
+def create_schedule(request):
+
+    schedule_item = ScheduleItem( schedule_profile = request.user.profile )
+    #schedule_item.schedule_date_start = timezone.now().isocalendar().isoweekday()
+
+    n = datetime.today()
+
+    n = ( n - timedelta(n.weekday()) ).replace( hour = 0, minute = 0, second = 0, microsecond = 0 )
+    schedule_item.schedule_date_start = n
+
+    schedule_item.schedule_date_end = n + timedelta( days = 7 ) - timedelta( microseconds = 1 )
+
+    schedule_item.set_change_user(request.user)
+    schedule_item.save()
+
+    return HttpResponseRedirect( schedule_item.get_absolute_url() )
+
+@login_required
+def schedule_item_view(request, schedule_item_id ):
+    schedule = get_object_or_404( ScheduleItem, pk=schedule_item_id )
+
+    if schedule.schedule_profile.user != request.user:
+        raise Http404()
+
+    my_task = Get_User_Tasks(request.user)
+
+    scheduled_tasks = ScheduleItem_Task.objects.filter( schedule_item = schedule )
+    t = Task.objects.filter( scheduledtask__in = scheduled_tasks )
+
+    unscheduled_tasks = my_task.exclude( scheduledtask__in = scheduled_tasks )
+
+    return render( request, 'project/schedule_item.html',
+            { 'schedule' : schedule,
+              'scheduled_tasks' : t,
+              'unscheduled_tasks' : unscheduled_tasks,
+
+            } )
+
+@login_required
+def schedule_one_task( request, schedule_item_id, task_id ):
+
+    schedule = get_object_or_404( ScheduleItem, pk=schedule_item_id )
+    task = get_object_or_404( Task, pk=task_id )
+
+    added_task = ScheduleItem_Task( schedule_item = schedule, scheduledtask = task )
+    added_task.set_change_user(request.user)
+    added_task.save()
+
+    messages.success(request, "Task '" + str(task) + "' was added to schedule!" )
+
+    return HttpResponseRedirect( reverse( 'project:schedule_item_view', args = [schedule_item_id]  ) )
+
+@login_required
+def unschedule_one_task( request, schedule_item_id, task_id ):
+
+    schedule = get_object_or_404( ScheduleItem, pk=schedule_item_id )
+    schedule_task = get_object_or_404( ScheduleItem_Task, schedule_item = schedule_item_id, scheduledtask = task_id )
+
+    schedule_task.delete()
+
+    messages.success(request, "Task was excluded from schedule!" )
+    return HttpResponseRedirect( reverse( 'project:schedule_item_view', args = [schedule_item_id]  ) )

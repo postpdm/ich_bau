@@ -615,3 +615,24 @@ def taskprofile_post_delete_Notifier_Composer(sender, instance, **kwargs):
             message_str = project_msg2json_str( MSG_NOTIFY_TYPE_PROJECT_TASK_UNASSIGNED_ID, arg_project_name = task.project.fullname, arg_task_name = task.fullname )
             task_type = Get_ContentType( arg_model='task' )
             Send_Notification( sender_user, assigned_profile.user, task_type, task.id, MSG_NOTIFY_TYPE_PROJECT_TASK_UNASSIGNED_ID, message_str, task.get_absolute_url() )
+
+
+# Scheduling
+
+SCHEDULEITEM_TYPE_DAY  = 0
+SCHEDULEITEM_TYPE_WEEK = 1
+
+BUSY_TYPE_AT_WORK_FULL_TIME = 1
+
+class ScheduleItem(BaseStampedModel):
+    schedule_profile = models.ForeignKey( Profile, on_delete=models.PROTECT, blank=False, null=False, related_name = "schedule_profile" )
+    scheduleitem_type = models.PositiveSmallIntegerField( blank=False, null=False, default = SCHEDULEITEM_TYPE_WEEK )
+    schedule_date_start = models.DateTimeField( blank=False, null=False )
+    schedule_date_end   = models.DateTimeField( blank=False, null=False )
+    busy_type = models.PositiveSmallIntegerField( blank=False, null=False, default = BUSY_TYPE_AT_WORK_FULL_TIME )
+    def get_absolute_url(self):
+        return "/project/schedule/%i/" % self.id
+
+class ScheduleItem_Task(BaseStampedModel):
+    schedule_item = models.ForeignKey( ScheduleItem, on_delete=models.PROTECT, blank=False, null=False )
+    scheduledtask = models.ForeignKey( Task, on_delete=models.PROTECT, related_name = 'scheduledtask' )
