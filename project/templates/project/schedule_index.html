@@ -10,14 +10,9 @@
         <div class="col-md-12">
 <h1>Your schedule</h1>
 
-<p>
 {% for s in schedules %}
-<a href="{{s.get_absolute_url}}">{{s.schedule_date_start}} - {{s.schedule_date_end}}</a>
-
-
-<br>
+  <p><a href="{{s.get_absolute_url}}">{{s}}</a></p>
 {%endfor%}
-</p>
 
 {% if offer_to_create_this_week %}
     <a href="{% url 'project:create_schedule' %}" type="button" class="btn btn-info">Create new schedule for current week</a>

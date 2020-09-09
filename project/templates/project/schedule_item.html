@@ -8,14 +8,12 @@
 {% block body %}
     <div class="row">
         <div class="col-md-12">
-<h1>Schedule for {{schedule.schedule_date_start}} - {{schedule.schedule_date_end}}. <a href="{% url 'project:index_schedule' %}" >Back to schedule list</a></h1>
+<h1>Schedule for <b>{{schedule}}</b>. <a href="{% url 'project:index_schedule' %}" >Back to schedule list</a></h1>
 
 <h3>Scheduled tasks</h3>
 <ul>
 {% for t in scheduled_tasks %}
-<li><a href="{{t.get_absolute_url}}">{{t}}</a>
-
-<a href="{% url 'project:unschedule_one_task' schedule.pk t.pk %}" type="button" class="btn btn-warning" >Unschedule</a>
+<li><a href="{{t.get_absolute_url}}">{{t}}</a> <a href="{% url 'project:unschedule_one_task' schedule.pk t.pk %}" type="button" class="btn btn-warning btn-xs" >Unschedule</a>
 
 </li>
 {%endfor%}
