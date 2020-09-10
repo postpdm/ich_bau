@@ -1115,10 +1115,13 @@ def view_profile_schedule(request, profile_id):
     schedules = ScheduleItem.objects.filter( schedule_profile = profile ).order_by( '-schedule_date_start' )
     n = datetime.today()
 
-    offer_to_create_this_week = not schedules.filter( schedule_date_start__lte = n, schedule_date_end__gte = n ).exists()
+    offer_to_create_this_week = False
+    if request.user == profile.user:
+        offer_to_create_this_week = not schedules.filter( schedule_date_start__lte = n, schedule_date_end__gte = n ).exists()
 
     return render( request, 'project/schedule_index.html',
             { 'schedules' : schedules,
+              'profile' : profile,
               'offer_to_create_this_week' : offer_to_create_this_week,
             } )
 
