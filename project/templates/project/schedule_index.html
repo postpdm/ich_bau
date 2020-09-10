@@ -22,7 +22,11 @@ schedule</h1>
 {%endfor%}
 
 {% if offer_to_create_this_week %}
-    <a href="{% url 'project:create_schedule' %}" type="button" class="btn btn-info">Create new schedule for current week</a>
+    <a href="{% url 'project:create_schedule_current' %}" type="button" class="btn btn-info">Create new schedule for current week</a>
+{% endif %}
+
+{% if offer_to_create_next_week %}
+    <a href="{% url 'project:create_schedule_next' %}" type="button" class="btn btn-info">Create new schedule for next week</a>
 {% endif %}
 
 </div>

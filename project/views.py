@@ -1117,33 +1117,51 @@ def view_profile_schedule(request, profile_id):
         raise Http404()
 
     schedules = ScheduleItem.objects.filter( schedule_profile = profile ).order_by( '-schedule_date_start' )
-    n = datetime.today()
+    today = datetime.today()
+    next = today + timedelta( days = 7 )
 
     offer_to_create_this_week = False
+    offer_to_create_next_week = False
+
     if request.user == profile.user:
-        offer_to_create_this_week = not schedules.filter( schedule_date_start__lte = n, schedule_date_end__gte = n ).exists()
+        offer_to_create_this_week = not schedules.filter( schedule_date_start__lte = today, schedule_date_end__gte = today ).exists()
+        offer_to_create_next_week = not schedules.filter( schedule_date_start__lte = next, schedule_date_end__gte = next ).exists()
 
     return render( request, 'project/schedule_index.html',
             { 'schedules' : schedules,
               'profile' : profile,
               'offer_to_create_this_week' : offer_to_create_this_week,
+              'offer_to_create_next_week' : offer_to_create_next_week,
+
             } )
 
 @login_required
-def create_schedule(request):
+def create_schedule_current(request):
+    return create_schedule(request, False)
+
+@login_required
+def create_schedule_next(request):
+    return create_schedule(request, True)
+
+@login_required
+def create_schedule(request, arg_next):
 
     schedule_item = ScheduleItem( schedule_profile = request.user.profile )
     #schedule_item.schedule_date_start = timezone.now().isocalendar().isoweekday()
 
-    n = datetime.today()
+    day = datetime.today()
+    if arg_next:
+        day = day + timedelta( days = 7 )
 
-    n = ( n - timedelta(n.weekday()) ).replace( hour = 0, minute = 0, second = 0, microsecond = 0 )
-    schedule_item.schedule_date_start = n
+    day = ( day - timedelta( day.weekday()) ).replace( hour = 0, minute = 0, second = 0, microsecond = 0 )
+    schedule_item.schedule_date_start = day
 
-    schedule_item.schedule_date_end = n + timedelta( days = 7 ) - timedelta( microseconds = 1 )
+    schedule_item.schedule_date_end = day + timedelta( days = 7 ) - timedelta( microseconds = 1 )
 
     schedule_item.set_change_user(request.user)
     schedule_item.save()
+
+    messages.success(request, "New schedule is created" )
 
     return HttpResponseRedirect( schedule_item.get_absolute_url() )
 
