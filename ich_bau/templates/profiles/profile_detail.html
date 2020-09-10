@@ -87,7 +87,11 @@
         <h2>Mannaging profiles</h2>
         {% if managed_profiles %}
         {% for cp in managed_profiles %}
-        <li><a href="{% url 'profiles_detail' pk=cp.managed_profile.id %}">{{ cp.managed_profile.display_name }}</a></li>
+        <li><a href="{% url 'profiles_detail' pk=cp.managed_profile.id %}">{{ cp.managed_profile.display_name }}</a>
+            {% if request.user == profile.user %}
+               - <a href="{% url 'project:view_profile_schedule' profile_id=cp.managed_profile.id %}" class="btn btn-default" role="button">view {{cp.managed_profile}} schedule</a>
+            {% endif %}
+        </li>
         {% endfor %}
         {% endif %}
         <h2>Managed by users</h2>
