@@ -20,7 +20,12 @@
 <h3>Scheduled tasks</h3>
 <ul>
 {% for t in scheduled_tasks %}
-<li><a href="{{t.get_absolute_url}}">{{t}}</a>
+<li>
+
+    {% if not t.get_opened %}<strike>{% endif %}
+    <a href="{{t.get_absolute_url}}">{{t}}</a>
+    {% if not t.get_opened %}</strike>{% endif %}
+
 {% if can_edit %}
 <a href="{% url 'project:unschedule_one_task' schedule.pk t.pk %}" type="button" class="btn btn-warning btn-xs" >Unschedule</a>
 {% endif %}
@@ -33,7 +38,9 @@
 <ol>
 {% for u in unscheduled_tasks %}
 <li>
+
 <a href="{{u.get_absolute_url}}">{{u}}</a>
+
 {% if can_edit %}
 <a href="{% url 'project:schedule_one_task' schedule.pk u.pk %}" type="button" class="btn btn-info" >Schedule</a>
 {% endif %}
