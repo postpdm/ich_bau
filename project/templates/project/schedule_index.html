@@ -8,19 +8,25 @@
 {% block body %}
     <div class="row">
         <div class="col-md-12">
-<h1>Your schedule</h1>
 
-<p>
+<h1>
+{% if request.user == profile.user %}
+Your
+{% else %}
+<a href="{% url 'profiles_detail' pk=profile.id %}">{{profile}}</a>
+{% endif %}
+schedule</h1>
+
 {% for s in schedules %}
-<a href="{{s.get_absolute_url}}">{{s.schedule_date_start}} - {{s.schedule_date_end}}</a>
-
-
-<br>
+  <p><a href="{{s.get_absolute_url}}">{{s}}</a>{% if s.current %} <i class="fa fa-clock-o"></i>{%endif%}</p>
 {%endfor%}
-</p>
 
 {% if offer_to_create_this_week %}
-    <a href="{% url 'project:create_schedule' %}" type="button" class="btn btn-info">Create new schedule for current week</a>
+    <a href="{% url 'project:create_schedule_current' %}" type="button" class="btn btn-info">Create new schedule for current week</a>
+{% endif %}
+
+{% if offer_to_create_next_week %}
+    <a href="{% url 'project:create_schedule_next' %}" type="button" class="btn btn-info">Create new schedule for next week</a>
 {% endif %}
 
 </div>

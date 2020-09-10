@@ -8,15 +8,27 @@
 {% block body %}
     <div class="row">
         <div class="col-md-12">
-<h1>Schedule for {{schedule.schedule_date_start}} - {{schedule.schedule_date_end}}. <a href="{% url 'project:index_schedule' %}" >Back to schedule list</a></h1>
+<h1>Schedule for <b>{{schedule}}</b>.
+
+{% if owner_page %}
+<a href="{% url 'project:view_my_index_schedule' %}" >Back to your schedule list</a>
+{% else %}
+<a href="{% url 'project:view_profile_schedule' profile_id=schedule_profile.id %}" >Back to {{schedule_profile}} schedule list</a>
+{% endif %}
+</h1>
 
 <h3>Scheduled tasks</h3>
 <ul>
 {% for t in scheduled_tasks %}
-<li><a href="{{t.get_absolute_url}}">{{t}}</a>
+<li>
 
-<a href="{% url 'project:unschedule_one_task' schedule.pk t.pk %}" type="button" class="btn btn-warning" >Unschedule</a>
+    {% if not t.get_opened %}<strike>{% endif %}
+    <a href="{{t.get_absolute_url}}">{{t}}</a>
+    {% if not t.get_opened %}</strike>{% endif %}
 
+{% if can_edit %}
+<a href="{% url 'project:unschedule_one_task' schedule.pk t.pk %}" type="button" class="btn btn-warning btn-xs" >Unschedule</a>
+{% endif %}
 </li>
 {%endfor%}
 </ul>
@@ -26,9 +38,12 @@
 <ol>
 {% for u in unscheduled_tasks %}
 <li>
+
 <a href="{{u.get_absolute_url}}">{{u}}</a>
 
+{% if can_edit %}
 <a href="{% url 'project:schedule_one_task' schedule.pk u.pk %}" type="button" class="btn btn-info" >Schedule</a>
+{% endif %}
 </li>
 
 {% endfor %}

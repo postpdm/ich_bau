@@ -630,8 +630,19 @@ class ScheduleItem(BaseStampedModel):
     schedule_date_start = models.DateTimeField( blank=False, null=False )
     schedule_date_end   = models.DateTimeField( blank=False, null=False )
     busy_type = models.PositiveSmallIntegerField( blank=False, null=False, default = BUSY_TYPE_AT_WORK_FULL_TIME )
+
     def get_absolute_url(self):
         return "/project/schedule/%i/" % self.id
+
+    def __str__(self):
+        s = str( self.schedule_date_start.date() ) + ' - ' + str( self.schedule_date_end.date() )
+        if self.scheduleitem_type == SCHEDULEITEM_TYPE_WEEK:
+            s = s + ' (week)'
+        return s
+
+    def current(self):
+        today = timezone.now()
+        return self.schedule_date_start <= today <= self.schedule_date_end
 
 class ScheduleItem_Task(BaseStampedModel):
     schedule_item = models.ForeignKey( ScheduleItem, on_delete=models.PROTECT, blank=False, null=False )

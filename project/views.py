@@ -1,6 +1,6 @@
 ﻿from project.models import *
 from project.forms import ProjectForm, TaskForm, TaskCommentForm, MilestoneForm, MemberForm, TaskLinkedForm, TaskProfileForm, TaskCheckListForm, TaskDomainForm
-from ich_bau.profiles.models import Get_Users_Profiles, Close_All_Unread_Notifications_For_Task_For_One_User
+from ich_bau.profiles.models import Get_Users_Profiles, Close_All_Unread_Notifications_For_Task_For_One_User, Is_User_Manager
 from django.forms.models import modelformset_factory
 from django.urls import reverse
 
@@ -1099,55 +1099,100 @@ def task_check_switch(request, task_check_id):
     return HttpResponseRedirect('/project/task/%i' % check.parenttask_id )
 
 @login_required
-def index_schedule(request):
+def view_my_schedule(request):
+    profile_id = request.user.profile.id
 
-    schedules = ScheduleItem.objects.filter( schedule_profile = request.user.profile ).order_by( '-schedule_date_start' )
-    n = datetime.today()
+    if profile_id > 0:
+        return view_profile_schedule(request, profile_id)
+    else:
+        raise Http404()
 
-    offer_to_create_this_week = not schedules.filter( schedule_date_start__lte = n, schedule_date_end__gte = n ).exists()
+@login_required
+def view_profile_schedule(request, profile_id):
+    profile = get_object_or_404( Profile, pk = profile_id )
+
+    owner_page = ( profile.user == request.user )
+    profile_is_managed = Is_User_Manager( request.user, profile )
+    if ( not owner_page ) and ( not profile_is_managed ):
+        raise Http404()
+
+    schedules = ScheduleItem.objects.filter( schedule_profile = profile ).order_by( '-schedule_date_start' )
+    today = datetime.today()
+    next = today + timedelta( days = 7 )
+
+    offer_to_create_this_week = False
+    offer_to_create_next_week = False
+
+    if request.user == profile.user:
+        offer_to_create_this_week = not schedules.filter( schedule_date_start__lte = today, schedule_date_end__gte = today ).exists()
+        offer_to_create_next_week = not schedules.filter( schedule_date_start__lte = next, schedule_date_end__gte = next ).exists()
 
     return render( request, 'project/schedule_index.html',
             { 'schedules' : schedules,
+              'profile' : profile,
               'offer_to_create_this_week' : offer_to_create_this_week,
+              'offer_to_create_next_week' : offer_to_create_next_week,
+
             } )
 
 @login_required
-def create_schedule(request):
+def create_schedule_current(request):
+    return create_schedule(request, False)
+
+@login_required
+def create_schedule_next(request):
+    return create_schedule(request, True)
+
+@login_required
+def create_schedule(request, arg_next):
 
     schedule_item = ScheduleItem( schedule_profile = request.user.profile )
     #schedule_item.schedule_date_start = timezone.now().isocalendar().isoweekday()
 
-    n = datetime.today()
+    day = datetime.today()
+    if arg_next:
+        day = day + timedelta( days = 7 )
 
-    n = ( n - timedelta(n.weekday()) ).replace( hour = 0, minute = 0, second = 0, microsecond = 0 )
-    schedule_item.schedule_date_start = n
+    day = ( day - timedelta( day.weekday()) ).replace( hour = 0, minute = 0, second = 0, microsecond = 0 )
+    schedule_item.schedule_date_start = day
 
-    schedule_item.schedule_date_end = n + timedelta( days = 7 ) - timedelta( microseconds = 1 )
+    schedule_item.schedule_date_end = day + timedelta( days = 7 ) - timedelta( microseconds = 1 )
 
     schedule_item.set_change_user(request.user)
     schedule_item.save()
+
+    messages.success(request, "New schedule is created" )
 
     return HttpResponseRedirect( schedule_item.get_absolute_url() )
 
 @login_required
 def schedule_item_view(request, schedule_item_id ):
     schedule = get_object_or_404( ScheduleItem, pk=schedule_item_id )
+    schedule_profile = schedule.schedule_profile
 
-    if schedule.schedule_profile.user != request.user:
+    # show page only for owner
+    owner_page = ( schedule_profile.user == request.user )
+    profile_is_managed = Is_User_Manager( request.user, schedule_profile )
+    if ( not owner_page ) and ( not profile_is_managed ):
         raise Http404()
 
-    my_task = Get_User_Tasks(request.user)
+    my_task = Get_User_Tasks(schedule_profile.user)
 
     scheduled_tasks = ScheduleItem_Task.objects.filter( schedule_item = schedule )
     t = Task.objects.filter( scheduledtask__in = scheduled_tasks )
 
     unscheduled_tasks = my_task.exclude( scheduledtask__in = scheduled_tasks )
 
+    can_edit = owner_page
+
     return render( request, 'project/schedule_item.html',
             { 'schedule' : schedule,
               'scheduled_tasks' : t,
               'unscheduled_tasks' : unscheduled_tasks,
-
+              'schedule_profile' : schedule_profile,
+              'owner_page' : owner_page,
+              'profile_is_managed' : profile_is_managed,
+              'can_edit' : can_edit,
             } )
 
 @login_required
@@ -1169,8 +1214,8 @@ def unschedule_one_task( request, schedule_item_id, task_id ):
 
     schedule = get_object_or_404( ScheduleItem, pk=schedule_item_id )
     schedule_task = get_object_or_404( ScheduleItem_Task, schedule_item = schedule_item_id, scheduledtask = task_id )
-
+    task_name = str( schedule_task.scheduledtask )
     schedule_task.delete()
 
-    messages.success(request, "Task was excluded from schedule!" )
+    messages.success(request, "Task " + task_name  +  " was excluded from schedule!" )
     return HttpResponseRedirect( reverse( 'project:schedule_item_view', args = [schedule_item_id]  ) )
