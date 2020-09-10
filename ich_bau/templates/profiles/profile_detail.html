@@ -118,6 +118,10 @@
             {% endif %}
             </h3>
 
+               {% if view_projects_and_tasks_header == 'to_managed' %}
+                   <p><a href="{% url 'project:view_profile_schedule' profile_id=profile.id %}" class="btn btn-default" role="button">View {{profile}} schedule</a></p>
+               {% endif %}
+
                 {% if profile_projects %}
                 <h4>Projects</h4>
                     <ul>
