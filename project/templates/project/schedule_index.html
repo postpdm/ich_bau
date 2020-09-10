@@ -18,7 +18,7 @@ Your
 schedule</h1>
 
 {% for s in schedules %}
-  <p><a href="{{s.get_absolute_url}}">{{s}}</a></p>
+  <p><a href="{{s.get_absolute_url}}">{{s}}</a>{% if s.current %} <i class="fa fa-clock-o"></i>{%endif%}</p>
 {%endfor%}
 
 {% if offer_to_create_this_week %}

@@ -640,6 +640,10 @@ class ScheduleItem(BaseStampedModel):
             s = s + ' (week)'
         return s
 
+    def current(self):
+        today = timezone.now()
+        return self.schedule_date_start <= today <= self.schedule_date_end
+
 class ScheduleItem_Task(BaseStampedModel):
     schedule_item = models.ForeignKey( ScheduleItem, on_delete=models.PROTECT, blank=False, null=False )
     scheduledtask = models.ForeignKey( Task, on_delete=models.PROTECT, related_name = 'scheduledtask' )
