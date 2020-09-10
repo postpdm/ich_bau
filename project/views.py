@@ -1099,9 +1099,20 @@ def task_check_switch(request, task_check_id):
     return HttpResponseRedirect('/project/task/%i' % check.parenttask_id )
 
 @login_required
-def index_schedule(request):
+def view_my_schedule(request):
+    profile_id = request.user.profile.id
 
-    schedules = ScheduleItem.objects.filter( schedule_profile = request.user.profile ).order_by( '-schedule_date_start' )
+    if profile_id > 0:
+        return view_profile_schedule(request, profile_id)
+    else:
+        raise Http404()
+
+@login_required
+def view_profile_schedule(request, profile_id):
+
+    profile = get_object_or_404( Profile, pk = profile_id )
+
+    schedules = ScheduleItem.objects.filter( schedule_profile = profile ).order_by( '-schedule_date_start' )
     n = datetime.today()
 
     offer_to_create_this_week = not schedules.filter( schedule_date_start__lte = n, schedule_date_end__gte = n ).exists()

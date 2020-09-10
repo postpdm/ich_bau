@@ -74,7 +74,7 @@ urlpatterns = [
     url(r'^milestone/(?P<milestone_id>\w+)/$', views.milestone_view, name='milestone_view'),
     url(r'^milestone/(?P<milestone_id>\w+)/history/$', views.milestone_history, name='milestone_history'),
 
-    url(r'^schedule/$', views.index_schedule, name='index_schedule'),
+    url(r'^schedule/view_my_index/$', views.view_my_schedule, name='view_my_index_schedule'),
     url(r'^schedule_add/$', views.create_schedule, name='create_schedule'),
     url(r'^schedule/(?P<schedule_item_id>\w+)/$', views.schedule_item_view, name='schedule_item_view'),
 

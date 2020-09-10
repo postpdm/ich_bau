@@ -70,7 +70,7 @@ Please, log in to see your projects.
 
 {% if request.user.is_authenticated %}
 <h3>Your schedule</h3>
-    <a href="{% url 'project:index_schedule' %}" >Schedule</a>
+    <a href="{% url 'project:view_my_index_schedule' %}" >Schedule</a>
 
 {% endif %}
 
