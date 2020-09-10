@@ -1,6 +1,6 @@
 ﻿from project.models import *
 from project.forms import ProjectForm, TaskForm, TaskCommentForm, MilestoneForm, MemberForm, TaskLinkedForm, TaskProfileForm, TaskCheckListForm, TaskDomainForm
-from ich_bau.profiles.models import Get_Users_Profiles, Close_All_Unread_Notifications_For_Task_For_One_User
+from ich_bau.profiles.models import Get_Users_Profiles, Close_All_Unread_Notifications_For_Task_For_One_User, Is_User_Manager
 from django.forms.models import modelformset_factory
 from django.urls import reverse
 
@@ -1109,8 +1109,12 @@ def view_my_schedule(request):
 
 @login_required
 def view_profile_schedule(request, profile_id):
-
     profile = get_object_or_404( Profile, pk = profile_id )
+
+    owner_page = ( profile.user == request.user )
+    profile_is_managed = Is_User_Manager( request.user, profile )
+    if ( not owner_page ) and ( not profile_is_managed ):
+        raise Http404()
 
     schedules = ScheduleItem.objects.filter( schedule_profile = profile ).order_by( '-schedule_date_start' )
     n = datetime.today()
@@ -1146,22 +1150,31 @@ def create_schedule(request):
 @login_required
 def schedule_item_view(request, schedule_item_id ):
     schedule = get_object_or_404( ScheduleItem, pk=schedule_item_id )
+    schedule_profile = schedule.schedule_profile
 
-    if schedule.schedule_profile.user != request.user:
+    # show page only for owner
+    owner_page = ( schedule_profile.user == request.user )
+    profile_is_managed = Is_User_Manager( request.user, schedule_profile )
+    if ( not owner_page ) and ( not profile_is_managed ):
         raise Http404()
 
-    my_task = Get_User_Tasks(request.user)
+    my_task = Get_User_Tasks(schedule_profile.user)
 
     scheduled_tasks = ScheduleItem_Task.objects.filter( schedule_item = schedule )
     t = Task.objects.filter( scheduledtask__in = scheduled_tasks )
 
     unscheduled_tasks = my_task.exclude( scheduledtask__in = scheduled_tasks )
 
+    can_edit = owner_page
+
     return render( request, 'project/schedule_item.html',
             { 'schedule' : schedule,
               'scheduled_tasks' : t,
               'unscheduled_tasks' : unscheduled_tasks,
-
+              'schedule_profile' : schedule_profile,
+              'owner_page' : owner_page,
+              'profile_is_managed' : profile_is_managed,
+              'can_edit' : can_edit,
             } )
 
 @login_required
