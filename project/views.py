@@ -3,10 +3,10 @@ from project.forms import ProjectForm, TaskForm, TaskCommentForm, MilestoneForm,
 from ich_bau.profiles.models import Get_Users_Profiles, Close_All_Unread_Notifications_For_Task_For_One_User, Is_User_Manager
 from django.forms.models import modelformset_factory
 from django.urls import reverse
+from django.db.models import Count
 
 from django.utils import timezone
 from datetime import *
-
 
 from django.http import HttpResponseForbidden
 from django.utils.html import strip_tags
@@ -1116,7 +1116,8 @@ def view_profile_schedule(request, profile_id):
     if ( not owner_page ) and ( not profile_is_managed ):
         raise Http404()
 
-    schedules = ScheduleItem.objects.filter( schedule_profile = profile ).order_by( '-schedule_date_start' )
+    schedules = ScheduleItem.objects.filter( schedule_profile = profile ).annotate(Count('scheduleitem_task')).order_by( '-schedule_date_start' )
+
     today = datetime.today()
     next = today + timedelta( days = 7 )
 
