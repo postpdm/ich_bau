@@ -7,7 +7,6 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.template import RequestContext
 
 from account.mixins import LoginRequiredMixin
-from django.contrib.auth.mixins import PermissionRequiredMixin
 
 from .forms import ProfileForm, ContactProfileForm, Profile_AffiliationForm
 from .models import *
@@ -91,22 +90,20 @@ class ProfileDetailView(DetailView):
 def my_profile_view(request):
     return redirect( 'profiles_detail', pk = request.user.profile.id )
 
-class ProfileListView(ListView):
+# доступ - для авторизованных
+class ProfileListView(LoginRequiredMixin, ListView):
 
     model = Profile
     context_object_name = "profiles"
 
     def get_context_data(self, **kwargs):
         context = super(ProfileListView, self).get_context_data(**kwargs)
-        # check if user has permission to create profile (or super user)
-        context[ 'can_add_profile' ] = self.request.user.has_perm('profiles.add_profile')
+        context[ 'can_add_profile' ] = self.request.user.is_authenticated()
         return context
 
-class ProfileCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateView):
+class ProfileCreateView(LoginRequiredMixin, CreateView):
     model = Profile
     form_class = ContactProfileForm
-    permission_required = 'profiles.add_profile'
-    raise_exception = True
 
 class ProfileUpdateView(LoginRequiredMixin, UpdateView):
     model = Profile
