@@ -8,7 +8,7 @@
 {% if profile_affiliation.pk %}
 Edit
 {% else %}
-Add
+Add to {{main_profile}}
 {% endif %}
 
 {% endblock %}
@@ -17,6 +17,11 @@ Add
 {% block body %}
 <div class="row">
 <div class="col-md-9">
+<ol>
+{% for lp in level_profiles %}
+<li><a href="{% url 'profile_add_sub_tree_view' pk=main_profile.pk level_pk=lp.pk %}">{{lp}}</a></li>
+{% endfor %}
+</ol>
 
 {{ form.media }}
 
@@ -25,7 +30,7 @@ Add
                 {% if profile_affiliation.pk %}
                     <legend>Edit</legend>
                 {% else %}
-                    <legend>Add</legend>
+                    <legend>Add to <a href="{{main_profile.get_absolute_url}}">{{main_profile}}</a></legend>
                 {% endif %}
 
             {% csrf_token %}
