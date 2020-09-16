@@ -39,4 +39,4 @@ class Profile_AffiliationForm(forms.ModelForm):
     
         # отображать только не привязанные
         if mp:
-            self.fields['sub_profile'].queryset = level_profiles #mp.list_of_avail_for_affiliate()
+            self.fields['sub_profile'].queryset = level_profiles & mp.list_of_avail_for_affiliate()

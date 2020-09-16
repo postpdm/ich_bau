@@ -163,7 +163,7 @@ class Profile_Affiliation(models.Model):
             return super(Profile_Affiliation, self).save(*args, **kwargs)
 
 def Get_Profiles_From_Level( arg_level ):
-    # if arg_level == 0  then take the root
+    # if arg_level == 0 then take the root
     from django.db.models import Count
     try:
         if arg_level == 0:
