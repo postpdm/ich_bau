@@ -16,7 +16,7 @@
 <a href="{% url 'project:view_profile_schedule' profile_id=schedule_profile.id %}" >Back to {{schedule_profile}} schedule list</a>
 {% endif %}
 </h1>
-
+<p>Schedule created by {{schedule.created_user}}.</p>
 <h3>Scheduled tasks</h3>
 <ul>
 {% for t in scheduled_tasks %}
