@@ -56,7 +56,7 @@ class ProfileDetailView(DetailView):
             context['managed_by_user'] = Profile_Manage_User.objects.filter( managed_profile = current_profile )
 
             if self.request.user == current_profile.user:
-                # юзер смотрит свой собственный профиль
+                # ГѕГ§ГҐГ° Г±Г¬Г®ГІГ°ГЁГІ Г±ГўГ®Г© Г±Г®ГЎГ±ГІГўГҐГ­Г­Г»Г© ГЇГ°Г®ГґГЁГ«Гј
                 context['user_repo_pw'] = current_profile.repo_pw
                 Current_User_Profile = True
                 view_projects_and_tasks_header = 'to_you'
@@ -90,7 +90,7 @@ class ProfileDetailView(DetailView):
 def my_profile_view(request):
     return redirect( 'profiles_detail', pk = request.user.profile.id )
 
-# доступ - для авторизованных
+# Г¤Г®Г±ГІГіГЇ - Г¤Г«Гї Г ГўГІГ®Г°ГЁГ§Г®ГўГ Г­Г­Г»Гµ
 class ProfileListView(LoginRequiredMixin, ListView):
 
     model = Profile
@@ -201,9 +201,9 @@ def notifications_view_read(request):
 @login_required
 def notification_read( request, notification_id ):
     from django.http import HttpResponse
-    # у самого уведомления отдельной страницы нет
+    # Гі Г±Г Г¬Г®ГЈГ® ГіГўГҐГ¤Г®Г¬Г«ГҐГ­ГЁГї Г®ГІГ¤ГҐГ«ГјГ­Г®Г© Г±ГІГ°Г Г­ГЁГ¶Г» Г­ГҐГІ
     n = get_object_or_404( Notification, pk=notification_id )
-    # убедимся, что юзер - адресат уведомления
+    # ГіГЎГҐГ¤ГЁГ¬Г±Гї, Г·ГІГ® ГѕГ§ГҐГ° - Г Г¤Г°ГҐГ±Г ГІ ГіГўГҐГ¤Г®Г¬Г«ГҐГ­ГЁГї
     if n.reciever_user == request.user:
         if n.get_unreaded:
             n.mark_readed()
