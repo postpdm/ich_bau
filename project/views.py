@@ -1185,16 +1185,14 @@ def schedule_item_view(request, schedule_item_id ):
 
     my_task = Get_User_Tasks(schedule_profile.user)
 
-    scheduled_tasks = ScheduleItem_Task.objects.filter( schedule_item = schedule )
-    t = Task.objects.filter( scheduledtask__in = scheduled_tasks )
+    scheduled_task_items = ScheduleItem_Task.objects.filter( schedule_item = schedule )
+    unscheduled_tasks = my_task.exclude( scheduledtask__in = scheduled_task_items )
 
-    unscheduled_tasks = my_task.exclude( scheduledtask__in = scheduled_tasks )
-
-    can_edit = owner_page
+    can_edit = owner_page or profile_is_managed
 
     return render( request, 'project/schedule_item.html',
             { 'schedule' : schedule,
-              'scheduled_tasks' : t,
+              'scheduled_task_items' : scheduled_task_items,
               'unscheduled_tasks' : unscheduled_tasks,
               'schedule_profile' : schedule_profile,
               'owner_page' : owner_page,
