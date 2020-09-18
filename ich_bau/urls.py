@@ -21,6 +21,7 @@ urlpatterns = [
     url(r"^p/(?P<pk>\w+)/edit/$", ProfileUpdateView.as_view(), name="profile_update"),
     url(r"^p/create$", ProfileCreateView.as_view(), name="profile_create"),
     url(r"^p/(?P<pk>\w+)/add_sub/$", ProfileCreateSubView.as_view(), name="profile_add_sub"),
+    url(r"^p/(?P<pk>\w+)/level/(?P<level_pk>\w+)/add_sub/$", ProfileCreateSubView.as_view(), name="profile_add_sub_tree_view"),
 
     url(r"^notifications/$", notifications_view_unread, name="unread_notifications_view"),
     url(r"^notifications_by_type/$", notifications_view_unread_by_type, name="unread_notifications_view_by_type"),

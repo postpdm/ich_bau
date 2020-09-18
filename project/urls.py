@@ -77,7 +77,9 @@ urlpatterns = [
     url(r'^schedule/view_my_index/$', views.view_my_schedule, name='view_my_index_schedule'),
     url(r'^schedule/view_profile_index/(?P<profile_id>\w+)/$', views.view_profile_schedule, name='view_profile_schedule'),
     url(r'^schedule_add_current/$', views.create_schedule_current, name='create_schedule_current'),
+    url(r'^schedule_add_current/(?P<profile_id>\w+)/$', views.create_schedule_current, name='create_schedule_current'),
     url(r'^schedule_add_next/$', views.create_schedule_next, name='create_schedule_next'),
+    url(r'^schedule_add_next/(?P<profile_id>\w+)/$', views.create_schedule_next, name='create_schedule_next'),
     url(r'^schedule/(?P<schedule_item_id>\w+)/$', views.schedule_item_view, name='schedule_item_view'),
 
     url(r'^schedule/(?P<schedule_item_id>\w+)/schedule_one_task/(?P<task_id>\w+)$', views.schedule_one_task, name='schedule_one_task'),

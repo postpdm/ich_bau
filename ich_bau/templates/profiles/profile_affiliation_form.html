@@ -8,7 +8,7 @@
 {% if profile_affiliation.pk %}
 Edit
 {% else %}
-Add
+Add to {{main_profile}}
 {% endif %}
 
 {% endblock %}
@@ -18,14 +18,17 @@ Add
 <div class="row">
 <div class="col-md-9">
 
-{{ form.media }}
-
+<table width="100%">
+<tbody>
+<tr>
+<td>
+        {{ form.media }}
         <form class="span6" id="milestone_form" method="post" action="" enctype="multipart/form-data">
 
                 {% if profile_affiliation.pk %}
                     <legend>Edit</legend>
                 {% else %}
-                    <legend>Add</legend>
+                    <legend>Add to <a href="{{main_profile.get_absolute_url}}">{{main_profile}}</a></legend>
                 {% endif %}
 
             {% csrf_token %}
@@ -41,6 +44,35 @@ Add
 
             <button class="btn btn-primary" type="submit" name="submit">Save</button>
         </form>
+</td>
+<td>
+&nbsp;
+</td>
+<td>
+    <p>Navigate through the tree of profiles list
+    {% if level_pk > 0 %}
+        of <mark>{{root_profile}}</mark>.
+        Back to profile tree <a href="{% url 'profile_add_sub_tree_view' pk=main_profile.pk level_pk=0 %}" class="btn btn-default btn-sm" >root</a>.
+    {% else %}<mark>root</mark>.
+    {% endif %}
+    </p>
+
+    {% if level_profiles %}
+    <ol>
+        {% for lp in level_profiles %}
+            <li><a href="{% url 'profile_add_sub_tree_view' pk=main_profile.pk level_pk=lp.pk %}" class="btn btn-default btn-sm" >{{lp}}</a></li>
+        {% endfor %}
+    </ol>
+    {% else %}
+        <p class="bg-warning">No sub profiles.</p>
+    {% endif %}
+</td>
+
+</tr>
+</tbody>
+</table>
+
+
 </div>
 </div>
 {% endblock %}

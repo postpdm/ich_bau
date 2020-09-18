@@ -22,11 +22,19 @@ schedule</h1>
 {%endfor%}
 
 {% if offer_to_create_this_week %}
-    <a href="{% url 'project:create_schedule_current' %}" type="button" class="btn btn-info">Create new schedule for current week</a>
+    {% if profile_is_managed %}
+    <a href="{% url 'project:create_schedule_current' profile_id=profile.id %}" type="button" class="btn btn-info">Create new schedule for current week for managed profile</a>
+    {% else %}
+    <a href="{% url 'project:create_schedule_current' %}" type="button" class="btn btn-info">Create new schedule for current week for you</a>
+    {% endif %}
 {% endif %}
 
 {% if offer_to_create_next_week %}
-    <a href="{% url 'project:create_schedule_next' %}" type="button" class="btn btn-info">Create new schedule for next week</a>
+    {% if profile_is_managed %}
+    <a href="{% url 'project:create_schedule_next' profile_id=profile.id %}" type="button" class="btn btn-info">Create new schedule for next week for managed profile</a>
+    {% else %}
+    <a href="{% url 'project:create_schedule_next' %}" type="button" class="btn btn-info">Create new schedule for next week for you</a>
+    {% endif %}
 {% endif %}
 
 </div>

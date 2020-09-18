@@ -162,6 +162,19 @@ class Profile_Affiliation(models.Model):
         else:
             return super(Profile_Affiliation, self).save(*args, **kwargs)
 
+def Get_Profiles_From_Level( arg_level ):
+    # if arg_level == 0 then take the root
+    from django.db.models import Count
+    try:
+        if arg_level == 0:
+            q = Profile.objects.annotate( c = Count('sub_profile') ).filter( c = 0 )
+        else:
+            q = Profile.objects.filter(sub_profile__main_profile_id = arg_level )
+        
+        return q
+    except:
+        return None
+
 class Profile_Manage_User(models.Model):
     manager_user = models.ForeignKey(User, on_delete=models.PROTECT, related_name="manager_user")
     managed_profile = models.ForeignKey(Profile, on_delete=models.PROTECT, related_name = 'managed_profile' )

@@ -32,8 +32,11 @@ class Profile_AffiliationForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super(Profile_AffiliationForm, self).__init__(*args, **kwargs)
         # форма работает в режиме создания (смотрим 'initial')
-        mp = kwargs.pop('initial', None)['main_profile']
-
+        pop = kwargs.pop('initial', None)
+        
+        mp = pop['main_profile']
+        level_profiles = pop['level_profiles']
+    
         # отображать только не привязанные
         if mp:
-            self.fields['sub_profile'].queryset = mp.list_of_avail_for_affiliate()
+            self.fields['sub_profile'].queryset = level_profiles & mp.list_of_avail_for_affiliate()

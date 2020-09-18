@@ -1124,30 +1124,36 @@ def view_profile_schedule(request, profile_id):
     offer_to_create_this_week = False
     offer_to_create_next_week = False
 
-    if request.user == profile.user:
+    if ( request.user == profile.user ) or ( profile_is_managed ):
         offer_to_create_this_week = not schedules.filter( schedule_date_start__lte = today, schedule_date_end__gte = today ).exists()
         offer_to_create_next_week = not schedules.filter( schedule_date_start__lte = next, schedule_date_end__gte = next ).exists()
 
     return render( request, 'project/schedule_index.html',
             { 'schedules' : schedules,
               'profile' : profile,
+              'owner_page' : owner_page,
+              'profile_is_managed' : profile_is_managed,
               'offer_to_create_this_week' : offer_to_create_this_week,
               'offer_to_create_next_week' : offer_to_create_next_week,
 
             } )
 
 @login_required
-def create_schedule_current(request):
-    return create_schedule(request, False)
+def create_schedule_current(request, profile_id = 0 ):
+    return create_schedule(request, False, int( profile_id ) )
 
 @login_required
-def create_schedule_next(request):
-    return create_schedule(request, True)
+def create_schedule_next(request, profile_id = 0 ):
+    return create_schedule(request, True, int( profile_id ) )
 
 @login_required
-def create_schedule(request, arg_next):
+def create_schedule(request, arg_next, arg_profile_id ):
+    if arg_profile_id > 0:
+        profile = get_object_or_404( Profile, pk = arg_profile_id )
+    else:
+        profile = request.user.profile
 
-    schedule_item = ScheduleItem( schedule_profile = request.user.profile )
+    schedule_item = ScheduleItem( schedule_profile = profile )
     #schedule_item.schedule_date_start = timezone.now().isocalendar().isoweekday()
 
     day = datetime.today()
@@ -1179,16 +1185,14 @@ def schedule_item_view(request, schedule_item_id ):
 
     my_task = Get_User_Tasks(schedule_profile.user)
 
-    scheduled_tasks = ScheduleItem_Task.objects.filter( schedule_item = schedule )
-    t = Task.objects.filter( scheduledtask__in = scheduled_tasks )
+    scheduled_task_items = ScheduleItem_Task.objects.filter( schedule_item = schedule )
+    unscheduled_tasks = my_task.exclude( scheduledtask__in = scheduled_task_items )
 
-    unscheduled_tasks = my_task.exclude( scheduledtask__in = scheduled_tasks )
-
-    can_edit = owner_page
+    can_edit = owner_page or profile_is_managed
 
     return render( request, 'project/schedule_item.html',
             { 'schedule' : schedule,
-              'scheduled_tasks' : t,
+              'scheduled_task_items' : scheduled_task_items,
               'unscheduled_tasks' : unscheduled_tasks,
               'schedule_profile' : schedule_profile,
               'owner_page' : owner_page,

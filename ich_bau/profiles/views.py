@@ -116,9 +116,34 @@ class ProfileCreateSubView(LoginRequiredMixin, CreateView):
     def get_initial(self):
         try:
             self.mp = get_object_or_404( Profile, pk = self.kwargs['pk'])
-            return { 'main_profile': self.mp, }
+
+            try:
+                level_pk = int( self.kwargs['level_pk'] )
+                root_profile = get_object_or_404( Profile, pk = level_pk )
+            except:
+                level_pk = 0
+                root_profile = 0
+
+            level_profiles = Get_Profiles_From_Level( level_pk )
+
+            self.root_profile = root_profile
+            self.level_pk = level_pk
+            self.level_profiles = level_profiles
+
+            return { 'main_profile': self.mp,
+                     'level_pk' : self.level_pk,
+                     'level_profiles' : self.level_profiles,
+                   }
         except:
             Http404()
+
+    def get_context_data(self, **kwargs):
+        context_dict = super(ProfileCreateSubView, self).get_context_data(**kwargs)
+        context_dict['main_profile'] = self.mp
+        context_dict['level_pk'] = self.level_pk
+        context_dict['root_profile'] = self.root_profile
+        context_dict['level_profiles'] = self.level_profiles
+        return context_dict
 
     def form_valid(self, form):
         self.object = form.save(commit=False)

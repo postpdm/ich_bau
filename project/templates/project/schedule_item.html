@@ -16,18 +16,22 @@
 <a href="{% url 'project:view_profile_schedule' profile_id=schedule_profile.id %}" >Back to {{schedule_profile}} schedule list</a>
 {% endif %}
 </h1>
-
+<p>Schedule created by {{schedule.created_user}}.</p>
 <h3>Scheduled tasks</h3>
 <ul>
-{% for t in scheduled_tasks %}
+{% for st in scheduled_task_items %}
 <li>
 
-    {% if not t.get_opened %}<strike>{% endif %}
-    <a href="{{t.get_absolute_url}}">{{t}}</a>
-    {% if not t.get_opened %}</strike>{% endif %}
+    {% if not st.scheduledtask.get_opened %}<strike>{% endif %}
+    <a href="{{st.get_absolute_url}}">{{st.scheduledtask}}</a>
+    {% if not st.scheduledtask.get_opened %}</strike>{% endif %}
 
 {% if can_edit %}
-<a href="{% url 'project:unschedule_one_task' schedule.pk t.pk %}" type="button" class="btn btn-warning btn-xs" >Unschedule</a>
+    {% if st.created_user == request.user %}
+        <a href="{% url 'project:unschedule_one_task' schedule.pk st.pk %}" type="button" class="btn btn-warning btn-xs" >Unschedule</a>
+    {% else %}
+        (task was scheduled by {{st.created_user}})
+    {% endif %}
 {% endif %}
 </li>
 {%endfor%}
