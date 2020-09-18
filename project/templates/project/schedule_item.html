@@ -23,7 +23,7 @@
 <li>
 
     {% if not st.scheduledtask.get_opened %}<strike>{% endif %}
-    <a href="{{st.get_absolute_url}}">{{st.scheduledtask}}</a>
+    <a href="{{st.scheduledtask.get_absolute_url}}">{{st.scheduledtask}}</a>
     {% if not st.scheduledtask.get_opened %}</strike>{% endif %}
 
 {% if can_edit %}
