@@ -17,6 +17,27 @@ Create profile link
 <div class="row">
 <div class="col-md-9">
 
+{% if not add_user %}
+
+    <p>Navigate through the tree of profiles list
+    {% if level_pk > 0 %}
+        of <mark>{{root_profile}}</mark>.
+        Back to profile tree <a href="{% url 'project:add_profile_sub_tree_view' task_id=task.pk level_pk=0 %}" class="btn btn-default btn-sm" >root</a>.
+    {% else %}<mark>root</mark>.
+    {% endif %}
+    </p>
+
+    {% if level_profiles %}
+    <ol>
+        {% for lp in level_profiles %}
+            <li><a href="{% url 'project:add_profile_sub_tree_view' task_id=task.pk level_pk=lp.pk %}" class="btn btn-default btn-sm" >{{lp}}</a></li>
+        {% endfor %}
+    </ol>
+    {% else %}
+        <p class="bg-warning">No sub profiles.</p>
+    {% endif %}
+{% endif %}
+
 {{ form.media }}
 
         <form class="span6" id="profile_link_form" method="post" action="" enctype="multipart/form-data">
@@ -24,7 +45,7 @@ Create profile link
                 {% if profile.pk %}
                     <legend>Edit profile link</legend>
                 {% else %}
-                    <legend>Add profile link</legend>
+                    <legend>Add profile link to '<a href="{{task.get_absolute_url}}">{{task}}</a>'</legend>
                 {% endif %}        
         
             {% csrf_token %}

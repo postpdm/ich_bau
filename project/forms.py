@@ -89,16 +89,9 @@ class TaskProfileForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         argmaintaskid = kwargs.pop('argmaintaskid', None)
-        add_user = kwargs.pop('add_user', None)
+        q = kwargs.pop('arg_query_for_combo', None)
         super(TaskProfileForm, self).__init__(*args, **kwargs)
-
-        if (argmaintaskid != "" ):
-            main_task = Task.objects.get( id = argmaintaskid )
-            q = Get_Profiles_Available2Task( argmaintaskid ) # base query - all types profiles, unassigned
-            if add_user:
-                self.fields['profile'].queryset = q.filter( profile_type = PROFILE_TYPE_USER ) # only users
-            else:
-                self.fields['profile'].queryset = q.exclude( profile_type = PROFILE_TYPE_USER ) # all except users
+        self.fields['profile'].queryset = q
 
     class Meta:
         model = TaskProfile
