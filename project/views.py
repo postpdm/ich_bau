@@ -1,6 +1,6 @@
 ﻿from project.models import *
 from project.forms import ProjectForm, TaskForm, TaskCommentForm, MilestoneForm, MemberForm, TaskLinkedForm, TaskProfileForm, TaskCheckListForm, TaskDomainForm
-from ich_bau.profiles.models import Get_Users_Profiles, Close_All_Unread_Notifications_For_Task_For_One_User, Is_User_Manager
+from ich_bau.profiles.models import Get_Users_Profiles, Close_All_Unread_Notifications_For_Task_For_One_User, Is_User_Manager, Get_Profiles_From_Level
 from django.forms.models import modelformset_factory
 from django.urls import reverse
 from django.db.models import Count
@@ -1010,15 +1010,30 @@ def project_task_domain_unlink(request, taskdomain_id):
 
 # add_user - True for user, False for other kind of profiles
 @login_required
-def add_user_or_profile(request, task_id, add_user):
+def add_user_or_profile(request, task_id, add_user, arg_level_pk = 0 ):
     context = RequestContext(request)
+    task = get_object_or_404( Task, pk = task_id )
+    level_pk = int( arg_level_pk )
+    root_profile = None
+    level_profiles = None
+
+    if add_user:
+        query_for_combo = Get_Profiles_Available2Task( task_id ) # base query - all types profiles, unassigned
+        query_for_combo = query_for_combo.filter( profile_type = PROFILE_TYPE_USER ) # only users
+    else:
+        if level_pk > 0:
+            root_profile = get_object_or_404( Profile, pk = level_pk )
+        else:
+            root_profile = None
+        level_profiles = Get_Profiles_From_Level( level_pk )
+        query_for_combo = ( level_profiles.distinct() & Get_Profiles_Available2Task( task_id ) ).exclude( profile_type = PROFILE_TYPE_USER ) # unlinked, from current level and except users
 
     if request.method == 'POST':
-        form = TaskProfileForm(request.POST, argmaintaskid = task_id, add_user = add_user )
+        form = TaskProfileForm(request.POST, argmaintaskid = task_id, arg_query_for_combo = query_for_combo )
 
         if form.is_valid():
             tp = form.save(commit=False)
-            tp.parenttask=Task.objects.get(id=task_id)
+            tp.parenttask=task
             tp.set_change_user(request.user)
             tp.save()
             # перебросить пользователя на задание
@@ -1026,11 +1041,17 @@ def add_user_or_profile(request, task_id, add_user):
         else:
             print( form.errors )
     else:
-        form = TaskProfileForm( argmaintaskid = task_id, add_user = add_user )
+        form = TaskProfileForm( argmaintaskid = task_id, arg_query_for_combo = query_for_combo )
 
     return render( request, 'project/task_add_profile.html',
             {'task_id': task_id,
-             'form': form} )
+             'task' : task,
+             'form': form,
+             'add_user' : add_user,
+             'level_pk' : level_pk,
+             'root_profile' : root_profile,
+             'level_profiles' : level_profiles
+             } )
 
 @login_required
 def switch_assign_responsibillty(request, taskprofile_id):
@@ -1055,8 +1076,8 @@ def remove_assign_responsibillty(request, taskprofile_id):
     return HttpResponseRedirect('/project/task/' + str( tp.parenttask_id ) )
 
 @login_required
-def add_profile(request, task_id):
-    return add_user_or_profile(request, task_id, False)
+def add_profile(request, task_id, level_pk = 0):
+    return add_user_or_profile(request, task_id, False, level_pk)
 
 @login_required
 def add_user(request, task_id):

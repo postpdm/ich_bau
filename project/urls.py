@@ -54,6 +54,7 @@ urlpatterns = [
     url(r'^add_linked/(?P<task_id>\w+)/$', views.add_linked, name='add_linked'),
 
     url(r'^add_profile/(?P<task_id>\w+)/$', views.add_profile, name='add_profile'),
+    url(r'^add_profile/(?P<task_id>\w+)/level/(?P<level_pk>\w+)/$', views.add_profile, name='add_profile_sub_tree_view'),
     url(r'^add_user/(?P<task_id>\w+)/$', views.add_user, name='add_user'),
     url(r'^switch_assign_responsibillty/(?P<taskprofile_id>\w+)/$', views.switch_assign_responsibillty, name='switch_assign_responsibillty'),
     url(r'^remove_assign_responsibillty/(?P<taskprofile_id>\w+)/$', views.remove_assign_responsibillty, name='remove_assign_responsibillty'),
