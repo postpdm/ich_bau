@@ -25,6 +25,7 @@
     <th>Finished fact</th>
     <th>Important</th>
     <th>Kind</th>
+    <th>Project</th>
     <th>User</th>
     </tr>
     </thead>
@@ -41,6 +42,7 @@
         <td>{{v.field_dict.finished_fact_at|date}}</td>
         <td>{% if v.field_dict.important %}<i class="fa fa-exclamation-triangle" style="color:red"></i>{%endif%}</td>
         <td>{{v.field_dict.kind_id|default_if_none:''}}</td>
+        <td>{{v.field_dict.project_id}}</td>
         <td><a href="{% url 'profiles_detail' pk=v.revision.user.profile.id %}">{{v.revision.user.profile}}</a></td>
         </tr>
         {% endfor %}

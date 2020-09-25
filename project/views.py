@@ -1245,3 +1245,26 @@ def unschedule_one_task( request, schedule_item_id, task_id ):
 
     messages.success(request, "Task " + task_name  +  " was excluded from schedule!" )
     return HttpResponseRedirect( reverse( 'project:schedule_item_view', args = [schedule_item_id]  ) )
+
+@login_required
+def task_move2project( request, task_id, project_id = 0 ):
+    task = get_object_or_404( Task, pk=task_id )
+    target_project_id = int( project_id )
+    if target_project_id > 0:
+        if target_project_id != task.project.id:
+            with transaction.atomic(), reversion.create_revision():
+                reversion.set_user(request.user)
+                task.project_id = target_project_id
+                task.set_change_user(request.user)
+                task.save()
+
+            messages.success(request, "You have moved task " + str( task )  +  " to another project." )
+            return HttpResponseRedirect( reverse( 'project:task_view', args = [task_id] ) )
+
+    else:
+        available_projects = GetAvailableProjectList(request.user).exclude( id = task.project.id )
+
+        return render( request, 'project/task_move2project.html',
+                { 'task' : task,
+                  'available_projects' : available_projects,
+                } )
