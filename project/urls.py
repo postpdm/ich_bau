@@ -53,6 +53,9 @@ urlpatterns = [
     url(r'^task/(?P<task_id>\w+)/history/$', views.task_history, name='task_history'),
     url(r'^add_linked/(?P<task_id>\w+)/$', views.add_linked, name='add_linked'),
 
+    url(r'^task_move2project_dialog/(?P<task_id>\w+)/$', views.task_move2project, name='task_move2project_dialog'),
+    url(r'^task_move2project_check/(?P<task_id>\w+)/target_project/(?P<project_id>\w+)/$', views.task_move2project, name='task_move2project_check'),
+
     url(r'^add_profile/(?P<task_id>\w+)/$', views.add_profile, name='add_profile'),
     url(r'^add_profile/(?P<task_id>\w+)/level/(?P<level_pk>\w+)/$', views.add_profile, name='add_profile_sub_tree_view'),
     url(r'^add_user/(?P<task_id>\w+)/$', views.add_user, name='add_user'),

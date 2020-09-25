@@ -55,7 +55,9 @@
  {%comment%}
   <a class="btn btn-default" href="{{ task.get_absolute_url }}edit_target_date"><i class="fa fa-clock-o"></i> Edit target date</a>
  {%endcomment%}
-
+      {% if user_can_admin %}
+      <a class="btn btn-default" href="{% url 'project:task_move2project_dialog' task_id=task.id %}"><i class="fa fa-random"></i> Move task</a>
+      {% endif %}
   {% endif %}
 {% if task.created_at == task.modified_at %}
 no history to view
