@@ -62,16 +62,20 @@ Please, log in to see your projects.
     {% include "project/task_list.html" with table_mode='index' %}
 {% else %}
     {% if filter_type == 'task_search_by_domain' %}
+    <div class="row">
+        <div class="col-md-9">
 
+        <p>
         {% if selected_domain == None %}
             <strong>
         {% endif %}
-        <p><a href="{% url 'project:task_search_by_domain' %}">Tasks without domains</a></p>
+        <a href="{% url 'project:task_search_by_domain' %}">Tasks without domains</a>
         {% if selected_domain == None %}
             </strong>
         {% endif %}
+        </p>
 
-
+        <p>
         {% load mptt_tags %}
                 {% recursetree domains %}
                     <li>
@@ -85,6 +89,9 @@ Please, log in to see your projects.
                         {% endif %}
                     </li>
                 {% endrecursetree %}
+        </p>
+        </div>
+    </div>
 
     <h2>Search for tasks by domain</h2>
     {% include "project/task_list.html" with table_mode='index' %}
