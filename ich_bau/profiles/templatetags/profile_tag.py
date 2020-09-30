@@ -13,6 +13,7 @@ PROFILE_TYPE_ICONS = (
   ( PROFILE_TYPE_DEPARTAMENT, 'fa-users' ),
   ( PROFILE_TYPE_ORG, 'fa-university' ),
   ( PROFILE_TYPE_RESOURCE, 'fa-cogs' ),
+  ( PROFILE_TYPE_FOLDER, 'fa-folder' ),
 )
 
 @register.simple_tag(name='fa_profile_icon', takes_context=True)
