@@ -102,6 +102,13 @@ no history to view
                     </li>
                 {% endrecursetree %}
             </ul>
+          <p>
+          {% if selected_domain == None %}
+            <a href="{% url 'project:task_search_by_domain' %}" class="btn btn-default">Search for all tasks without domains</a>
+          {% else %}
+            <a href="{% url 'project:task_search_by_domain_selected' selected_domain %}" class="btn btn-default">Search for all tasks for this domain</a>
+          {% endif %}
+          </p>
           </div>
         </div>
     {% endif %}
