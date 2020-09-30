@@ -45,8 +45,9 @@ PROJECT_FILTER_SEARCH_PUBLIC = 1
 PROJECT_FILTER_ALL_PUBLIC = 2
 PROJECT_FILTER_ALL_AVAILABLE = 4
 PROJECT_TASK_SEARCH = 5
+PROJECT_TASK_SEARCH_BY_DOMAIN = 6
 
-def get_index( request, arg_page = PROJECT_FILTER_MINE ):
+def get_index( request, arg_page = PROJECT_FILTER_MINE, arg_domain_id = None ):
     # Получить контекст из HTTP запроса.
     context = RequestContext(request)
     if arg_page == PROJECT_FILTER_MINE:
@@ -83,7 +84,25 @@ def get_index( request, arg_page = PROJECT_FILTER_MINE ):
                                          'tasks' : tasks,
                         }
                     else:
-                        raise Http404()
+                        if arg_page == PROJECT_TASK_SEARCH_BY_DOMAIN:
+                            if arg_domain_id:
+                                tasks = Task.objects.filter( task2domain__taskdomain = arg_domain_id )
+                                selected_domain = int(arg_domain_id)
+                            else:
+                                # without domains
+                                tasks = Task.objects.filter( task2domain__taskdomain = None )
+                                selected_domain = None
+
+                            domains = TaskDomain.objects.all()
+
+                            context_dict = { 'projects': None, 'filter_type' : 'task_search_by_domain',
+                                             'domains' : domains,
+                                             'selected_domain' : selected_domain,
+                                             #'filter': task_filter,
+                                             'tasks' : tasks,
+                            }
+                        else:
+                            raise Http404()
 
     # check if user has permission to create project (or super user)
     context_dict[ 'can_add_project' ] = request.user.has_perm('project.add_project')
@@ -105,6 +124,9 @@ def index_public( request ):
 
 def index_task_search( request ):
     return get_index( request, PROJECT_TASK_SEARCH )
+
+def index_task_search_by_domain( request, domain_id = None ):
+    return get_index( request, PROJECT_TASK_SEARCH_BY_DOMAIN, arg_domain_id = domain_id )
 
 class ProjectCreateView( LoginRequiredMixin, PermissionRequiredMixin, CreateView):
 

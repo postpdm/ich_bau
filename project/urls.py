@@ -12,6 +12,8 @@ urlpatterns = [
     url(r'^all_public/$', views.index_public, name='all_public'),
     url(r'^search_public/$', views.index_search_public, name='search_public'),
     url(r'^task_search/$', views.index_task_search, name='task_search'),
+    url(r'^task_search_by_domain/$', views.index_task_search_by_domain, name='task_search_by_domain'),
+    url(r'^task_search_by_domain/selected/(?P<domain_id>\w+)/$', views.index_task_search_by_domain, name='task_search_by_domain_selected'),
 
     url(r'^project_add/$', views.ProjectCreateView.as_view(), name='project_add'),
     url(r'^project/(?P<project_id>\w+)/project_edit/$', views.project_edit, name='project_edit'),
