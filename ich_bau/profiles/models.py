@@ -147,6 +147,9 @@ class Profile(models.Model):
     def description_html(self):
         return self.description
 
+    def is_for_task(self):
+        return self.profile_type in PROFILE_TYPE_FOR_TASK
+
 # датасет профилей, принадлежащих юзерам
 def Get_Users_Profiles():
     return Profile.objects.filter( profile_type = PROFILE_TYPE_USER )
@@ -172,7 +175,7 @@ def Get_Profiles_From_Level( arg_level ):
             q = Profile.objects.annotate( c = Count('sub_profile') ).filter( c = 0 )
         else:
             q = Profile.objects.filter(sub_profile__main_profile_id = arg_level )
-        
+
         return q
     except:
         return None

@@ -63,21 +63,22 @@ class ProfileDetailView(DetailView):
                 profile_tasks = Get_User_Tasks( self.request.user )
                 profile_projects = GetMemberedProjectList( self.request.user )
         if not profile_tasks:
-            profile_is_managed = Is_User_Manager( self.request.user, current_profile )
-            if profile_is_managed:
-                profile_tasks = Get_User_Tasks( current_profile.user )
+            if current_profile.is_for_task:
+                profile_is_managed = Is_User_Manager( self.request.user, current_profile )
+                if profile_is_managed:
+                    profile_tasks = Get_User_Tasks( current_profile.user )
 
-                if current_profile.has_account:
-                    profile_projects = GetMemberedProjectList( current_profile.user )
+                    if current_profile.has_account:
+                        profile_projects = GetMemberedProjectList( current_profile.user )
 
-                view_projects_and_tasks_header = 'to_managed'
-            else:
-                profile_tasks = Get_Profile_Tasks( current_profile ).filter( project__in = GetAvailableProjectList( self.request.user ) )
+                    view_projects_and_tasks_header = 'to_managed'
+                else:
+                    profile_tasks = Get_Profile_Tasks( current_profile ).filter( project__in = GetAvailableProjectList( self.request.user ) )
 
-                if current_profile.has_account:
-                    profile_projects = GetMemberedProjectList( current_profile.user ).distinct() & GetAvailableProjectList( self.request.user )
+                    if current_profile.has_account:
+                        profile_projects = GetMemberedProjectList( current_profile.user ).distinct() & GetAvailableProjectList( self.request.user )
 
-                view_projects_and_tasks_header = 'to_profile'
+                    view_projects_and_tasks_header = 'to_profile'
 
         context['current_user_profile'] = Current_User_Profile
         context['view_projects_and_tasks_header'] = view_projects_and_tasks_header

@@ -102,40 +102,42 @@
         {% endif %}
     </div>
 
-    <div class="row">
-        <div class="col-md-12">
-            <h3>
-            {% if view_projects_and_tasks_header == 'to_you' %}
-                Projects and tasks assigned to you
-            {% else %}
-                {% if view_projects_and_tasks_header == 'to_managed' %}
-                    Projects and tasks assigned to managed profiles
+    {% if profile.is_for_task %}
+        <div class="row">
+            <div class="col-md-12">
+                <h3>
+                {% if view_projects_and_tasks_header == 'to_you' %}
+                    Projects and tasks assigned to you
                 {% else %}
-                    {% if view_projects_and_tasks_header == 'to_profile' %}
-                        Projects and tasks assigned to profile (for projects available for you)
+                    {% if view_projects_and_tasks_header == 'to_managed' %}
+                        Projects and tasks assigned to managed profiles
+                    {% else %}
+                        {% if view_projects_and_tasks_header == 'to_profile' %}
+                            Projects and tasks assigned to profile (for projects available for you)
+                        {% endif %}
                     {% endif %}
                 {% endif %}
-            {% endif %}
-            </h3>
+                </h3>
 
-               {% if view_projects_and_tasks_header == 'to_managed' %}
-                   <p><a href="{% url 'project:view_profile_schedule' profile_id=profile.id %}" class="btn btn-default" role="button">View {{profile}} schedule</a></p>
-               {% endif %}
+                   {% if view_projects_and_tasks_header == 'to_managed' %}
+                       <p><a href="{% url 'project:view_profile_schedule' profile_id=profile.id %}" class="btn btn-default" role="button">View {{profile}} schedule</a></p>
+                   {% endif %}
 
-                {% if profile_projects %}
-                <h4>Projects</h4>
-                    <ul>
-                    {% for pp in profile_projects %}
-                        <li><a href="{% url 'project:project_view_members' pp.pk %}">{{pp}}</a></li>
-                    {% endfor %}
-                    </ul>
-                {% endif %}
+                    {% if profile_projects %}
+                    <h4>Projects</h4>
+                        <ul>
+                        {% for pp in profile_projects %}
+                            <li><a href="{% url 'project:project_view_members' pp.pk %}">{{pp}}</a></li>
+                        {% endfor %}
+                        </ul>
+                    {% endif %}
 
-                {% if profile_tasks %}
-                    <h4>Tasks</h4>
-                    {% include "project/task_list.html" with table_mode='index' tasks=profile_tasks %}
-                {%  endif %}
-        </div>
-    </div >
+                    {% if profile_tasks %}
+                        <h4>Tasks</h4>
+                        {% include "project/task_list.html" with table_mode='index' tasks=profile_tasks %}
+                    {%  endif %}
+            </div>
+        </div >
+    {% endif %}
 
 {% endblock %}
