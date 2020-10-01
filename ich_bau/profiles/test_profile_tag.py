@@ -9,9 +9,11 @@ class Profile_Tag_Test(TestCase):
         self.assertTrue( 'fa-users' in fa_profile_icon( None, 3) )
         self.assertTrue( 'fa-university' in fa_profile_icon( None, 4) )
         self.assertTrue( 'fa-cogs' in fa_profile_icon( None, 5) )
-        self.assertEqual( fa_profile_icon( None, 6), None )
-        self.assertEqual( fa_profile_icon( None, None), None )       
-    
+        self.assertTrue( 'fa-folder' in fa_profile_icon( None, 6) )
+
+        self.assertEqual( fa_profile_icon( None, 7), None )
+        self.assertEqual( fa_profile_icon( None, None), None )
+
     def test_profile_type_name(self):
         self.assertEqual( profile_type_name( None, 0), 'Bot' )
         self.assertEqual( profile_type_name( None, 1), 'User' )
@@ -19,6 +21,7 @@ class Profile_Tag_Test(TestCase):
         self.assertEqual( profile_type_name( None, 3), 'Departament' )
         self.assertEqual( profile_type_name( None, 4), 'Organization' )
         self.assertEqual( profile_type_name( None, 5), 'Resource' )
-        
-        self.assertEqual( profile_type_name( None, 6), None )
+        self.assertEqual( profile_type_name( None, 6), 'Folder' )
+
+        self.assertEqual( profile_type_name( None, 7), None )
         self.assertEqual( profile_type_name( None, None), None )
