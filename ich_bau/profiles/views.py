@@ -63,7 +63,7 @@ class ProfileDetailView(DetailView):
                 profile_tasks = Get_User_Tasks( self.request.user )
                 profile_projects = GetMemberedProjectList( self.request.user )
         if not profile_tasks:
-            if current_profile.is_for_task:
+            if current_profile.could_has_task():
                 profile_is_managed = Is_User_Manager( self.request.user, current_profile )
                 if profile_is_managed:
                     profile_tasks = Get_User_Tasks( current_profile.user )

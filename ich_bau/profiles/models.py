@@ -86,7 +86,10 @@ PROFILE_TYPE_CHOICES = (
   ( PROFILE_TYPE_USER, 'User' ),
 ) + PROFILE_TYPE_CHOICES_EDITOR
 
+# profile types to add to task - except USER
 PROFILE_TYPE_FOR_TASK = ( PROFILE_TYPE_PEOPLE, PROFILE_TYPE_DEPARTAMENT, PROFILE_TYPE_ORG, PROFILE_TYPE_RESOURCE )
+# profile types to add to task - with USER
+PROFILE_USER_TYPE_FOR_TASK = ( PROFILE_TYPE_USER, ) + PROFILE_TYPE_FOR_TASK
 
 class Profile(models.Model):
     profile_type = models.PositiveSmallIntegerField( blank=False, null=False, default = PROFILE_TYPE_USER )
@@ -147,8 +150,8 @@ class Profile(models.Model):
     def description_html(self):
         return self.description
 
-    def is_for_task(self):
-        return self.profile_type in PROFILE_TYPE_FOR_TASK
+    def could_has_task(self):
+        return self.profile_type in PROFILE_USER_TYPE_FOR_TASK
 
 # датасет профилей, принадлежащих юзерам
 def Get_Users_Profiles():
