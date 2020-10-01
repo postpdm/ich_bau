@@ -1,4 +1,4 @@
-from django.contrib.auth.models import User, Permission
+from django.contrib.auth.models import User
 from .models import *
 
 from django.test import TestCase, Client
@@ -71,15 +71,6 @@ class Profile_Relation_Client_Test(TestCase):
         res = c.login(username=TEST_USER_NAME, password=TEST_USER_PW )
 
         self.assertTrue( res )
-
-        response = c.post( reverse_lazy('profile_create'), { 'profile_type' : PROFILE_TYPE_PEOPLE, 'name' : NEW_PEOPLE_PROFILE_NAME,  } )
-        self.assertEqual( response.status_code, 403 )
-        self.assertEqual( Profile.objects.filter( profile_type__in = PROFILE_TYPE_FOR_TASK ).count(), 0 )
-
-        # need to add the permissions
-        add_project_permission = Permission.objects.get(codename='add_profile')
-        test_user = User.objects.get( username = TEST_USER_NAME )
-        test_user.user_permissions.add( add_project_permission )
 
         response = c.post( reverse_lazy('profile_create'), { 'profile_type' : PROFILE_TYPE_PEOPLE, 'name' : NEW_PEOPLE_PROFILE_NAME,  } )
         self.assertEqual( response.status_code, 302 )
