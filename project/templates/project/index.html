@@ -6,7 +6,7 @@
     <div class="row">
         <div class="col-md-12">
 
-<h1>Projects 
+<h1>Projects
 {% if can_add_project %}
 <a class="btn btn-default" href="/project/project_add/"><i class="fa fa-plus"></i>Create project</a>
 {%endif%}
@@ -18,6 +18,7 @@
   <li role="presentation" {% if filter_type == 'search_public' %} class="active" {% endif %}><a href="/project/search_public/">Search public</a></li>
   <li role="presentation" {% if filter_type == 'all_public' %} class="active" {% endif %}><a href="/project/all_public/">All public</a></li>
   <li role="presentation" {% if filter_type == 'task_search' %} class="active" {% endif %}><a href="/project/task_search/">Task search</a></li>
+  <li role="presentation" {% if filter_type == 'task_search_by_domain' %} class="active" {% endif %}><a href="{% url 'project:task_search_by_domain' %}">Tasks by domains</a></li>
 </ul>
 
 <p></p>
@@ -60,7 +61,44 @@ Please, log in to see your projects.
     <h2>Search for tasks</h2>
     {% include "project/task_list.html" with table_mode='index' %}
 {% else %}
+    {% if filter_type == 'task_search_by_domain' %}
+    <div class="row">
+        <div class="col-md-9">
+
+        <p>
+        {% if selected_domain == None %}
+            <strong>
+        {% endif %}
+        <a href="{% url 'project:task_search_by_domain' %}">Tasks without domains</a>
+        {% if selected_domain == None %}
+            </strong>
+        {% endif %}
+        </p>
+
+        <p>
+        {% load mptt_tags %}
+                {% recursetree domains %}
+                    <li>
+                    {% if node.pk == selected_domain %}<strong>{% endif %}
+                    <a href="{% url 'project:task_search_by_domain_selected' node.pk %}">{{node.name}}</a>
+                    {% if node.pk == selected_domain %}</strong>{% endif %}
+                        {% if not node.is_leaf_node %}
+                            <ul>
+                            {{ children }}
+                            </ul>
+                        {% endif %}
+                    </li>
+                {% endrecursetree %}
+        </p>
+        </div>
+    </div>
+
+    <h2>Search for tasks by domain</h2>
+    {% include "project/task_list.html" with table_mode='index' %}
+
+    {% else %}
     {% include "project/project_list.html" %}
+    {% endif %}
 {% endif %}
 
 

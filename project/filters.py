@@ -2,7 +2,7 @@
 
 from project.models import Project, Task, GetMemberedProjectList, TASK_STATE_LIST_CHOICES, TASK_OPEN_DETAIL_STATE_TITLES_TUPL
 
-from ich_bau.profiles.models import Profile, PROFILE_TYPE_USER, PROFILE_TYPE_FOR_TASK
+from ich_bau.profiles.models import Profile
 
 # https://django-filter.readthedocs.io/en/latest/guide/usage.html
 class BaseFilter(django_filters.FilterSet):

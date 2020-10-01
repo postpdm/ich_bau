@@ -69,14 +69,16 @@ PROFILE_TYPE_PEOPLE = 2 # without account
 PROFILE_TYPE_DEPARTAMENT = 3
 PROFILE_TYPE_ORG = 4
 PROFILE_TYPE_RESOURCE = 5
+PROFILE_TYPE_FOLDER = 6
 
-PROFILE_TYPE_LIST = ( PROFILE_TYPE_BOT, PROFILE_TYPE_USER, PROFILE_TYPE_PEOPLE, PROFILE_TYPE_DEPARTAMENT, PROFILE_TYPE_ORG, PROFILE_TYPE_RESOURCE )
+PROFILE_TYPE_LIST = ( PROFILE_TYPE_BOT, PROFILE_TYPE_USER, PROFILE_TYPE_PEOPLE, PROFILE_TYPE_DEPARTAMENT, PROFILE_TYPE_ORG, PROFILE_TYPE_RESOURCE, PROFILE_TYPE_FOLDER )
 
 PROFILE_TYPE_CHOICES_EDITOR = (
   ( PROFILE_TYPE_PEOPLE, 'People' ),
   ( PROFILE_TYPE_DEPARTAMENT, 'Departament' ),
   ( PROFILE_TYPE_ORG, 'Organization' ),
   ( PROFILE_TYPE_RESOURCE, 'Resource' ),
+  ( PROFILE_TYPE_FOLDER, 'Folder' ),
 )
 
 PROFILE_TYPE_CHOICES = (
@@ -84,7 +86,10 @@ PROFILE_TYPE_CHOICES = (
   ( PROFILE_TYPE_USER, 'User' ),
 ) + PROFILE_TYPE_CHOICES_EDITOR
 
+# profile types to add to task - except USER
 PROFILE_TYPE_FOR_TASK = ( PROFILE_TYPE_PEOPLE, PROFILE_TYPE_DEPARTAMENT, PROFILE_TYPE_ORG, PROFILE_TYPE_RESOURCE )
+# profile types to add to task - with USER
+PROFILE_USER_TYPE_FOR_TASK = ( PROFILE_TYPE_USER, ) + PROFILE_TYPE_FOR_TASK
 
 class Profile(models.Model):
     profile_type = models.PositiveSmallIntegerField( blank=False, null=False, default = PROFILE_TYPE_USER )
@@ -145,6 +150,9 @@ class Profile(models.Model):
     def description_html(self):
         return self.description
 
+    def could_has_task(self):
+        return self.profile_type in PROFILE_USER_TYPE_FOR_TASK
+
 # датасет профилей, принадлежащих юзерам
 def Get_Users_Profiles():
     return Profile.objects.filter( profile_type = PROFILE_TYPE_USER )
@@ -170,7 +178,7 @@ def Get_Profiles_From_Level( arg_level ):
             q = Profile.objects.annotate( c = Count('sub_profile') ).filter( c = 0 )
         else:
             q = Profile.objects.filter(sub_profile__main_profile_id = arg_level )
-        
+
         return q
     except:
         return None
