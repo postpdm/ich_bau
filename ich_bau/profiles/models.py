@@ -138,6 +138,16 @@ class Profile(models.Model):
                 s = self.user.username
         return s + " (" + PROFILE_TYPE_CHOICES[self.profile_type][1] + ")"
 
+    @property
+    def simple_name(self):
+        s = ''
+        if self.name:
+            s = self.name
+        else:
+            if self.user:
+                s = self.user.username
+        return s
+
     def sub_profiles(self):
         return Profile_Affiliation.objects.filter(main_profile=self )
 
