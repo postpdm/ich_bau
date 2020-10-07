@@ -1,0 +1,10 @@
+<p>Your daily task digest</p>
+
+<h1>Tasks</h1>
+{% if tasks %}
+{% for t in tasks %}
+<p><a href="{{current_domain}}{{t.get_absolute_url}}">{{t}}</a></p>
+{% endfor %}
+{% else %}
+<p>No tasks assigned yet.</p>
+{% endif %}
