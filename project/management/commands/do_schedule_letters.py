@@ -31,8 +31,6 @@ class Command(BaseCommand):
                 context_dict = { 'user' : u,
                                  'current_domain' : get_full_site_url(),
                                  'tasks' : tasks,
-                                 #'msg_txt' : decode_json2msg( Arg_MsgTxt ),
-                                 #'domains' : Arg_Additional_Msg_Tags,
                                  }
 
                 html_message_text = render_to_string( 'project/email_tasks_digest.txt', context_dict )
