@@ -1273,7 +1273,16 @@ def task_move2project( request, task_id, project_id = 0 ):
     task = get_object_or_404( Task, pk=task_id )
     target_project_id = int( project_id )
     if target_project_id > 0:
-        if target_project_id != task.project.id:
+        can_move_task = False
+        error_mesage = ""
+
+        # checks
+        if target_project_id == task.project.id:
+            error_mesage = "Can't move the task to the same project"
+        else:
+            can_move_task = True
+
+        if can_move_task:
             with transaction.atomic(), reversion.create_revision():
                 reversion.set_user(request.user)
                 task.project_id = target_project_id
@@ -1282,7 +1291,11 @@ def task_move2project( request, task_id, project_id = 0 ):
 
             messages.success(request, "You have moved task " + str( task )  +  " to another project." )
             return HttpResponseRedirect( reverse( 'project:task_view', args = [task_id] ) )
-
+        else:
+            return render( request, 'project/task_move2project.html',
+                { 'task' : task,
+                  'error_mesage'   : error_mesage,
+                } )
     else:
         available_projects = GetAvailableProjectList(request.user).exclude( id = task.project.id )
 
