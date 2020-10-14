@@ -28,7 +28,7 @@
 
 {% if can_edit %}
     {% if st.created_user == request.user %}
-        <a href="{% url 'project:unschedule_one_task' schedule.pk st.pk %}" type="button" class="btn btn-warning btn-xs" >Unschedule</a>
+        <a href="{% url 'project:unschedule_one_task' schedule.pk st.scheduledtask.pk %}" type="button" class="btn btn-warning btn-xs" >Unschedule</a>
     {% else %}
         (task was scheduled by {{st.created_user}})
     {% endif %}
