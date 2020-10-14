@@ -1159,17 +1159,14 @@ def view_profile_schedule(request, profile_id):
     if ( not owner_page ) and ( not profile_is_managed ):
         raise Http404()
 
-    schedules = ScheduleItem.objects.filter( schedule_profile = profile ).annotate(Count('scheduleitem_task')).order_by( '-schedule_date_start' )
-
-    today = datetime.today()
-    next = today + timedelta( days = 7 )
+    schedules = Get_Profile_ScheduleItem( profile ).annotate(Count('scheduleitem_task')).order_by( '-schedule_date_start' )
 
     offer_to_create_this_week = False
     offer_to_create_next_week = False
 
     if ( request.user == profile.user ) or ( profile_is_managed ):
-        offer_to_create_this_week = not schedules.filter( schedule_date_start__lte = today, schedule_date_end__gte = today ).exists()
-        offer_to_create_next_week = not schedules.filter( schedule_date_start__lte = next, schedule_date_end__gte = next ).exists()
+        offer_to_create_this_week = not Get_Profile_ScheduleItem_This_Week( schedules ).exists()
+        offer_to_create_next_week = not Get_Profile_ScheduleItem_Next_Week( schedules ).exists()
 
     return render( request, 'project/schedule_index.html',
             { 'schedules' : schedules,
@@ -1259,9 +1256,14 @@ def schedule_one_task( request, schedule_item_id, task_id ):
 
 @login_required
 def unschedule_one_task( request, schedule_item_id, task_id ):
-
+    print( schedule_item_id )
+    print( task_id )
+    
     schedule = get_object_or_404( ScheduleItem, pk=schedule_item_id )
+    print( schedule )
     schedule_task = get_object_or_404( ScheduleItem_Task, schedule_item = schedule_item_id, scheduledtask = task_id )
+    print( schedule_task )
+    
     task_name = str( schedule_task.scheduledtask )
     schedule_task.delete()
 
