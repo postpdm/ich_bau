@@ -1256,14 +1256,9 @@ def schedule_one_task( request, schedule_item_id, task_id ):
 
 @login_required
 def unschedule_one_task( request, schedule_item_id, task_id ):
-    print( schedule_item_id )
-    print( task_id )
-    
     schedule = get_object_or_404( ScheduleItem, pk=schedule_item_id )
-    print( schedule )
     schedule_task = get_object_or_404( ScheduleItem_Task, schedule_item = schedule_item_id, scheduledtask = task_id )
-    print( schedule_task )
-    
+
     task_name = str( schedule_task.scheduledtask )
     schedule_task.delete()
 
@@ -1274,15 +1269,25 @@ def unschedule_one_task( request, schedule_item_id, task_id ):
 def task_move2project( request, task_id, project_id = 0 ):
     task = get_object_or_404( Task, pk=task_id )
     target_project_id = int( project_id )
+
     if target_project_id > 0:
         can_move_task = False
         error_mesage = ""
+        target_project = get_object_or_404( Project, pk=target_project_id )
 
         # checks
         if target_project_id == task.project.id:
             error_mesage = "Can't move the task to the same project"
         else:
-            can_move_task = True
+            task_interested = GetTask_Interested( task )
+            for ti in task_interested:
+                if not target_project.is_member( ti ):
+                    if can_move_task:
+                        can_move_task = False
+
+                    error_mesage = error_mesage + 'Task user ' + str( ti ) + ' is not a member of ' + str( target_project ) + '    </br>'
+
+            can_move_task = error_mesage == ""
 
         if can_move_task:
             with transaction.atomic(), reversion.create_revision():
