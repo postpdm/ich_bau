@@ -3,7 +3,7 @@ from django.core.management.base import BaseCommand
 from django.utils import timezone
 
 from commons.utils import get_full_site_url
-from project.models import Get_User_Tasks
+from project.models import Task, Get_User_Tasks, Get_Profile_ScheduleItem_This_Week, Get_Profile_ScheduleItem, ScheduleItem_Task
 from django.core.mail import send_mail
 from django.conf import settings
 
@@ -26,13 +26,25 @@ class Command(BaseCommand):
             # if users have a mail's
             if ( u.id == 3 ) and u.email:
 
-                tasks = Get_User_Tasks( u )
+                schedule = None
+                scheduled_task_empty = True
+                tasks = None
+                # if user has the work schedule item - use it
+
+                schedules = Get_Profile_ScheduleItem_This_Week( Get_Profile_ScheduleItem( u.profile ) )
+                if schedules.exists():
+                    schedule = schedules.first()
+                    tasks = Task.objects.filter( scheduledtask__schedule_item = schedule )
+                    scheduled_task_empty = ( tasks.count() == 0 )
+
+                if scheduled_task_empty:
+                    tasks = Get_User_Tasks( u )
 
                 context_dict = { 'user' : u,
                                  'current_domain' : get_full_site_url(),
+                                 'schedule' : schedule,
+                                 'scheduled_task_empty' : scheduled_task_empty,
                                  'tasks' : tasks,
-                                 #'msg_txt' : decode_json2msg( Arg_MsgTxt ),
-                                 #'domains' : Arg_Additional_Msg_Tags,
                                  }
 
                 html_message_text = render_to_string( 'project/email_tasks_digest.txt', context_dict )

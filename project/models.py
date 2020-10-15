@@ -644,6 +644,19 @@ class ScheduleItem(BaseStampedModel):
         today = timezone.now()
         return self.schedule_date_start <= today <= self.schedule_date_end
 
+def Get_Profile_ScheduleItem( arg_profile ):
+    return ScheduleItem.objects.filter( schedule_profile = arg_profile )
+
+def Get_Profile_ScheduleItem_This_Week( arg_schedule_filter ):
+    from datetime import datetime
+    today = datetime.today()
+    return arg_schedule_filter.filter( schedule_date_start__lte = today, schedule_date_end__gte = today )
+
+def Get_Profile_ScheduleItem_Next_Week( arg_schedule_filter ):
+    from datetime import datetime, timedelta
+    next = datetime.today() + timedelta( days = 7 )
+    return arg_schedule_filter.filter( schedule_date_start__lte = next, schedule_date_end__gte = next )
+
 class ScheduleItem_Task(BaseStampedModel):
     schedule_item = models.ForeignKey( ScheduleItem, on_delete=models.PROTECT, blank=False, null=False )
     scheduledtask = models.ForeignKey( Task, on_delete=models.PROTECT, related_name = 'scheduledtask' )

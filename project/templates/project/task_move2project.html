@@ -12,19 +12,22 @@
 
 <div class="panel panel-default">
 
-
   <div class="panel-heading"><strong>Move task <a href="{{task.get_absolute_url}}">{{task}}</a> from current project '{{task.project}}'
   </strong>
 
   </div>
 
   <div class="panel-body">
-      <p>Select project to move task to:</p>
-      {% for ap in available_projects %}
-        
-        <a class="btn btn-default" href="{% url 'project:task_move2project_check' task_id=task.id project_id=ap.id %}"><i class="fa fa-arrow-right"></i> {{ap}}</a>
-        <br>
-      {% endfor %}
+      {% if error_mesage %}
+        <p class="text-danger">{{error_mesage|safe}}</p>
+      {% else %}
+          <p>Select project to move task to:</p>
+          {% for ap in available_projects %}
+
+            <a class="btn btn-default" href="{% url 'project:task_move2project_check' task_id=task.id project_id=ap.id %}"><i class="fa fa-arrow-right"></i> {{ap}}</a>
+            <br>
+          {% endfor %}
+      {% endif %}
   </div>
 </div>
 </div>

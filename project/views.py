@@ -1159,17 +1159,14 @@ def view_profile_schedule(request, profile_id):
     if ( not owner_page ) and ( not profile_is_managed ):
         raise Http404()
 
-    schedules = ScheduleItem.objects.filter( schedule_profile = profile ).annotate(Count('scheduleitem_task')).order_by( '-schedule_date_start' )
-
-    today = datetime.today()
-    next = today + timedelta( days = 7 )
+    schedules = Get_Profile_ScheduleItem( profile ).annotate(Count('scheduleitem_task')).order_by( '-schedule_date_start' )
 
     offer_to_create_this_week = False
     offer_to_create_next_week = False
 
     if ( request.user == profile.user ) or ( profile_is_managed ):
-        offer_to_create_this_week = not schedules.filter( schedule_date_start__lte = today, schedule_date_end__gte = today ).exists()
-        offer_to_create_next_week = not schedules.filter( schedule_date_start__lte = next, schedule_date_end__gte = next ).exists()
+        offer_to_create_this_week = not Get_Profile_ScheduleItem_This_Week( schedules ).exists()
+        offer_to_create_next_week = not Get_Profile_ScheduleItem_Next_Week( schedules ).exists()
 
     return render( request, 'project/schedule_index.html',
             { 'schedules' : schedules,
@@ -1259,9 +1256,9 @@ def schedule_one_task( request, schedule_item_id, task_id ):
 
 @login_required
 def unschedule_one_task( request, schedule_item_id, task_id ):
-
     schedule = get_object_or_404( ScheduleItem, pk=schedule_item_id )
     schedule_task = get_object_or_404( ScheduleItem_Task, schedule_item = schedule_item_id, scheduledtask = task_id )
+
     task_name = str( schedule_task.scheduledtask )
     schedule_task.delete()
 
@@ -1272,8 +1269,27 @@ def unschedule_one_task( request, schedule_item_id, task_id ):
 def task_move2project( request, task_id, project_id = 0 ):
     task = get_object_or_404( Task, pk=task_id )
     target_project_id = int( project_id )
+
     if target_project_id > 0:
-        if target_project_id != task.project.id:
+        can_move_task = False
+        error_mesage = ""
+        target_project = get_object_or_404( Project, pk=target_project_id )
+
+        # checks
+        if target_project_id == task.project.id:
+            error_mesage = "Can't move the task to the same project"
+        else:
+            task_interested = GetTask_Interested( task )
+            for ti in task_interested:
+                if not target_project.is_member( ti ):
+                    if can_move_task:
+                        can_move_task = False
+
+                    error_mesage = error_mesage + 'Task user ' + str( ti ) + ' is not a member of ' + str( target_project ) + '    </br>'
+
+            can_move_task = error_mesage == ""
+
+        if can_move_task:
             with transaction.atomic(), reversion.create_revision():
                 reversion.set_user(request.user)
                 task.project_id = target_project_id
@@ -1282,7 +1298,11 @@ def task_move2project( request, task_id, project_id = 0 ):
 
             messages.success(request, "You have moved task " + str( task )  +  " to another project." )
             return HttpResponseRedirect( reverse( 'project:task_view', args = [task_id] ) )
-
+        else:
+            return render( request, 'project/task_move2project.html',
+                { 'task' : task,
+                  'error_mesage'   : error_mesage,
+                } )
     else:
         available_projects = GetAvailableProjectList(request.user).exclude( id = task.project.id )
 

@@ -1,6 +1,19 @@
 <p>Your daily task digest</p>
 
-<h1>Tasks</h1>
+{% if schedule %}
+<h1>Your schedule for current week</h1>
+<p>{{schedule}}</p>
+
+{% if scheduled_task_empty %}
+<p>You have the schedule week, but it was empty. So whole list of your assgined tasks is listed.</p>
+{% endif %}
+
+{% else %}
+<h1>You have no schedule for current week, so whole list of your assigned tasks is listed</h1>
+<p>Create the week schedule to order your working plan.</p>
+</p>
+{% endif %}
+
 {% if tasks %}
 {% for t in tasks %}
 <p><a href="{{current_domain}}{{t.get_absolute_url}}">{{t}}</a></p>
