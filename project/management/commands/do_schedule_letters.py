@@ -4,6 +4,7 @@ from django.utils import timezone
 
 from commons.utils import get_full_site_url
 from project.models import Task, Get_User_Tasks, Get_Profile_ScheduleItem_This_Week, Get_Profile_ScheduleItem, ScheduleItem_Task
+from ich_bau.profiles.models import GetUserNoticationsQ
 from django.core.mail import send_mail
 from django.conf import settings
 
@@ -29,8 +30,10 @@ class Command(BaseCommand):
                 schedule = None
                 scheduled_task_empty = True
                 tasks = None
-                # if user has the work schedule item - use it
 
+                notifications_count = GetUserNoticationsQ(u, True).count()
+
+                # if user has the work schedule item - use it
                 schedules = Get_Profile_ScheduleItem_This_Week( Get_Profile_ScheduleItem( u.profile ) )
                 if schedules.exists():
                     schedule = schedules.first()
@@ -45,6 +48,7 @@ class Command(BaseCommand):
                                  'schedule' : schedule,
                                  'scheduled_task_empty' : scheduled_task_empty,
                                  'tasks' : tasks,
+                                 'notifications_count' : notifications_count,
                                  }
 
                 html_message_text = render_to_string( 'project/email_tasks_digest.txt', context_dict )

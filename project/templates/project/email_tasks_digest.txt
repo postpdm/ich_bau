@@ -1,5 +1,11 @@
 <p>Your daily task digest</p>
 
+{% if notifications_count %}
+You have <a href="{{current_domain}}{% url 'unread_notifications_view' %}">{{notifications_count}}</a> notifications unread.
+{% else %}
+You have no notifications unread.
+{% endif %}
+
 {% if schedule %}
 <h1>Your schedule for current week</h1>
 <p>{{schedule}}</p>
