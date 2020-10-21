@@ -6,6 +6,15 @@ You have <a href="{{current_domain}}{% url 'unread_notifications_view' %}">{{not
 You have no notifications unread.
 {% endif %}
 
+{% if unaccepted_projects %}
+<p>You have no accept the membership in some projects:</p>
+<ul>
+{% for ua in unaccepted_projects %}
+<li><a href="{{current_domain}}{% url 'project:project_view_members' project_id=ua.project.pk %}">{{ua.project}}</a></li>
+{% endfor %}
+</ul>
+{% endif %}
+
 {% if schedule %}
 <h1>Your schedule for current week</h1>
 <p>{{schedule}}</p>

@@ -3,7 +3,7 @@ from django.core.management.base import BaseCommand
 from django.utils import timezone
 
 from commons.utils import get_full_site_url
-from project.models import Task, Get_User_Tasks, Get_Profile_ScheduleItem_This_Week, Get_Profile_ScheduleItem, ScheduleItem_Task
+from project.models import Task, Get_User_Tasks, Get_Profile_ScheduleItem_This_Week, Get_Profile_ScheduleItem, ScheduleItem_Task, Get_UnAccepted
 from ich_bau.profiles.models import GetUserNoticationsQ
 from django.core.mail import send_mail
 from django.conf import settings
@@ -31,6 +31,9 @@ class Command(BaseCommand):
                 scheduled_task_empty = True
                 tasks = None
 
+                # чтото там
+                unaccepted_projects = Get_UnAccepted( u )
+
                 notifications_count = GetUserNoticationsQ(u, True).count()
 
                 # if user has the work schedule item - use it
@@ -45,6 +48,7 @@ class Command(BaseCommand):
 
                 context_dict = { 'user' : u,
                                  'current_domain' : get_full_site_url(),
+                                 'unaccepted_projects' : unaccepted_projects,
                                  'schedule' : schedule,
                                  'scheduled_task_empty' : scheduled_task_empty,
                                  'tasks' : tasks,

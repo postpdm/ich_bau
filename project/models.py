@@ -244,6 +244,9 @@ class Member(BaseStampedModel):
             pm.set_team_accept()
             pm.set_member_accept()
 
+def Get_UnAccepted( arg_user ):
+    return Member.objects.filter( member_profile__user = arg_user, member_accept__isnull = True )
+
 # http://stackoverflow.com/questions/25929165/create-model-after-group-has-been-created-django
 post_save.connect(Member.make_admin_after_project_create, sender=Project)
 
