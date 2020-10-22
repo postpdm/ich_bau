@@ -647,6 +647,23 @@ class ScheduleItem(BaseStampedModel):
         today = timezone.now()
         return self.schedule_date_start <= today <= self.schedule_date_end
 
+def Create_ScheduleItem( arg_user, arg_profile, arg_next ):
+    schedule_item = ScheduleItem( schedule_profile = arg_profile )
+
+    day = timezone.now()
+    if arg_next:
+        day = day + timezone.timedelta( days = 7 )
+
+    day = ( day - timezone.timedelta( day.weekday()) ).replace( hour = 0, minute = 0, second = 0, microsecond = 0 )
+    schedule_item.schedule_date_start = day
+
+    schedule_item.schedule_date_end = day + timezone.timedelta( days = 7 ) - timezone.timedelta( microseconds = 1 )
+
+    schedule_item.set_change_user( arg_user )
+    schedule_item.save()
+
+    return schedule_item
+
 def Get_Profile_ScheduleItem( arg_profile ):
     return ScheduleItem.objects.filter( schedule_profile = arg_profile )
 
