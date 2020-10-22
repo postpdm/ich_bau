@@ -6,7 +6,6 @@ from django.urls import reverse
 from django.db.models import Count
 
 from django.utils import timezone
-from datetime import *
 
 from django.http import HttpResponseForbidden
 from django.utils.html import strip_tags
@@ -1196,14 +1195,14 @@ def create_schedule(request, arg_next, arg_profile_id ):
     schedule_item = ScheduleItem( schedule_profile = profile )
     #schedule_item.schedule_date_start = timezone.now().isocalendar().isoweekday()
 
-    day = datetime.today()
+    day = timezone.now()
     if arg_next:
-        day = day + timedelta( days = 7 )
+        day = day + timezone.timedelta( days = 7 )
 
-    day = ( day - timedelta( day.weekday()) ).replace( hour = 0, minute = 0, second = 0, microsecond = 0 )
+    day = ( day - timezone.timedelta( day.weekday()) ).replace( hour = 0, minute = 0, second = 0, microsecond = 0 )
     schedule_item.schedule_date_start = day
 
-    schedule_item.schedule_date_end = day + timedelta( days = 7 ) - timedelta( microseconds = 1 )
+    schedule_item.schedule_date_end = day + timezone.timedelta( days = 7 ) - timezone.timedelta( microseconds = 1 )
 
     schedule_item.set_change_user(request.user)
     schedule_item.save()
