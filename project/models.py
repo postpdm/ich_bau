@@ -647,12 +647,17 @@ class ScheduleItem(BaseStampedModel):
         today = timezone.now()
         return self.schedule_date_start <= today <= self.schedule_date_end
 
+def calculate_day( arg_next_week ):
+    day = timezone.now()
+    if arg_next_week:
+        day = day + timezone.timedelta( days = 7 )
+
+    return day
+
 def Create_ScheduleItem( arg_user, arg_profile, arg_next ):
     schedule_item = ScheduleItem( schedule_profile = arg_profile )
 
-    day = timezone.now()
-    if arg_next:
-        day = day + timezone.timedelta( days = 7 )
+    day = calculate_day( arg_next )
 
     day = ( day - timezone.timedelta( day.weekday()) ).replace( hour = 0, minute = 0, second = 0, microsecond = 0 )
     schedule_item.schedule_date_start = day
@@ -668,11 +673,11 @@ def Get_Profile_ScheduleItem( arg_profile ):
     return ScheduleItem.objects.filter( schedule_profile = arg_profile )
 
 def Get_Profile_ScheduleItem_This_Week( arg_schedule_filter ):
-    today = timezone.now()
+    today = calculate_day( False )
     return arg_schedule_filter.filter( schedule_date_start__lte = today, schedule_date_end__gte = today )
 
 def Get_Profile_ScheduleItem_Next_Week( arg_schedule_filter ):
-    next = timezone.now() + timezone.timedelta( days = 7 )
+    next = calculate_day( True )
     return arg_schedule_filter.filter( schedule_date_start__lte = next, schedule_date_end__gte = next )
 
 class ScheduleItem_Task(BaseStampedModel):
