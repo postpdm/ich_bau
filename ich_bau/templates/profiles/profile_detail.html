@@ -38,13 +38,18 @@
                         </div>
                     {% endif %}
                     {%if profile.user%}
-                    <div class="item">
-                        <span class="dim">
-                            <i class="fa fa-clock-o"></i>
-                            Joined on
-                        </span>
-                        {{ profile.user.date_joined }}
-                    </div>
+                        <div class="item">
+                            <span class="dim">
+                                <i class="fa fa-clock-o"></i>
+                                Joined on
+                            </span>
+                            {{ profile.user.date_joined }}
+                        </div>
+                        {% if not profile.user.is_active %}
+                            <div class="item">
+                                User is NOT active
+                            </div>
+                        {%endif%}
                     {%endif%}
                     {% if request.user == profile.user %}
                         {% if user_repo_pw %}
