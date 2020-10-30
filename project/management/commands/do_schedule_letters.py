@@ -2,7 +2,7 @@ from django.core.management.base import BaseCommand
 from django.db.models import Count, Q
 
 from commons.utils import get_full_site_url
-from project.models import Task, Get_User_Tasks, Get_Profile_ScheduleItem_This_Week, Get_Profile_ScheduleItem, ScheduleItem_Task, Get_UnAccepted
+from project.models import Task, Get_User_Tasks, Get_Profile_ScheduleItem_This_Week, Get_Profile_ScheduleItem, Get_UnAccepted
 from ich_bau.profiles.models import GetUserNoticationsQ
 from django.core.mail import send_mail
 from django.conf import settings
@@ -26,7 +26,7 @@ class Command(BaseCommand):
 
         for u in users:
             # if users have a mail's
-            if ( u.id == 3 ) and u.email:
+            if u.email:
 
                 schedule = None
                 scheduled_task_empty = True
