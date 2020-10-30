@@ -1,4 +1,5 @@
 from django.core.management.base import BaseCommand
+from django.db.models import Count, Q
 
 from commons.utils import get_full_site_url
 from project.models import Task, Get_User_Tasks, Get_Profile_ScheduleItem_This_Week, Get_Profile_ScheduleItem, ScheduleItem_Task, Get_UnAccepted
@@ -19,7 +20,9 @@ class Command(BaseCommand):
             print( "No EMAIL_HOST_USER, can't send mails" )
             return
 
-        users = User.objects.filter( is_active = True )
+        # select active users, whom have a managed associations
+        users = User.objects.annotate( c_manager = Count('manager_user'), c_managed = Count('profile__managed_profile') )
+        users = users.filter(is_active = True ).filter( Q(c_manager__gt = 0 ) | Q( c_managed__gt = 0 ) )
 
         for u in users:
             # if users have a mail's
