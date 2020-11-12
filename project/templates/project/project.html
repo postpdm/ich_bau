@@ -134,20 +134,23 @@ no history to view
 <table class="table table-striped">
 <thead>
 <tr>
+    <th>Type</th>
     <th>Date time</th>
+    <th>Action</th>
     <th>User</th>
-    <th>Comment</th>
-    <th>Task</th>
 </tr>
 </thead>
 
 <tbody>
-    {% for c in last_actions %}
+    {% for la in last_actions %}
         <tr>
-            <td>{{c.modified_at}}</td>
-            <td>{{c.modified_user}}</td>
-            <td>{{c.comment|safe|truncatewords_html:12}}</td>
-            <td><a href="{{c.parenttask.get_absolute_url}}">{{c.parenttask}}</a></td>
+            <td>{{la.type}}</td>
+            <td>{{la.modified_at}}</td>
+            <td>
+                {{la.title|safe|truncatewords_html:12}}
+                <a href="{{la.url}}">{{la.url_title}}</a>
+            </td>
+            <td>{{la.modified_user}}</td>
         </tr>
     {%endfor%}
 </tbody>

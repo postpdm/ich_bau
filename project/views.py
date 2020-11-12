@@ -280,6 +280,24 @@ def project_create_repo(request, project_id):
             else:
                 raise Http404() # хотя такого быть не должно
 
+def get_last_action_content( arg_project ):
+    def mySort(e):
+        return e['modified_at']
+
+    depth = 10
+    res = []
+    comments = TaskComment.objects.filter( parenttask__project = arg_project ).order_by('-modified_at')[:depth]
+    for c in comments:
+        res.append( { 'modified_at' : c.modified_at, 'type' : 'comment', 'modified_user' : c.modified_user, 'title' : c.comment, 'url' : c.parenttask.get_absolute_url, 'url_title' : c.parenttask, } )
+
+    tasks = Task.objects.filter( project = arg_project ).order_by('-modified_at')[:depth]
+    for t in tasks:
+        res.append( { 'modified_at' : t.modified_at, 'type' : 'task', 'modified_user' : t.modified_user, 'title' : t.fullname, 'url' : t.get_absolute_url, 'url_title' : t, } )
+
+    res.sort(reverse=True, key=mySort)
+
+    return res
+
 def get_project_view(request, project_id, arg_task_filter = TASK_FILTER_OPEN, arg_page = PROJECT_PAGE_TITLE, arg_domain_id = None ):
     # Получить контекст запроса
     context = RequestContext(request)
@@ -393,7 +411,7 @@ def get_project_view(request, project_id, arg_task_filter = TASK_FILTER_OPEN, ar
         members = project.GetMemberList()
 
     if arg_page == PROJECT_PAGE_LAST_ACTIONS:
-        last_actions = TaskComment.objects.filter( parenttask__project = project ).order_by('-modified_at')[:10]
+        last_actions = get_last_action_content( project )
 
     if arg_page == PROJECT_PAGE_REPORTS:
         pass
