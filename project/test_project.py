@@ -170,9 +170,7 @@ class Project_Test(TestCase):
         t = Get_User_Tasks( None )
         self.assertEqual( t.count(), 0 )
         test_task = create_task()
-        test_task.assignee__user = get_creator_user()
-        test_task.save()
-        self.assertEqual( t.count(), 1 )
+        self.assertEqual( test_task.get_profiles().count(), 0 )
 
     def test_linked_resource(self):
         test_task = create_task()
@@ -181,7 +179,6 @@ class Project_Test(TestCase):
         p = Get_Profiles_Available2Task( test_task.id )
         self.assertEqual( p.count(), 1 ) # 1 profile is available
         self.assertEqual( p.filter( user = get_creator_user() ).count(), 1 ) # creator_user profile is available
-
 
 class Project_Set_Wrong_Private_Type_Test(TestCase):
 
