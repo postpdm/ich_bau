@@ -171,6 +171,17 @@ class Project_Test(TestCase):
         self.assertEqual( t.count(), 0 )
         test_task = create_task()
         self.assertEqual( test_task.get_profiles().count(), 0 )
+        tp = TaskProfile( parenttask = test_task, profile = get_creator_user().profile )
+        tp.set_change_user( get_creator_user() )
+
+        for p in TASK_PROFILE_PRIORITY_LIST:
+            tp.priority = p
+            tp.save()
+            self.assertEqual( tp.priority, p )
+
+        with self.assertRaises(Exception):
+            tp.priority = max( TASK_PROFILE_PRIORITY_LIST ) + 1
+            tp.save()
 
     def test_linked_resource(self):
         test_task = create_task()
