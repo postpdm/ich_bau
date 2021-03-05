@@ -548,8 +548,12 @@ def taskcomment_post_save_Notifier_Composer(sender, instance, **kwargs):
     Send_Notifications_For_Task( parent_task, instance.modified_user, msg_type, message_str, task_users, parent_task.get_absolute_url(), parenttask_holder_user )
 
 # Priority for profile assignment to tasks
-TASK_PROFILE_PRIORITY_INTERESTED   = 0
-TASK_PROFILE_PRIORITY_RESPONSIBLE  = 1
+TASK_PROFILE_PRIORITY_INTERESTED           = 0
+TASK_PROFILE_PRIORITY_RESPONSIBLE_FULL     = 1
+TASK_PROFILE_PRIORITY_RESPONSIBLE_HOLDER   = 2
+TASK_PROFILE_PRIORITY_RESPONSIBLE_ASSIGNED = 3
+
+TASK_PROFILE_PRIORITY_LIST = ( TASK_PROFILE_PRIORITY_INTERESTED, TASK_PROFILE_PRIORITY_RESPONSIBLE_FULL, TASK_PROFILE_PRIORITY_RESPONSIBLE_HOLDER, TASK_PROFILE_PRIORITY_RESPONSIBLE_ASSIGNED )
 
 def Get_Tasks_Ordered_By_Priority():
     return Task.objects.all().order_by( '-profile2task__priority' )
@@ -577,6 +581,12 @@ class TaskProfile(BaseStampedModel):
 
     class Meta:
         unique_together = ("parenttask", "profile")
+
+    def save(self, *args, **kwargs):
+        if self.priority in TASK_PROFILE_PRIORITY_LIST: # check for private visible type
+            return super(TaskProfile, self).save(*args, **kwargs)
+        else:
+            raise Exception("Cannot save - wrong priority!")
 
 @receiver(post_save, sender=TaskProfile)
 def taskprofile_post_save_Notifier_Composer(sender, instance, **kwargs):
