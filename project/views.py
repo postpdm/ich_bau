@@ -1091,15 +1091,17 @@ def add_user_or_profile(request, task_id, add_user, arg_level_pk = 0 ):
              } )
 
 @login_required
-def switch_assign_responsibillty(request, taskprofile_id):
+def switch_assign_responsibillty(request, taskprofile_id, priority_int ):
     tp = get_object_or_404( TaskProfile, pk = taskprofile_id )
-    if tp.priority == TASK_PROFILE_PRIORITY_INTERESTED:
-        tp.priority = TASK_PROFILE_PRIORITY_RESPONSIBLE
-    else:
-        tp.priority = TASK_PROFILE_PRIORITY_INTERESTED
+    try:
+        priority_int = int( priority_int )
+        if tp.priority != priority_int:
+            tp.priority = priority_int
+            tp.set_change_user(request.user)
+            tp.save()
+    except:
+        messages.error( request, "Can't set wrong priority!")
 
-    tp.set_change_user(request.user)
-    tp.save()
     # перебросить пользователя на задание
     return HttpResponseRedirect('/project/task/' + str( tp.parenttask_id ) )
 

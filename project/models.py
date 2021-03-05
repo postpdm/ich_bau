@@ -592,11 +592,16 @@ class TaskProfile(BaseStampedModel):
     def get_priority_caption(self):
         return TASK_PROFILE_PRIORITY_LIST_CHOICES[ self.priority ][1]
 
+    def get_allowed_priority(self):
+        i = self.priority
+        # exclude used priority
+        return TASK_PROFILE_PRIORITY_LIST_CHOICES[:i] + TASK_PROFILE_PRIORITY_LIST_CHOICES[i+1:]
+
     def save(self, *args, **kwargs):
         if self.priority in TASK_PROFILE_PRIORITY_LIST: # check for private visible type
             return super(TaskProfile, self).save(*args, **kwargs)
         else:
-            raise Exception("Cannot save - wrong priority!")
+            raise Exception("Cannot save - wrong priority " + self.priority + " !" )
 
 @receiver(post_save, sender=TaskProfile)
 def taskprofile_post_save_Notifier_Composer(sender, instance, **kwargs):
