@@ -1,7 +1,7 @@
 ﻿# project forms
 
 from django import forms
-from project.models import Project, PROJECT_VISIBLE_LIST_CHOICES, PROJECT_VISIBLE_PRIVATE, Task, TaskComment, Milestone, Member, TaskDomain, TaskLink, TaskProfile, TaskCheckList, Task2Domain, Get_Profiles_Available2Task
+from project.models import Project, PROJECT_VISIBLE_LIST_CHOICES, PROJECT_VISIBLE_PRIVATE, Task, TaskComment, Milestone, Member, TaskDomain, TaskLink, TaskProfile, TASK_PROFILE_PRIORITY_LIST, TASK_PROFILE_PRIORITY_INTERESTED, TASK_PROFILE_PRIORITY_LIST_CHOICES, TaskCheckList, Task2Domain, Get_Profiles_Available2Task
 from ich_bau.profiles.models import PROFILE_TYPE_USER
 
 from django.forms.widgets import HiddenInput, CheckboxSelectMultiple
@@ -85,7 +85,12 @@ class TaskLinkedForm(forms.ModelForm):
 
 class TaskProfileForm(forms.ModelForm):
     profile=forms.ModelChoiceField( Profile.objects, help_text="profile", required=True )
-    priority=forms.BooleanField( label = 'Responsible', help_text="Responsible or interested", required=False )
+    # forms.BooleanField( label = 'Responsible', help_text="Responsible or interested", required=False )
+    priority=forms.ChoiceField( label='Prios',
+                                      widget=forms.RadioSelect,
+                                      choices=TASK_PROFILE_PRIORITY_LIST_CHOICES,
+                                      initial = TASK_PROFILE_PRIORITY_INTERESTED )
+
 
     def __init__(self, *args, **kwargs):
         argmaintaskid = kwargs.pop('argmaintaskid', None)

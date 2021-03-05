@@ -118,8 +118,8 @@ no history to view
                     <li><a href="{% url 'profiles_detail' pk=p.profile.id %}">{{p.profile}}</a>
                     {% if user_can_work and task.get_opened %}
                         <div class="btn-group">
-                          <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                            {%if p.priority%}Responsible{%else%}Interested{%endif%} <span class="caret"></span>
+                          <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">{{ p.get_priority_caption }}
+                          <span class="caret"></span>
                           </button>
                           <ul class="dropdown-menu">
                             <li><a href="{% url 'project:switch_assign_responsibillty' p.pk %}">{%if p.priority%}Set interested{%else%}Set responsible{%endif%}</a></li>
