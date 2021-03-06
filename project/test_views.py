@@ -4,7 +4,7 @@ from django.test import TestCase, Client
 
 from django.urls import reverse_lazy
 
-from .models import Project, Task, Milestone, Get_Profiles_Available2Task, Get_Profile_Tasks, TaskCheckList, TaskLink, PROJECT_VISIBLE_PRIVATE, PROJECT_VISIBLE_VISIBLE, PROJECT_VISIBLE_OPEN, TASK_PROFILE_PRIORITY_RESPONSIBLE_FULL
+from .models import Project, Task, Milestone, Get_Profiles_Available2Task, Get_Profile_Tasks, TaskCheckList, TaskLink, PROJECT_VISIBLE_PRIVATE, PROJECT_VISIBLE_VISIBLE, PROJECT_VISIBLE_OPEN, TASK_PROFILE_PRIORITY_RESPONSIBLE_FULL, TASK_PROFILE_PRIORITY_RESPONSIBLE_HOLDER
 
 from ich_bau.profiles.models import Profile, PROFILE_TYPE_RESOURCE, Profile_Manage_User
 
@@ -248,6 +248,13 @@ class Project_View_Test_Client(TestCase):
         self.assertEqual( profile_assigned.get_allowed_priority(), ( (0, 'Interested'), (2, 'Holder'), (3, 'Executant') ) )
 
         self.assertEqual( Get_Profile_Tasks( new_resource ).count(), 1 )
+
+        response = c.post( reverse_lazy('project:switch_assign_responsibillty', args = (profile_assigned.id, TASK_PROFILE_PRIORITY_RESPONSIBLE_HOLDER ) ) )
+        # we are redirected to task page
+        self.assertEqual( response.status_code, 302 )
+        profile_assigned.refresh_from_db()
+        self.assertEqual( profile_assigned.get_priority_caption(), 'Holder' )
+        self.assertEqual( profile_assigned.get_allowed_priority(), ( (0, 'Interested'), (1, 'Full responsible'), (3, 'Executant') ) )
 
         response = c.get( reverse_lazy('profiles_detail', args = (new_resource.id, ) ) )
         # can't see the Task in Resource profile - becouse Resource is not managed by test user
