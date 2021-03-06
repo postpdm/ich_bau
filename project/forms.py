@@ -86,11 +86,10 @@ class TaskLinkedForm(forms.ModelForm):
 class TaskProfileForm(forms.ModelForm):
     profile=forms.ModelChoiceField( Profile.objects, help_text="profile", required=True )
     # forms.BooleanField( label = 'Responsible', help_text="Responsible or interested", required=False )
-    priority=forms.ChoiceField( label='Prios',
+    priority=forms.ChoiceField( label='Priority',
                                       widget=forms.RadioSelect,
                                       choices=TASK_PROFILE_PRIORITY_LIST_CHOICES,
                                       initial = TASK_PROFILE_PRIORITY_INTERESTED )
-
 
     def __init__(self, *args, **kwargs):
         argmaintaskid = kwargs.pop('argmaintaskid', None)
