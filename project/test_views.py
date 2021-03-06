@@ -243,6 +243,8 @@ class Project_View_Test_Client(TestCase):
 
         self.assertEqual( test_task_2.get_profiles().count(), 1 )
         self.assertEqual( avail_profiles.count(), 1 )
+        profile_assigned = test_task_2.get_profiles().first()
+        self.assertEqual( profile_assigned.get_priority_caption(), 'Full responsible' )
 
         self.assertEqual( Get_Profile_Tasks( new_resource ).count(), 1 )
 
