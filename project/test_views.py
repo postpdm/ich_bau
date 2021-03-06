@@ -4,7 +4,7 @@ from django.test import TestCase, Client
 
 from django.urls import reverse_lazy
 
-from .models import Project, Task, Milestone, Get_Profiles_Available2Task, Get_Profile_Tasks, TaskCheckList, TaskLink, PROJECT_VISIBLE_PRIVATE, PROJECT_VISIBLE_VISIBLE, PROJECT_VISIBLE_OPEN
+from .models import Project, Task, Milestone, Get_Profiles_Available2Task, Get_Profile_Tasks, TaskCheckList, TaskLink, PROJECT_VISIBLE_PRIVATE, PROJECT_VISIBLE_VISIBLE, PROJECT_VISIBLE_OPEN, TASK_PROFILE_PRIORITY_RESPONSIBLE_FULL
 
 from ich_bau.profiles.models import Profile, PROFILE_TYPE_RESOURCE, Profile_Manage_User
 
@@ -237,7 +237,7 @@ class Project_View_Test_Client(TestCase):
         self.assertEqual( avail_profiles.count(), 2 )
         self.assertEqual( Get_Profile_Tasks( new_resource ).count(), 0 )
 
-        response = c.post( reverse_lazy('project:add_profile', args = (test_task_2.id, ) ), { 'profile' : new_resource.id, } )
+        response = c.post( reverse_lazy('project:add_profile', args = (test_task_2.id, ) ), { 'profile' : new_resource.id, 'priority' : TASK_PROFILE_PRIORITY_RESPONSIBLE_FULL, } )
         # we are redirected to new task page
         self.assertEqual( response.status_code, 302 )
 
