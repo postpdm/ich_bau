@@ -3,7 +3,7 @@ django-user-accounts
 django-bootstrap-form
 pinax
 pinax-theme-bootstrap
-pinax-eventlog
+pinax-eventlog==2.0.3
 
 django-filter
 django-reversion
