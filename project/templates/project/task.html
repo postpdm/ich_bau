@@ -122,7 +122,9 @@ no history to view
                           <span class="caret"></span>
                           </button>
                           <ul class="dropdown-menu">
-                            <li><a href="{% url 'project:switch_assign_responsibillty' p.pk %}">{%if p.priority%}Set interested{%else%}Set responsible{%endif%}</a></li>
+                            {% for pp in p.get_allowed_priority %}
+                                <li><a href="{% url 'project:switch_assign_responsibillty' p.pk pp.0 %}">Set {{p.profile}} {{pp.1}}</a></li>
+                            {% endfor %}
                             <li class="divider"></li>
                             <li><a href="{% url 'project:remove_assign_responsibillty' p.pk %}">Remove</a></li>
                             </li>
