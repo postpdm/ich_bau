@@ -32,7 +32,7 @@ Create profile link
     <ol>
         {% for lp in level_profiles %}
             <li>
-            <a href="{% url 'project:add_profile_sub_tree_view' task_id=task.pk level_pk=lp.pk %}" class="btn btn-default btn-sm" > {% fa_profile_icon lp.profile_type %} {{lp}}</a></li>
+            <a href="{% url 'project:add_profile_sub_tree_view' task_id=task.pk level_pk=lp.pk %}" class="btn btn-default btn-sm" >{% fa_profile_icon lp.profile_type %} {{lp}}</a></li>
         {% endfor %}
     </ol>
     {% else %}
