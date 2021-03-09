@@ -84,7 +84,10 @@ class TaskLinkedForm(forms.ModelForm):
         fields = ['subtasks']
 
 class TaskProfileForm(forms.ModelForm):
-    profile=forms.ModelChoiceField( Profile.objects, help_text="profile", required=True )
+    profile=forms.ModelChoiceField( Profile.objects,
+                                    help_text="profile",
+                                    widget=forms.RadioSelect,
+                                    required=True )
     # forms.BooleanField( label = 'Responsible', help_text="Responsible or interested", required=False )
     priority=forms.ChoiceField( label='Priority',
                                       widget=forms.RadioSelect,
