@@ -91,6 +91,9 @@ PROFILE_TYPE_FOR_TASK = ( PROFILE_TYPE_PEOPLE, PROFILE_TYPE_DEPARTAMENT, PROFILE
 # profile types to add to task - with USER
 PROFILE_USER_TYPE_FOR_TASK = ( PROFILE_TYPE_USER, ) + PROFILE_TYPE_FOR_TASK
 
+# profile types for tree navigation
+PROFILE_USER_TYPE_FOR_TREE = ( PROFILE_TYPE_DEPARTAMENT, PROFILE_TYPE_ORG, PROFILE_TYPE_FOLDER )
+
 class Profile(models.Model):
     profile_type = models.PositiveSmallIntegerField( blank=False, null=False, default = PROFILE_TYPE_USER )
     user = models.OneToOneField(User, on_delete=models.PROTECT, blank=True, null=True, related_name="profile")

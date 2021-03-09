@@ -1,6 +1,6 @@
 ﻿from project.models import *
 from project.forms import ProjectForm, TaskForm, TaskCommentForm, MilestoneForm, MemberForm, TaskLinkedForm, TaskProfileForm, TaskCheckListForm, TaskDomainForm
-from ich_bau.profiles.models import Get_Users_Profiles, Close_All_Unread_Notifications_For_Task_For_One_User, Is_User_Manager, Get_Profiles_From_Level
+from ich_bau.profiles.models import Get_Users_Profiles, Close_All_Unread_Notifications_For_Task_For_One_User, Is_User_Manager, Get_Profiles_From_Level, PROFILE_USER_TYPE_FOR_TREE
 from django.forms.models import modelformset_factory
 from django.urls import reverse
 from django.db.models import Count
@@ -1055,15 +1055,18 @@ def add_user_or_profile(request, task_id, add_user, arg_level_pk = 0 ):
     level_profiles = None
 
     if add_user:
+        # select only users
         query_for_combo = Get_Profiles_Available2Task( task_id ) # base query - all types profiles, unassigned
         query_for_combo = query_for_combo.filter( profile_type = PROFILE_TYPE_USER ) # only users
     else:
+        # select profiles (except users) and build tree navigation
         if level_pk > 0:
             root_profile = get_object_or_404( Profile, pk = level_pk )
         else:
             root_profile = None
         level_profiles = Get_Profiles_From_Level( level_pk )
         query_for_combo = ( level_profiles.distinct() & Get_Profiles_Available2Task( task_id ) ).exclude( profile_type = PROFILE_TYPE_USER ) # unlinked, from current level and except users
+        level_profiles = level_profiles.filter(  profile_type__in = PROFILE_USER_TYPE_FOR_TREE )
 
     if request.method == 'POST':
         form = TaskProfileForm(request.POST, argmaintaskid = task_id, arg_query_for_combo = query_for_combo )
