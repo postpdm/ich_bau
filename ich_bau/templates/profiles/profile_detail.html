@@ -1,5 +1,6 @@
 {% extends "site_base.html" %}
 
+{% load profile_tag %}
 
 {% block head_title %}{{ profile.display_name }}{% endblock %}
 
@@ -11,6 +12,8 @@
             <div class="profile-widget">
                 {% if profile.avatar %}
                     <img class="img-polaroid avatar hidden-phone" src="{% thumbnail profile.avatar 160x160 crop %}" alt="{{ profile.name }}">
+                {% else %}
+                    {% fa_profile_icon profile.profile_type %}
                 {% endif %}
 
                 <h2>{{ profile.display_name }}</h2>
@@ -75,7 +78,7 @@
         {% if main_profiles %}
         <ul>
         {% for mp in main_profiles %}
-        <li><a href="{% url 'profiles_detail' pk=mp.main_profile.id %}">{{ mp.main_profile.display_name }}</a></li>
+        <li><a href="{% url 'profiles_detail' pk=mp.main_profile.id %}">{% fa_profile_icon mp.main_profile.profile_type %} {{ mp.main_profile.display_name }}</a></li>
         {% endfor %}
         </ul>
         {% endif %}
@@ -83,7 +86,7 @@
         {% if sub_profiles %}
         <ul>
         {% for sp in sub_profiles %}
-        <li><a href="{% url 'profiles_detail' pk=sp.sub_profile.id %}">{{ sp.sub_profile.display_name }}</a></li>
+        <li><a href="{% url 'profiles_detail' pk=sp.sub_profile.id %}">{% fa_profile_icon sp.sub_profile.profile_type %} {{ sp.sub_profile.display_name }}</a></li>
         {% endfor %}
         </ul>
         {% endif %}
