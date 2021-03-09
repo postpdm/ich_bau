@@ -1,9 +1,10 @@
-#from django.contrib.auth.models import User
+from django.contrib.auth.models import AnonymousUser
 from .models import *
 
 from django.test import TestCase
 
 from django.db import transaction
+
 import reversion
 
 TEST_USER_NAME_CREATOR = 'test project creator'
@@ -73,6 +74,11 @@ class Project_Test(TestCase):
         test_project = get_public_project()
         user_creator = get_creator_user()
         self.assertEqual( test_project.is_admin(user_creator), True )
+
+    def test_anon_is_NOT_admin(self):
+        test_project = get_public_project()
+        user_anon = AnonymousUser()
+        self.assertEqual( test_project.is_admin(user_anon), False )
 
     def test_creator_can_admin(self):
         test_project = get_public_project()
