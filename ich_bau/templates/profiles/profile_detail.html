@@ -78,7 +78,15 @@
         {% if main_profiles %}
         <ul>
         {% for mp in main_profiles %}
-        <li><a href="{% url 'profiles_detail' pk=mp.main_profile.id %}">{% fa_profile_icon mp.main_profile.profile_type %} {{ mp.main_profile.display_name }}</a></li>
+        <li><a href="{% url 'profiles_detail' pk=mp.main_profile.id %}">
+
+            {% if mp.main_profile.avatar %}
+                <img width="72" height="72" class="media-object pull-left" src="{% thumbnail mp.main_profile.avatar 72x72 crop %}">
+            {% else %}
+                {% fa_profile_icon mp.main_profile.profile_type %}
+            {% endif %}
+
+        {{ mp.main_profile.display_name }}</a></li>
         {% endfor %}
         </ul>
         {% endif %}
@@ -86,7 +94,14 @@
         {% if sub_profiles %}
         <ul>
         {% for sp in sub_profiles %}
-        <li><a href="{% url 'profiles_detail' pk=sp.sub_profile.id %}">{% fa_profile_icon sp.sub_profile.profile_type %} {{ sp.sub_profile.display_name }}</a></li>
+        <li><a href="{% url 'profiles_detail' pk=sp.sub_profile.id %}">
+            {% if sp.sub_profile.avatar %}
+                <img width="72" height="72" class="media-object pull-left" src="{% thumbnail sp.sub_profile.avatar 72x72 crop %}">
+            {% else %}
+                {% fa_profile_icon sp.sub_profile.profile_type %}
+            {% endif %}
+
+        {{ sp.sub_profile.display_name }}</a></li>
         {% endfor %}
         </ul>
         {% endif %}
