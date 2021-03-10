@@ -23,6 +23,9 @@
 
 <ul class="nav nav-tabs">
   <li role="presentation" {% if show_page == 'title' %} class="active" {% endif %}><a href="{{project.get_absolute_url}}">{% trans "Project" %}</a></li>
+  {% if project.use_sub_projects %}
+  <li role="presentation" {% if show_page == 'sub_projects' %} class="active" {% endif %}><a href="{{project.get_absolute_url}}sub_projects/">{% trans "Streams" %}</a></li>
+  {% endif %}
   <li role="presentation" {% if show_page == 'members' %} class="active" {% endif %}><a href="{{project.get_absolute_url}}members/">{% trans "Members" %}</a></li>
   <li role="presentation" {% if show_page == 'last_actions' %} class="active" {% endif %}><a href="{{project.get_absolute_url}}last_actions/">{% trans "Last activities" %}</a></li>
 
@@ -125,6 +128,12 @@ no history to view
 <h2>{% trans "Members" %} {% if user_can_admin %}<a class="btn btn-default" href="/project/member_add/{{project.id}}/"><i class="fa fa-plus"></i> {% trans "Add member" %}</a>{% endif %}</h2>
 
 {% include "project/project_members_list.html" %}
+{% endif %}
+
+{% if show_page == 'sub_projects' %}
+{% for sp in sub_projects %}
+{{sp}}
+{% endfor %}
 {% endif %}
 
 {% if show_page == 'last_actions' %}

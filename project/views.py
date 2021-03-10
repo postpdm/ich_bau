@@ -186,6 +186,7 @@ TASK_FILTER_UNASSIGNED = 5
 PROJECT_PAGE_TITLE = 0
 PROJECT_PAGE_MEMBERS = 5
 PROJECT_PAGE_LAST_ACTIONS = 8
+PROJECT_PAGE_SUB_PROJECTS = 9
 PROJECT_PAGE_FILES = 10
 PROJECT_PAGE_MILESTONES = 15
 PROJECT_PAGE_REPORTS = 25
@@ -195,6 +196,7 @@ PROJECT_PAGE_FILTER = {
   PROJECT_PAGE_TITLE : 'title',
   PROJECT_PAGE_MEMBERS : 'members',
   PROJECT_PAGE_LAST_ACTIONS : 'last_actions',
+  PROJECT_PAGE_SUB_PROJECTS : 'sub_projects',
   PROJECT_PAGE_FILES : 'files',
   PROJECT_PAGE_MILESTONES : 'milestones' ,
   PROJECT_PAGE_REPORTS : 'reports' ,
@@ -220,6 +222,9 @@ def project_view_search_tasks(request, project_id):
 
 def project_view_last_actions(request, project_id):
     return get_project_view(request, project_id, arg_page = PROJECT_PAGE_LAST_ACTIONS )
+
+def project_view_sub_projects(request, project_id):
+    return get_project_view(request, project_id, arg_page = PROJECT_PAGE_SUB_PROJECTS )
 
 def project_view_milestones(request, project_id):
     return get_project_view(request, project_id, arg_page = PROJECT_PAGE_MILESTONES )
@@ -338,6 +343,7 @@ def get_project_view(request, project_id, arg_task_filter = TASK_FILTER_OPEN, ar
     domains = None
     selected_domain = None
     last_actions = None
+    sub_projects = None
 
     if arg_page == PROJECT_PAGE_MILESTONES:
         milestones = Get_Milestone_Report_for_Project(project)
@@ -413,6 +419,9 @@ def get_project_view(request, project_id, arg_task_filter = TASK_FILTER_OPEN, ar
     if arg_page == PROJECT_PAGE_LAST_ACTIONS:
         last_actions = get_last_action_content( project )
 
+    if arg_page == PROJECT_PAGE_SUB_PROJECTS:
+        sub_projects = { 1 : '1212', 27 : '23l24r23' }
+
     if arg_page == PROJECT_PAGE_REPORTS:
         pass
 
@@ -435,6 +444,7 @@ def get_project_view(request, project_id, arg_task_filter = TASK_FILTER_OPEN, ar
                      'domains' : domains,
                      'selected_domain' : selected_domain,
                      'last_actions' : last_actions,
+                     'sub_projects' : sub_projects,
                          }
 
     # Рендерить ответ

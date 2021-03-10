@@ -31,6 +31,7 @@ urlpatterns = [
     url(r'^project/(?P<project_id>\w+)/search_task/$', views.project_view_search_tasks, name='project_view_search_tasks'),
 
     url(r'^project/(?P<project_id>\w+)/last_actions/$', views.project_view_last_actions, name='project_view_last_actions'),
+    url(r'^project/(?P<project_id>\w+)/sub_projects/$', views.project_view_sub_projects, name='project_view_sub_projects'),
     url(r'^project/(?P<project_id>\w+)/members/$', views.project_view_members, name='project_view_members'),
     url(r'^project/(?P<project_id>\w+)/milestones/$', views.project_view_milestones, name='project_view_milestones'),
     url(r'^project/(?P<project_id>\w+)/reports/$', views.project_view_reports, name='project_view_reports'),
