@@ -399,3 +399,4 @@ class Project_View_Test_Client(TestCase):
         sub_project_1 = Sub_Project.objects.get(id=1)
         self.assertEqual( sub_project_1.project, test_project_1 )
         self.assertEqual( sub_project_1.fullname, TEST_SUB_PROJECT_FULLNAME )
+        self.assertEqual( sub_project_1.get_absolute_url(), '/project/sub_project/1/' )
