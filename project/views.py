@@ -420,7 +420,10 @@ def get_project_view(request, project_id, arg_task_filter = TASK_FILTER_OPEN, ar
         last_actions = get_last_action_content( project )
 
     if arg_page == PROJECT_PAGE_SUB_PROJECTS:
-        sub_projects = Sub_Project.objects.filter( project = project )
+        if project.use_sub_projects:
+            sub_projects = Sub_Project.objects.filter( project = project )
+        else:
+            raise Http404
 
     if arg_page == PROJECT_PAGE_REPORTS:
         pass
