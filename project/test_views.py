@@ -391,7 +391,6 @@ class Project_View_Test_Client(TestCase):
         self.assertTrue( test_project_1.use_sub_projects )
 
         response = c.get( reverse_lazy('project:project_view_sub_projects', args = (test_project_1.id,) ) )
-        self.assertEqual( response.status_code, 200 )
         self.assertContains(response, 'Sub projects', count = 2, status_code=200 )
 
         response = c.post( reverse_lazy('project:sub_project_add', args = (test_project_1.id,)), { 'fullname' : TEST_SUB_PROJECT_FULLNAME, } )
@@ -400,3 +399,6 @@ class Project_View_Test_Client(TestCase):
         self.assertEqual( sub_project_1.project, test_project_1 )
         self.assertEqual( sub_project_1.fullname, TEST_SUB_PROJECT_FULLNAME )
         self.assertEqual( sub_project_1.get_absolute_url(), '/project/sub_project/1/' )
+
+        response = c.get( reverse_lazy('project:sub_project_view', args = (sub_project_1.id,) ) )
+        self.assertContains(response, TEST_SUB_PROJECT_FULLNAME, status_code=200 )
