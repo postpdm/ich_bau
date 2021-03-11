@@ -4,7 +4,7 @@ from django.test import TestCase, Client
 
 from django.urls import reverse_lazy
 
-from .models import Project, Task, Milestone, Get_Profiles_Available2Task, Get_Profile_Tasks, TaskCheckList, TaskLink, PROJECT_VISIBLE_PRIVATE, PROJECT_VISIBLE_VISIBLE, PROJECT_VISIBLE_OPEN, TASK_PROFILE_PRIORITY_RESPONSIBLE_FULL, TASK_PROFILE_PRIORITY_RESPONSIBLE_HOLDER
+from .models import Project, Task, Milestone, Get_Profiles_Available2Task, Get_Profile_Tasks, TaskCheckList, TaskLink, PROJECT_VISIBLE_PRIVATE, PROJECT_VISIBLE_VISIBLE, PROJECT_VISIBLE_OPEN, TASK_PROFILE_PRIORITY_RESPONSIBLE_FULL, TASK_PROFILE_PRIORITY_RESPONSIBLE_HOLDER, Sub_Project
 
 from ich_bau.profiles.models import Profile, PROFILE_TYPE_RESOURCE, Profile_Manage_User
 
@@ -24,6 +24,8 @@ TEST_MILESTONE_FULLNAME = 'TEST MILESTONE #1 FULL NAME'
 TEST_MILESTONE_FULLNAME_2 = 'TEST MILESTONE #1 NEW FULL NAME'
 
 TASK_CHECK_CAPTION = 'Do it!'
+
+TEST_SUB_PROJECT_FULLNAME = 'TEST PROJECT #1 - SUB PROJECT #1'
 
 class Project_View_Test_Client(TestCase):
     def test_Project_All_Public(self):
@@ -391,3 +393,9 @@ class Project_View_Test_Client(TestCase):
         response = c.get( reverse_lazy('project:project_view_sub_projects', args = (test_project_1.id,) ) )
         self.assertEqual( response.status_code, 200 )
         self.assertContains(response, 'Sub projects', count = 2, status_code=200 )
+
+        response = c.post( reverse_lazy('project:sub_project_add', args = (test_project_1.id,)), { 'fullname' : TEST_SUB_PROJECT_FULLNAME, } )
+        self.assertEqual(response.status_code, 302 )
+        sub_project_1 = Sub_Project.objects.get(id=1)
+        self.assertEqual( sub_project_1.project, test_project_1 )
+        self.assertEqual( sub_project_1.fullname, TEST_SUB_PROJECT_FULLNAME )
