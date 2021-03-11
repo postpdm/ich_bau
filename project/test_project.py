@@ -197,6 +197,10 @@ class Project_Test(TestCase):
         self.assertEqual( p.count(), 1 ) # 1 profile is available
         self.assertEqual( p.filter( user = get_creator_user() ).count(), 1 ) # creator_user profile is available
 
+    def test_sub_project_default_false(self):
+        test_project = get_public_project()
+        self.assertEqual( test_project.use_sub_projects, False )
+
 class Project_Set_Wrong_Private_Type_Test(TestCase):
 
     def test_Project_Set_Wrong_Private_Type( self ):
