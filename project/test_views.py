@@ -373,3 +373,14 @@ class Project_View_Test_Client(TestCase):
         self.assertTrue( test_project_1.is_member( test_user ) )
         self.assertFalse( test_project_1.use_sub_projects )
 
+        response = c.get( reverse_lazy('project:project_view', args = (test_project_1.id,) ) )
+        # project doesn't contain SUB projects
+        self.assertNotContains(response, 'sub', status_code=200 )
+
+        response = c.post( reverse_lazy('project:project_edit', args = (test_project_1.id,)), { 'fullname' : TEST_PROJECT_FULLNAME, 'private_type' : PROJECT_VISIBLE_VISIBLE, 'use_sub_projects' : True, } )
+
+        self.assertEqual(response.status_code, 302 )
+        # refresh object from db
+        test_project_1.refresh_from_db()
+        # is use_sub_projects actually changed?
+        self.assertTrue( test_project_1.use_sub_projects )
