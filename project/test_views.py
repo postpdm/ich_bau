@@ -375,7 +375,7 @@ class Project_View_Test_Client(TestCase):
 
         response = c.get( reverse_lazy('project:project_view', args = (test_project_1.id,) ) )
         # project doesn't contain SUB projects
-        self.assertNotContains(response, 'sub', status_code=200 )
+        self.assertNotContains(response, 'Sub projects', status_code=200 )
 
         response = c.get( reverse_lazy('project:project_view_sub_projects', args = (test_project_1.id,) ) )
         self.assertEqual( response.status_code, 404 )
@@ -387,3 +387,7 @@ class Project_View_Test_Client(TestCase):
         test_project_1.refresh_from_db()
         # is use_sub_projects actually changed?
         self.assertTrue( test_project_1.use_sub_projects )
+
+        response = c.get( reverse_lazy('project:project_view_sub_projects', args = (test_project_1.id,) ) )
+        self.assertEqual( response.status_code, 200 )
+        self.assertContains(response, 'Sub projects', count = 2, status_code=200 )
