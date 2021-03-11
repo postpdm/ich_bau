@@ -377,6 +377,9 @@ class Project_View_Test_Client(TestCase):
         # project doesn't contain SUB projects
         self.assertNotContains(response, 'sub', status_code=200 )
 
+        response = c.get( reverse_lazy('project:project_view_sub_projects', args = (test_project_1.id,) ) )
+        self.assertEqual( response.status_code, 404 )
+
         response = c.post( reverse_lazy('project:project_edit', args = (test_project_1.id,)), { 'fullname' : TEST_PROJECT_FULLNAME, 'private_type' : PROJECT_VISIBLE_VISIBLE, 'use_sub_projects' : True, } )
 
         self.assertEqual(response.status_code, 302 )
