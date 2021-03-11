@@ -56,6 +56,11 @@ urlpatterns = [
     url(r'^task/(?P<task_id>\w+)/history/$', views.task_history, name='task_history'),
     url(r'^add_linked/(?P<task_id>\w+)/$', views.add_linked, name='add_linked'),
 
+    url(r'^sub_project_add/(?P<project_id>\w+)/$', views.Sub_ProjectCreateView.as_view(), name='sub_project_add'),
+    url(r'^sub_project/(?P<sub_project_id>\w+)/$', views.sub_project_view, name='sub_project_view'),
+    url(r'^sub_project/(?P<pk>\w+)/edit/$', views.Sub_ProjectUpdateView.as_view(), name='sub_project_edit'),
+    url(r'^sub_project/(?P<sub_project_id>\w+)/history/$', views.sub_project_history, name='sub_project_history'),
+
     url(r'^task_move2project_dialog/(?P<task_id>\w+)/$', views.task_move2project, name='task_move2project_dialog'),
     url(r'^task_move2project_check/(?P<task_id>\w+)/target_project/(?P<project_id>\w+)/$', views.task_move2project, name='task_move2project_check'),
 

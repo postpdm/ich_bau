@@ -708,3 +708,14 @@ def Get_Profile_ScheduleItem_Next_Week( arg_schedule_filter ):
 class ScheduleItem_Task(BaseStampedModel):
     schedule_item = models.ForeignKey( ScheduleItem, on_delete=models.PROTECT, blank=False, null=False )
     scheduledtask = models.ForeignKey( Task, on_delete=models.PROTECT, related_name = 'scheduledtask' )
+
+@reversion.register()
+class Sub_Project(BaseStampedModel):
+    project = models.ForeignKey(Project, on_delete=models.PROTECT, blank=False, null=False )
+    fullname = models.CharField(max_length=255, verbose_name = 'Full name!', blank=False, null=False )
+
+    def __str__(self):
+        return self.fullname
+
+    def get_absolute_url(self):
+        return "/project/sub_project/%i/" % self.id

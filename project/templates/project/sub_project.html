@@ -1,0 +1,41 @@
+{% extends 'site_base.html' %}
+
+{% load i18n %}
+{% load bootstrap %}
+
+{% block head_title %}{{sub_project}}{% endblock %}
+
+{% block body %}
+    <div class="row">
+        <div class="col-md-12">
+        
+<ol class="breadcrumb">
+<li> <a href="{% url 'project:index' %}">Projects</a></li></li>
+<li> <a href="{{ sub_project.project.get_absolute_url }}">{{ sub_project.project }}</a></li>
+<li> <a href="{% url 'project:project_view_sub_projects' sub_project.project.id %}">{{ sub_project.project }} sub projects</a> </li>
+</ol>
+        
+<h1>{{sub_project}}</h1>
+
+{% if user_can_admin %}
+<a class="btn btn-default" href="{{sub_project.get_absolute_url}}edit"><i class="fa fa-pencil-square-o"></i> Edit sub project</a>
+
+{% if sub_project.created_at == sub_project.modified_at %}
+no history to view
+
+{% else %}
+<a href="{{sub_project.get_absolute_url}}history">History</a>
+{% endif %}
+
+{% endif %}
+
+<h2>Tasks {% if not milestone.finished_at %}{% if user_can_admin or user_can_work %}<a class="btn btn-default" href="/project/task_add_to_milestone/{{milestone.id}}/"><i class="fa fa-plus"></i> {% trans "Create task" %}</a>{% endif %}{% endif %}</h2>
+
+{% include "project/task_list.html" with table_mode='sub_project' %}
+
+</div>
+</div>
+
+<small>This page was last modified on {{ sub_project.modified_at }}</small>
+    
+{% endblock %}

@@ -1,7 +1,7 @@
 ﻿# project forms
 
 from django import forms
-from project.models import Project, PROJECT_VISIBLE_LIST_CHOICES, PROJECT_VISIBLE_PRIVATE, Task, TaskComment, Milestone, Member, TaskDomain, TaskLink, TaskProfile, TASK_PROFILE_PRIORITY_LIST, TASK_PROFILE_PRIORITY_INTERESTED, TASK_PROFILE_PRIORITY_LIST_CHOICES, TaskCheckList, Task2Domain, Get_Profiles_Available2Task
+from project.models import Project, PROJECT_VISIBLE_LIST_CHOICES, PROJECT_VISIBLE_PRIVATE, Task, TaskComment, Milestone, Member, TaskDomain, TaskLink, TaskProfile, TASK_PROFILE_PRIORITY_LIST, TASK_PROFILE_PRIORITY_INTERESTED, TASK_PROFILE_PRIORITY_LIST_CHOICES, TaskCheckList, Task2Domain, Get_Profiles_Available2Task, Sub_Project
 from ich_bau.profiles.models import PROFILE_TYPE_USER
 
 from django.forms.widgets import HiddenInput, CheckboxSelectMultiple
@@ -130,3 +130,10 @@ class TaskCheckListForm(forms.ModelForm):
     class Meta:
         model = TaskCheckList
         fields = ['checkname', 'check_flag' ]
+
+
+class Sub_ProjectForm(forms.ModelForm):
+
+    class Meta:
+        model = Sub_Project
+        fields = ['fullname',  ]

@@ -1,5 +1,5 @@
 ﻿from project.models import *
-from project.forms import ProjectForm, TaskForm, TaskCommentForm, MilestoneForm, MemberForm, TaskLinkedForm, TaskProfileForm, TaskCheckListForm, TaskDomainForm
+from project.forms import ProjectForm, TaskForm, TaskCommentForm, MilestoneForm, MemberForm, TaskLinkedForm, TaskProfileForm, TaskCheckListForm, TaskDomainForm, Sub_ProjectForm
 from ich_bau.profiles.models import Get_Users_Profiles, Close_All_Unread_Notifications_For_Task_For_One_User, Is_User_Manager, Get_Profiles_From_Level, PROFILE_TYPE_FOR_TREE
 from django.forms.models import modelformset_factory
 from django.urls import reverse
@@ -420,7 +420,7 @@ def get_project_view(request, project_id, arg_task_filter = TASK_FILTER_OPEN, ar
         last_actions = get_last_action_content( project )
 
     if arg_page == PROJECT_PAGE_SUB_PROJECTS:
-        sub_projects = { 1 : '1212', 27 : '23l24r23' }
+        sub_projects = Sub_Project.objects.filter( project = project )
 
     if arg_page == PROJECT_PAGE_REPORTS:
         pass
@@ -1327,3 +1327,81 @@ def task_move2project( request, task_id, project_id = 0 ):
                 { 'task' : task,
                   'available_projects' : available_projects,
                 } )
+
+class Sub_ProjectCreateView(LoginRequiredMixin, CreateView):
+    form_class = Sub_ProjectForm
+    model = Sub_Project
+
+    def form_valid(self, form):
+        if 'project_id' in self.kwargs:
+            project_id = self.kwargs['project_id']
+        else:
+            raise Http404()
+
+        self.object = form.save(commit=False)
+        self.object.set_change_user(self.request.user)
+        if not ( project_id is None ):
+            p = get_object_or_404( Project, pk = project_id )
+            self.object.project = p
+
+        with transaction.atomic(), reversion.create_revision():
+            reversion.set_user(self.request.user)
+            self.object.save()
+
+        messages.success(self.request, "You successfully create the subproject!")
+        return HttpResponseRedirect(self.get_success_url())
+
+class Sub_ProjectUpdateView(LoginRequiredMixin, UpdateView):
+    form_class = Sub_ProjectForm
+    model = Sub_Project
+
+    def form_valid(self, form):
+        self.object = form.save(commit=False)
+        self.object.set_change_user(self.request.user)
+        with transaction.atomic(), reversion.create_revision():
+            reversion.set_user(self.request.user)
+            self.object.save()
+
+        messages.success(self.request, "You successfully update the sub project!")
+        return HttpResponseRedirect(self.get_success_url())
+
+def sub_project_history(request, sub_project_id):
+    context = RequestContext(request)
+
+    sub_project = get_object_or_404( Sub_Project, pk=sub_project_id)
+
+    versions = Version.objects.get_for_object( sub_project )
+
+    context_dict = { 'sub_project': sub_project,
+                     'versions': versions }
+
+    return render( request, 'project/sub_project_history.html', context_dict )
+
+def sub_project_view(request, sub_project_id):
+    context = RequestContext(request)
+
+    sub_project = get_object_or_404( Sub_Project, pk=sub_project_id)
+
+    ual = sub_project.project.user_access_level( request.user )
+    user_can_work = False
+    user_can_admin = False
+    if ual == PROJECT_ACCESS_NONE:
+        raise Http404()
+    else:
+        if ual == PROJECT_ACCESS_WORK:
+            user_can_work = True
+        else:
+            if ual == PROJECT_ACCESS_ADMIN:
+                user_can_work = True
+                user_can_admin = True
+
+    # tasks = Task.objects.filter( milestone = milestone ).order_by('state')
+
+    context_dict = { 'sub_project': sub_project,
+                     # 'tasks' : tasks,
+                     'user_can_admin' : user_can_admin,
+                     'user_can_work' : user_can_work,
+                         }
+
+    return render( request, 'project/sub_project.html', context_dict )
+

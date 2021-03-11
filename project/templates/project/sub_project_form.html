@@ -1,0 +1,46 @@
+{% extends 'site_base.html' %}
+
+{% load bootstrap %}
+
+{% block body_class %}sub project{% endblock %}
+
+{% block head_title %}
+{% if sub_project.pk %}
+Edit sub project
+{% else %}
+Create sub project
+{% endif %}
+
+{% endblock %}
+
+
+{% block body %}
+<div class="row">
+<div class="col-md-9">
+
+{{ form.media }}
+
+        <form class="span6" id="sub_project_form" method="post" action="" enctype="multipart/form-data">
+
+                {% if sub_project.pk %}
+                    <legend>Edit sub project</legend>
+                {% else %}
+                    <legend>Create sub project</legend>
+                {% endif %}
+
+            {% csrf_token %}
+            {% for hidden in form.hidden_fields %}
+                {{ hidden }}
+            {% endfor %}
+
+            {% for field in form.visible_fields %}
+
+                {{ field|bootstrap }}
+            {% endfor %}
+
+
+            <button class="btn btn-primary" type="submit" name="submit">Save</button>
+        </form>
+</div>
+</div>
+{% endblock %}
