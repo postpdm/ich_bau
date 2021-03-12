@@ -448,3 +448,14 @@ class Project_View_Test_Client(TestCase):
         # yet have not such tasks
         response = c.get( reverse_lazy('project:task_move2project_dialog', args = ( 1000, ) ) )
         self.assertEqual(response.status_code, 404 )
+
+        response = c.post( reverse_lazy('project:task_add', args = (test_project_1.id,) ), { 'fullname' : TEST_TASK_FULLNAME, } )
+        # we are redirected to new task page
+        self.assertEqual( response.status_code, 302 )
+
+        self.assertEqual( Task.objects.count(), 1 )
+        test_task_1 = Task.objects.get(id=1)
+
+        # try to select the real task
+        response = c.get( reverse_lazy('project:task_move2project_dialog', args = ( test_task_1.id, ) ) )
+        self.assertEqual(response.status_code, 200 )
