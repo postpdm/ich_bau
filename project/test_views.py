@@ -458,4 +458,5 @@ class Project_View_Test_Client(TestCase):
 
         # try to select the real task
         response = c.get( reverse_lazy('project:task_move2project_dialog', args = ( test_task_1.id, ) ) )
-        self.assertEqual(response.status_code, 200 )
+        self.assertContains(response, 'Move task', status_code=200 )
+
