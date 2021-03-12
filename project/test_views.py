@@ -442,5 +442,9 @@ class Project_View_Test_Client(TestCase):
         test_project_1 = Project.objects.get(id=1)
 
         # have not such tasks
-        response = c.get( reverse_lazy('project:task_move2project_dialog', args = ( 0,  ) ) )
+        response = c.get( reverse_lazy('project:task_move2project_dialog', args = ( 0, ) ) )
+        self.assertEqual(response.status_code, 404 )
+
+        # yet have not such tasks
+        response = c.get( reverse_lazy('project:task_move2project_dialog', args = ( 1000, ) ) )
         self.assertEqual(response.status_code, 404 )
