@@ -63,7 +63,7 @@ class TaskForm(forms.ModelForm):
         else:
             p = instance.project
 
-        # отображать вехи и пользователей только этого проекта
+        # отображать вехи, подпроекты и пользователей только этого проекта
         if not ( p is None):
             self.fields['milestone'].queryset = Milestone.objects.filter( project = p, finished_at__isnull = True )
             if p.use_sub_projects:

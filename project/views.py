@@ -1398,13 +1398,12 @@ def sub_project_view(request, sub_project_id):
                 user_can_work = True
                 user_can_admin = True
 
-    # tasks = Task.objects.filter( milestone = milestone ).order_by('state')
+    tasks = Task.objects.filter( sub_project = sub_project ).order_by('state')
 
     context_dict = { 'sub_project': sub_project,
-                     # 'tasks' : tasks,
+                     'tasks' : tasks,
                      'user_can_admin' : user_can_admin,
                      'user_can_work' : user_can_work,
                          }
 
     return render( request, 'project/sub_project.html', context_dict )
-
