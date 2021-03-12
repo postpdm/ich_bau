@@ -25,7 +25,8 @@ TEST_MILESTONE_FULLNAME_2 = 'TEST MILESTONE #1 NEW FULL NAME'
 
 TASK_CHECK_CAPTION = 'Do it!'
 
-TEST_SUB_PROJECT_FULLNAME = 'TEST PROJECT #1 - SUB PROJECT #1'
+TEST_SUB_PROJECT_FULLNAME         = 'TEST PROJECT #1 - SU PROJECT #1'
+TEST_SUB_PROJECT_FULLNAME_CHANGED = 'TEST PROJECT #1 - SUB PROJECT #1'
 
 class Project_View_Test_Client(TestCase):
     def test_Project_All_Public(self):
@@ -402,3 +403,18 @@ class Project_View_Test_Client(TestCase):
 
         response = c.get( reverse_lazy('project:sub_project_view', args = (sub_project_1.id,) ) )
         self.assertContains(response, TEST_SUB_PROJECT_FULLNAME, status_code=200 )
+
+
+        response = c.post( reverse_lazy('project:sub_project_edit', args = (test_project_1.id,)), { 'fullname' : TEST_SUB_PROJECT_FULLNAME_CHANGED, } )
+        self.assertEqual(response.status_code, 302 )
+        sub_project_1.refresh_from_db()
+
+        self.assertEqual( sub_project_1.fullname, TEST_SUB_PROJECT_FULLNAME_CHANGED )
+
+        response = c.get( reverse_lazy('project:sub_project_view', args = (sub_project_1.id,) ) )
+        self.assertContains(response, TEST_SUB_PROJECT_FULLNAME_CHANGED, status_code=200 )
+
+        response = c.get( reverse_lazy('project:sub_project_history', args = (sub_project_1.id,) ) )
+        self.assertContains(response, TEST_SUB_PROJECT_FULLNAME_CHANGED, status_code=200 )
+        self.assertContains(response, TEST_SUB_PROJECT_FULLNAME, status_code=200 )
+
