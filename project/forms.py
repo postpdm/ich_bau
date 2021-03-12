@@ -51,7 +51,7 @@ class TaskForm(forms.ModelForm):
 
     class Meta:
         model = Task
-        fields = ['fullname', 'description', 'milestone', 'holder', 'important', 'kind', ]
+        fields = ['fullname', 'description', 'milestone', 'holder', 'important', 'kind', 'sub_project' ]
 
     def __init__(self, *args, **kwargs):
         super(TaskForm, self).__init__(*args, **kwargs)
@@ -66,6 +66,11 @@ class TaskForm(forms.ModelForm):
         # отображать вехи и пользователей только этого проекта
         if not ( p is None):
             self.fields['milestone'].queryset = Milestone.objects.filter( project = p, finished_at__isnull = True )
+            if p.use_sub_projects:
+                self.fields['sub_project'].queryset = Sub_Project.objects.filter( project = p )
+            else:
+                self.fields['sub_project'].widget = HiddenInput()
+
             list = p.GetFullMemberProfiles()
             self.fields['holder'].queryset = list
 

@@ -47,6 +47,10 @@
 
   <td>{% if task.holder %}<p>Holder: <a href="{% url 'profiles_detail' pk=task.holder.id %}">{{task.holder}}</a></small></p></p>{% endif %}</td>
 
+  {% if task.project.use_sub_projects %}
+    <td>{% if task.sub_project %}<p>Sub project: <a href="{% url 'project:sub_project_view' sub_project_id=task.sub_project.id %}">{{task.sub_project}}</a></small></p></p>{% endif %}</td>
+  {% endif %}
+
   <p class="text-right">
 
   {% if user_can_work and task.get_opened %}
