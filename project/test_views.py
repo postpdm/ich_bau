@@ -460,3 +460,9 @@ class Project_View_Test_Client(TestCase):
         response = c.get( reverse_lazy('project:task_move2project_dialog', args = ( test_task_1.id, ) ) )
         self.assertContains(response, 'Move task', status_code=200 )
 
+        # target zero poject
+        response = c.get( reverse_lazy('project:task_move2project_check', args = ( test_task_1.id, 0 ) ) )
+        self.assertEqual( response.status_code, 200 )
+
+        response = c.get( reverse_lazy('project:task_move2project_check', args = ( test_task_1.id, 10000 ) ) )
+        self.assertEqual( response.status_code, 404 )
