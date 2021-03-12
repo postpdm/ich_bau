@@ -418,3 +418,29 @@ class Project_View_Test_Client(TestCase):
         self.assertContains(response, TEST_SUB_PROJECT_FULLNAME_CHANGED, status_code=200 )
         self.assertContains(response, TEST_SUB_PROJECT_FULLNAME, status_code=200 )
 
+    def test_move_task_to_another_project(self):
+        self.assertEqual( Project.objects.count(), 0 )
+
+        # create user
+        if not User.objects.filter( username = TEST_USER_NAME ).exists():
+            test_user = User.objects.create_user( username = TEST_USER_NAME, password = TEST_USER_PW )
+
+        c = Client()
+        # log in
+        res = c.login( username = TEST_USER_NAME, password = TEST_USER_PW )
+        self.assertTrue( res )
+
+        add_project_permission = Permission.objects.get(codename='add_project')
+        test_user.user_permissions.add( add_project_permission )
+
+        response = c.post( reverse_lazy('project:project_add'), { 'fullname' : TEST_PROJECT_FULLNAME, 'private_type' : PROJECT_VISIBLE_VISIBLE, 'description' : TEST_PROJECT_DESCRIPTION_1, } )
+        # we are redirected to new project page
+        self.assertEqual( response.status_code, 302 )
+
+        # check project is created
+        self.assertEqual( Project.objects.count(), 1 )
+        test_project_1 = Project.objects.get(id=1)
+
+        # have not such tasks
+        response = c.get( reverse_lazy('project:task_move2project_dialog', args = ( 0,  ) ) )
+        self.assertEqual(response.status_code, 404 )
