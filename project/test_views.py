@@ -459,6 +459,7 @@ class Project_View_Test_Client(TestCase):
         # try to select the real task
         response = c.get( reverse_lazy('project:task_move2project_dialog', args = ( test_task_1.id, ) ) )
         self.assertContains(response, 'Move task', status_code=200 )
+        self.assertContains(response, 'You have no available project to select.', status_code=200 )
 
         # target zero poject
         response = c.get( reverse_lazy('project:task_move2project_check', args = ( test_task_1.id, 0 ) ) )
