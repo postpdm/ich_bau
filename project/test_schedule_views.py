@@ -17,8 +17,9 @@ TEST_PROJECT_1_DESCRIPTION_1 = 'First version of description'
 
 TEST_TASK_FULLNAME = 'TEST TASK #1 FULL NAME'
 
-class Project_View_Test_Client(TestCase):
-    def test_Project_All_Public(self):
+class Schedule_View_Test_Client(TestCase):
+    def test_Schedule_All_Public(self):
         c = Client()
         response = c.get( reverse_lazy('project:view_my_index_schedule') )
         self.assertEqual(response.status_code, 302 )
+
