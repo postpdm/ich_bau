@@ -12,9 +12,12 @@ TEST_USER_NAME  = 'test_user'
 TEST_USER_EMAIL = 'test_user@nothere.com'
 TEST_USER_PW    = 'test_user_pw'
 
-TEST_PROJECT_FULLNAME = 'TEST PROJECT #1 FULL NAME'
-TEST_PROJECT_DESCRIPTION_1 = 'First description'
-TEST_PROJECT_DESCRIPTION_2 = 'Second description'
+TEST_PROJECT_1_FULLNAME = 'TEST PROJECT #1 FULL NAME'
+TEST_PROJECT_1_DESCRIPTION_1 = 'First version of description'
+TEST_PROJECT_1_DESCRIPTION_2 = 'Second version description'
+
+TEST_PROJECT_2_FULLNAME = 'TEST PROJECT #2 FULL NAME'
+TEST_PROJECT_2_DESCRIPTION_1 = 'First description'
 
 TEST_TASK_FULLNAME = 'TEST TASK #1 FULL NAME'
 
@@ -59,7 +62,7 @@ class Project_View_Test_Client(TestCase):
 
         c = Client()
         # check for project search page is available for anon
-        response = c.get( reverse_lazy('project:search_public'), { 'fullname' : TEST_PROJECT_FULLNAME } )
+        response = c.get( reverse_lazy('project:search_public'), { 'fullname' : TEST_PROJECT_1_FULLNAME } )
         self.assertContains(response, '0 found.', status_code=200 )
 
         # log in
@@ -67,7 +70,7 @@ class Project_View_Test_Client(TestCase):
         self.assertTrue( res )
 
         # create new project with post
-        response = c.post( reverse_lazy('project:project_add'), { 'fullname' : TEST_PROJECT_FULLNAME, 'description' : TEST_PROJECT_DESCRIPTION_1, } )
+        response = c.post( reverse_lazy('project:project_add'), { 'fullname' : TEST_PROJECT_1_FULLNAME, 'description' : TEST_PROJECT_1_DESCRIPTION_1, } )
 
         # forbidden
         self.assertEqual( response.status_code, 403 )
@@ -77,7 +80,7 @@ class Project_View_Test_Client(TestCase):
         add_project_permission = Permission.objects.get(codename='add_project')
         test_user.user_permissions.add( add_project_permission )
 
-        response = c.post( reverse_lazy('project:project_add'), { 'fullname' : TEST_PROJECT_FULLNAME, 'private_type' : PROJECT_VISIBLE_VISIBLE, 'description' : TEST_PROJECT_DESCRIPTION_1, } )
+        response = c.post( reverse_lazy('project:project_add'), { 'fullname' : TEST_PROJECT_1_FULLNAME, 'private_type' : PROJECT_VISIBLE_VISIBLE, 'description' : TEST_PROJECT_1_DESCRIPTION_1, } )
         # we are redirected to new project page
         self.assertEqual( response.status_code, 302 )
 
@@ -85,12 +88,12 @@ class Project_View_Test_Client(TestCase):
         self.assertEqual( Project.objects.count(), 1 )
         test_project_1 = Project.objects.get(id=1)
         self.assertEqual( response.url, test_project_1.get_absolute_url() )
-        self.assertEqual( test_project_1.fullname, TEST_PROJECT_FULLNAME )
-        self.assertEqual( test_project_1.description, TEST_PROJECT_DESCRIPTION_1 )
+        self.assertEqual( test_project_1.fullname, TEST_PROJECT_1_FULLNAME )
+        self.assertEqual( test_project_1.description, TEST_PROJECT_1_DESCRIPTION_1 )
         self.assertTrue( test_project_1.is_member( test_user ) )
 
         # check - new project is available in search page
-        response = c.get( reverse_lazy('project:search_public'), { 'fullname' : TEST_PROJECT_FULLNAME, 'description' : TEST_PROJECT_DESCRIPTION_1, } )
+        response = c.get( reverse_lazy('project:search_public'), { 'fullname' : TEST_PROJECT_1_FULLNAME, 'description' : TEST_PROJECT_1_DESCRIPTION_1, } )
         self.assertContains(response, '1 found.', status_code=200 )
 
         response = c.get( reverse_lazy('project:search_public'), { 'fullname' : '-no-', 'description' : '-no-' } )
@@ -98,7 +101,7 @@ class Project_View_Test_Client(TestCase):
 
         # check - project page is available
         response = c.get( reverse_lazy('project:project_view', args = (test_project_1.id,) ) )
-        self.assertContains(response, TEST_PROJECT_FULLNAME, status_code=200 )
+        self.assertContains(response, TEST_PROJECT_1_FULLNAME, status_code=200 )
 
         # check - project unknown is 404
         response = c.get( reverse_lazy('project:project_view', args = (9999999999,) ) )
@@ -110,23 +113,23 @@ class Project_View_Test_Client(TestCase):
 
         # check - project history page is available
         response = c.get( reverse_lazy('project:project_history', args = (test_project_1.id,) ) )
-        self.assertContains(response, TEST_PROJECT_FULLNAME, status_code=200 )
+        self.assertContains(response, TEST_PROJECT_1_FULLNAME, status_code=200 )
 
         # check - project milestone list page is available
         response = c.get( reverse_lazy('project:project_view_milestones', args = (test_project_1.id,) ) )
-        self.assertContains(response, TEST_PROJECT_FULLNAME, status_code=200 )
+        self.assertContains(response, TEST_PROJECT_1_FULLNAME, status_code=200 )
 
         # check - project closed task list page is available
         response = c.get( reverse_lazy('project:project_view_closed_tasks', args = (test_project_1.id,) ) )
-        self.assertContains(response, TEST_PROJECT_FULLNAME, status_code=200 )
+        self.assertContains(response, TEST_PROJECT_1_FULLNAME, status_code=200 )
 
         # check - project search task list page is available
         response = c.get( reverse_lazy('project:project_view_search_tasks', args = (test_project_1.id,) ) )
-        self.assertContains(response, TEST_PROJECT_FULLNAME, status_code=200 )
+        self.assertContains(response, TEST_PROJECT_1_FULLNAME, status_code=200 )
 
         # check - project search view files page is available
         response = c.get( reverse_lazy('project:project_view_files', args = (test_project_1.id,) ) )
-        self.assertContains(response, TEST_PROJECT_FULLNAME, status_code=200 )
+        self.assertContains(response, TEST_PROJECT_1_FULLNAME, status_code=200 )
 
         # https://github.com/postpdm/ich_bau/commit/fe1d5b55cf926e8b795598de0a40b4332b7f140c
         # check - try to create the repo for this project
@@ -144,18 +147,18 @@ class Project_View_Test_Client(TestCase):
         # self.assertContains(response, "Project already have a repo!", status_code=200 )
 
         # check form posting from edit page - set new description
-        response = c.post( reverse_lazy('project:project_edit', args = (test_project_1.id,)), { 'fullname' : TEST_PROJECT_FULLNAME,
-                           'private_type' : test_project_1.private_type, 'description' : TEST_PROJECT_DESCRIPTION_2, } )
+        response = c.post( reverse_lazy('project:project_edit', args = (test_project_1.id,)), { 'fullname' : TEST_PROJECT_1_FULLNAME,
+                           'private_type' : test_project_1.private_type, 'description' : TEST_PROJECT_1_DESCRIPTION_2, } )
 
         self.assertEqual(response.status_code, 302 )
         # refresh object from db
         test_project_1.refresh_from_db()
         # is description actually changed?
-        self.assertEqual( test_project_1.description, TEST_PROJECT_DESCRIPTION_2 )
+        self.assertEqual( test_project_1.description, TEST_PROJECT_1_DESCRIPTION_2 )
 
-        response = c.get( reverse_lazy('project:search_public'), { 'fullname' : TEST_PROJECT_FULLNAME, 'description' : TEST_PROJECT_DESCRIPTION_1 } )
+        response = c.get( reverse_lazy('project:search_public'), { 'fullname' : TEST_PROJECT_1_FULLNAME, 'description' : TEST_PROJECT_1_DESCRIPTION_1 } )
         self.assertContains(response, '0 found.', status_code=200 )
-        response = c.get( reverse_lazy('project:search_public'), { 'fullname' : TEST_PROJECT_FULLNAME, 'description' : TEST_PROJECT_DESCRIPTION_2 } )
+        response = c.get( reverse_lazy('project:search_public'), { 'fullname' : TEST_PROJECT_1_FULLNAME, 'description' : TEST_PROJECT_1_DESCRIPTION_2 } )
         self.assertContains(response, '1 found.', status_code=200 )
 
         self.assertEqual( Task.objects.count(), 0 )
@@ -363,7 +366,7 @@ class Project_View_Test_Client(TestCase):
         add_project_permission = Permission.objects.get(codename='add_project')
         test_user.user_permissions.add( add_project_permission )
 
-        response = c.post( reverse_lazy('project:project_add'), { 'fullname' : TEST_PROJECT_FULLNAME, 'private_type' : PROJECT_VISIBLE_VISIBLE, 'description' : TEST_PROJECT_DESCRIPTION_1, } )
+        response = c.post( reverse_lazy('project:project_add'), { 'fullname' : TEST_PROJECT_1_FULLNAME, 'private_type' : PROJECT_VISIBLE_VISIBLE, 'description' : TEST_PROJECT_1_DESCRIPTION_1, } )
         # we are redirected to new project page
         self.assertEqual( response.status_code, 302 )
 
@@ -371,8 +374,8 @@ class Project_View_Test_Client(TestCase):
         self.assertEqual( Project.objects.count(), 1 )
         test_project_1 = Project.objects.get(id=1)
         self.assertEqual( response.url, test_project_1.get_absolute_url() )
-        self.assertEqual( test_project_1.fullname, TEST_PROJECT_FULLNAME )
-        self.assertEqual( test_project_1.description, TEST_PROJECT_DESCRIPTION_1 )
+        self.assertEqual( test_project_1.fullname, TEST_PROJECT_1_FULLNAME )
+        self.assertEqual( test_project_1.description, TEST_PROJECT_1_DESCRIPTION_1 )
         self.assertTrue( test_project_1.is_member( test_user ) )
         self.assertFalse( test_project_1.use_sub_projects )
 
@@ -383,7 +386,7 @@ class Project_View_Test_Client(TestCase):
         response = c.get( reverse_lazy('project:project_view_sub_projects', args = (test_project_1.id,) ) )
         self.assertEqual( response.status_code, 404 )
 
-        response = c.post( reverse_lazy('project:project_edit', args = (test_project_1.id,)), { 'fullname' : TEST_PROJECT_FULLNAME, 'private_type' : PROJECT_VISIBLE_VISIBLE, 'use_sub_projects' : True, } )
+        response = c.post( reverse_lazy('project:project_edit', args = (test_project_1.id,)), { 'fullname' : TEST_PROJECT_1_FULLNAME, 'private_type' : PROJECT_VISIBLE_VISIBLE, 'use_sub_projects' : True, } )
 
         self.assertEqual(response.status_code, 302 )
         # refresh object from db
@@ -433,7 +436,7 @@ class Project_View_Test_Client(TestCase):
         add_project_permission = Permission.objects.get(codename='add_project')
         test_user.user_permissions.add( add_project_permission )
 
-        response = c.post( reverse_lazy('project:project_add'), { 'fullname' : TEST_PROJECT_FULLNAME, 'private_type' : PROJECT_VISIBLE_VISIBLE, 'description' : TEST_PROJECT_DESCRIPTION_1, } )
+        response = c.post( reverse_lazy('project:project_add'), { 'fullname' : TEST_PROJECT_1_FULLNAME, 'private_type' : PROJECT_VISIBLE_VISIBLE, 'description' : TEST_PROJECT_1_DESCRIPTION_1, } )
         # we are redirected to new project page
         self.assertEqual( response.status_code, 302 )
 
@@ -467,3 +470,14 @@ class Project_View_Test_Client(TestCase):
 
         response = c.get( reverse_lazy('project:task_move2project_check', args = ( test_task_1.id, 10000 ) ) )
         self.assertEqual( response.status_code, 404 )
+
+        # make second project
+
+        response = c.post( reverse_lazy('project:project_add'), { 'fullname' : TEST_PROJECT_2_FULLNAME, 'private_type' : PROJECT_VISIBLE_VISIBLE, 'description' : TEST_PROJECT_2_DESCRIPTION_1, } )
+        # we are redirected to new project page
+        self.assertEqual( response.status_code, 302 )
+
+        # check project is created
+        self.assertEqual( Project.objects.count(), 2 )
+        test_project_2 = Project.objects.get(id=2)
+        self.assertEqual( test_project_2.fullname, TEST_PROJECT_2_FULLNAME )
