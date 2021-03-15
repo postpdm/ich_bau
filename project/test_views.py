@@ -481,3 +481,9 @@ class Project_View_Test_Client(TestCase):
         self.assertEqual( Project.objects.count(), 2 )
         test_project_2 = Project.objects.get(id=2)
         self.assertEqual( test_project_2.fullname, TEST_PROJECT_2_FULLNAME )
+
+        # now we have a second project to move to
+        response = c.get( reverse_lazy('project:task_move2project_dialog', args = ( test_task_1.id, ) ) )
+
+        self.assertNotContains(response, 'You have no available project to select.', status_code=200 )
+        self.assertContains(response, TEST_PROJECT_2_FULLNAME )
