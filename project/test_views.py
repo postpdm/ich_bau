@@ -487,3 +487,8 @@ class Project_View_Test_Client(TestCase):
 
         self.assertNotContains(response, 'You have no available project to select.', status_code=200 )
         self.assertContains(response, TEST_PROJECT_2_FULLNAME )
+
+        response = c.get( reverse_lazy('project:task_move2project_check', args = ( test_task_1.id, test_project_2.id ) ) )
+        self.assertEqual( response.status_code, 302 )
+        test_task_1.refresh_from_db()
+        self.assertEqual( test_task_1.project, test_project_2 )
