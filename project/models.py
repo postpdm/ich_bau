@@ -451,6 +451,11 @@ class Task(BaseStampedModel):
     def get_profiles(self):
         return TaskProfile.objects.filter( parenttask = self )
 
+    def can_be_moved( self ):
+        # can't move task if sub poject is set (becouse where is not a such sub project in another projects
+        can = self.sub_project is None
+        return can
+
 @reversion.register()
 class Task2Domain(BaseStampedModel):
     taskdomain = TreeForeignKey(TaskDomain, on_delete=models.PROTECT, null=False, blank=False, related_name='domain2task')

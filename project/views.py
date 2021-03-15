@@ -1287,8 +1287,16 @@ def unschedule_one_task( request, schedule_item_id, task_id ):
 
 @login_required
 def task_move2project( request, task_id, project_id = 0 ):
+
     task = get_object_or_404( Task, pk=task_id )
     target_project_id = int( project_id )
+
+    if not task.can_be_moved():
+        error_mesage = "Can't move this task, because it was linked to sub project!!"
+        return render( request, 'project/task_move2project.html',
+            { 'task' : task,
+              'error_mesage'   : error_mesage,
+            } )
 
     if target_project_id > 0:
         can_move_task = False
