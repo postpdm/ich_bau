@@ -23,3 +23,15 @@ class Schedule_View_Test_Client(TestCase):
         response = c.get( reverse_lazy('project:view_my_index_schedule') )
         self.assertEqual(response.status_code, 302 )
 
+        # create user
+        if not User.objects.filter( username = TEST_USER_NAME ).exists():
+            test_user = User.objects.create_user( username = TEST_USER_NAME, password = TEST_USER_PW )
+
+        c = Client()
+
+        # log in
+        res = c.login( username = TEST_USER_NAME, password = TEST_USER_PW )
+        self.assertTrue( res )
+
+        response = c.get( reverse_lazy('project:view_my_index_schedule') )
+        self.assertContains(response, 'Your schedule', status_code = 200 )
