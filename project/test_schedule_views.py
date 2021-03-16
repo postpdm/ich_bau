@@ -37,6 +37,10 @@ class Schedule_View_Test_Client(TestCase):
         self.assertContains(response, 'Your schedule', status_code = 200 )
         self.assertContains(response, reverse_lazy('project:create_schedule_current'), status_code = 200 )
 
+        # create the schedule for wrong profile
+        response = c.get( reverse_lazy('project:create_schedule_current', args = ( 100000, ) ) )
+        self.assertEqual(response.status_code, 404 )
+
         response = c.get( reverse_lazy('project:create_schedule_current'), follow = True )
         self.assertContains(response, 'Schedule for', status_code = 200 )
         self.assertContains(response, 'Scheduled tasks', status_code = 200 )
