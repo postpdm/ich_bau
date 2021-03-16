@@ -35,3 +35,5 @@ class Schedule_View_Test_Client(TestCase):
 
         response = c.get( reverse_lazy('project:view_my_index_schedule') )
         self.assertContains(response, 'Your schedule', status_code = 200 )
+        self.assertContains(response, reverse_lazy('project:create_schedule_current'), status_code = 200 )
+
