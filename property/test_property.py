@@ -9,6 +9,7 @@ import reversion
 
 TEST_QUANTITY_NAME = 'Mass'
 TEST_MEASUREMENTUNITS_NAME_GR = 'Gram'
+TEST_PHYSICALPROPERTY_NAME = 'Mass netto'
 
 TEST_ENUMERABLEPROPERTY_NAME = 'Type'
 TEST_ENUMERABLEVARIANTS_NAME = 'Aero'
@@ -49,3 +50,16 @@ class Property_Test(TestCase):
 
         self.assertIsNone( mu.calc_factored(None) )
         self.assertEqual( mu.calc_factored( 15 ), 15 )
+
+    def test_PhysicalProperty(self):
+        q = Quantity( fullname = TEST_QUANTITY_NAME )
+        q.save()
+
+        mu = MeasurementUnits( fullname = TEST_MEASUREMENTUNITS_NAME_GR, quantity = q, factor = 1 )
+        mu.save()
+
+        pp = PhysicalProperty( fullname = TEST_PHYSICALPROPERTY_NAME, quantity = q, default_unit = mu )
+        pp.save()
+
+        self.assertEqual( PhysicalProperty.objects.count(), 1 )
+        self.assertEqual( str( pp ), TEST_PHYSICALPROPERTY_NAME )
