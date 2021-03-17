@@ -10,7 +10,15 @@ import reversion
 TEST_USER_NAME_CREATOR = 'test project creator'
 TEST_QUANTITY_NAME = 'Mass'
 
+TEST_ENUMERABLEPROPERTY_NAME = 'Variable'
+
 class Property_Test(TestCase):
+
+    def test_EnumerableProperty(self):
+        q = EnumerableProperty( fullname = TEST_ENUMERABLEPROPERTY_NAME )
+        q.save()
+        self.assertEqual( EnumerableProperty.objects.count(), 1 )
+        self.assertEqual( str( q ), TEST_ENUMERABLEPROPERTY_NAME )
 
     def test_Quantity(self):
         q = Quantity( fullname = TEST_QUANTITY_NAME )
