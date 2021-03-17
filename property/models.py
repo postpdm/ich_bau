@@ -17,8 +17,8 @@ class EnumerableProperty(models.Model):
     def __str__(self):
         return self.fullname
 
-    def get_absolute_url(self):
-        return "/property/enum/%i/" % self.id
+    # def get_absolute_url(self):
+        # return "/property/enum/%i/" % self.id
 
 #Простой вызов `from product.models import Product` выдает ошибку, вилимо получается циклическая связь. Поэтому - трюк ForeignKey( 'product.Product' )
 
@@ -34,8 +34,8 @@ class EnumerableVariants(models.Model):
     def __str__(self):
         return self.fullname
 
-    def get_absolute_url(self):
-        return "/property/enum/var/%i/" % self.id
+    # def get_absolute_url(self):
+        # return "/property/enum/var/%i/" % self.id
 
 # Physical
 
@@ -48,8 +48,8 @@ class Quantity(models.Model):
 
     def __str__(self):
         return self.fullname
-    def get_absolute_url(self):
-        return "/property/quantity/%i/" % self.id
+    # def get_absolute_url(self):
+        # return "/property/quantity/%i/" % self.id
 
 class MeasurementUnits(models.Model):
     quantity = models.ForeignKey(Quantity, on_delete=models.PROTECT)
@@ -61,8 +61,8 @@ class MeasurementUnits(models.Model):
     def __str__(self):
         return self.shortname
 
-    def get_absolute_url(self):
-        return "/property/quantity/unit/%i/" % self.id
+    # def get_absolute_url(self):
+        # return "/property/quantity/unit/%i/" % self.id
 
     # пересчитывает в базовые, с учетом factor и shift_scale
     def calc_factored( self, a_amount ):
@@ -87,8 +87,8 @@ class PhysicalProperty(models.Model):
     def __str__(self):
         return self.fullname
 
-    def get_absolute_url(self):
-        return "/property/quantity/pp/%i/" % self.id
+    # def get_absolute_url(self):
+        # return "/property/quantity/pp/%i/" % self.id
 
     # получить список допустимых единиц
     def linked_mu(self):
@@ -114,8 +114,8 @@ class PPMeasurementCondition(models.Model):
     class Meta:
         ordering = ['measured_pp', 'amount_based']
 
-    def get_absolute_url(self):
-        return "/property/quantity/pp/mc/%i/" % self.id
+    # def get_absolute_url(self):
+        # return "/property/quantity/pp/mc/%i/" % self.id
 
     def __str__(self):
         return str( self.fixed_pp ) + " " + str( self.amount ) + " " + str( self.amount_unit )
