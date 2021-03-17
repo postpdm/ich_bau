@@ -46,3 +46,6 @@ class Property_Test(TestCase):
 
         self.assertEqual( MeasurementUnits.objects.count(), 1 )
         self.assertEqual( str( mu ), TEST_MEASUREMENTUNITS_NAME_GR )
+
+        self.assertIsNone( mu.calc_factored(None) )
+        self.assertEqual( mu.calc_factored( 15 ), 15 )
