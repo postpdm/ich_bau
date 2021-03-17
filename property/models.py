@@ -59,7 +59,7 @@ class MeasurementUnits(models.Model):
     shift_scale = models.FloatField(blank=True, null=True)
 
     def __str__(self):
-        return self.shortname
+        return self.fullname
 
     # def get_absolute_url(self):
         # return "/property/quantity/unit/%i/" % self.id

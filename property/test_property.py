@@ -7,8 +7,8 @@ from django.db import transaction
 
 import reversion
 
-TEST_USER_NAME_CREATOR = 'test project creator'
 TEST_QUANTITY_NAME = 'Mass'
+TEST_MEASUREMENTUNITS_NAME_GR = 'Gram'
 
 TEST_ENUMERABLEPROPERTY_NAME = 'Type'
 TEST_ENUMERABLEVARIANTS_NAME = 'Aero'
@@ -36,3 +36,13 @@ class Property_Test(TestCase):
         q.save()
         self.assertEqual( Quantity.objects.count(), 1 )
         self.assertEqual( str( q ), TEST_QUANTITY_NAME )
+
+    def test_MeasurementUnits(self):
+        q = Quantity( fullname = TEST_QUANTITY_NAME )
+        q.save()
+
+        mu = MeasurementUnits( fullname = TEST_MEASUREMENTUNITS_NAME_GR, quantity = q, factor = 1 )
+        mu.save()
+
+        self.assertEqual( MeasurementUnits.objects.count(), 1 )
+        self.assertEqual( str( mu ), TEST_MEASUREMENTUNITS_NAME_GR )
