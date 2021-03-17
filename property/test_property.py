@@ -63,3 +63,7 @@ class Property_Test(TestCase):
 
         self.assertEqual( PhysicalProperty.objects.count(), 1 )
         self.assertEqual( str( pp ), TEST_PHYSICALPROPERTY_NAME )
+
+        self.assertEqual( pp.linked_mu().count(), 1 )
+
+        self.assertEqual( pp.linked_mu()[0], mu )
