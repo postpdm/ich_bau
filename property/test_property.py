@@ -16,3 +16,4 @@ class Property_Test(TestCase):
         q = Quantity( fullname = TEST_QUANTITY_NAME )
         q.save()
         self.assertEqual( Quantity.objects.count(), 1 )
+        self.assertEqual( str( q ), TEST_QUANTITY_NAME )
