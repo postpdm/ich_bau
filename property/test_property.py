@@ -7,9 +7,9 @@ from django.db import transaction
 
 import reversion
 
-TEST_QUANTITY_NAME = 'Mass'
+TEST_QUANTITY_MASS_NAME = 'Mass'
 TEST_MEASUREMENTUNITS_NAME_GR = 'Gram'
-TEST_PHYSICALPROPERTY_NAME = 'Mass netto'
+TEST_PHYSICALPROPERTY_MASS_NETTO_NAME = 'Mass netto'
 
 TEST_ENUMERABLEPROPERTY_NAME = 'Type'
 TEST_ENUMERABLEVARIANTS_NAME = 'Aero'
@@ -33,13 +33,13 @@ class Property_Test(TestCase):
         self.assertEqual( str( ev.enumerable_property ), TEST_ENUMERABLEPROPERTY_NAME )
 
     def test_Quantity(self):
-        q = Quantity( fullname = TEST_QUANTITY_NAME )
+        q = Quantity( fullname = TEST_QUANTITY_MASS_NAME )
         q.save()
         self.assertEqual( Quantity.objects.count(), 1 )
-        self.assertEqual( str( q ), TEST_QUANTITY_NAME )
+        self.assertEqual( str( q ), TEST_QUANTITY_MASS_NAME )
 
     def test_MeasurementUnits(self):
-        q = Quantity( fullname = TEST_QUANTITY_NAME )
+        q = Quantity( fullname = TEST_QUANTITY_MASS_NAME )
         q.save()
 
         mu = MeasurementUnits( fullname = TEST_MEASUREMENTUNITS_NAME_GR, quantity = q, factor = 1 )
@@ -52,17 +52,17 @@ class Property_Test(TestCase):
         self.assertEqual( mu.calc_factored( 15 ), 15 )
 
     def test_PhysicalProperty(self):
-        q = Quantity( fullname = TEST_QUANTITY_NAME )
+        q = Quantity( fullname = TEST_QUANTITY_MASS_NAME )
         q.save()
 
         mu = MeasurementUnits( fullname = TEST_MEASUREMENTUNITS_NAME_GR, quantity = q, factor = 1 )
         mu.save()
 
-        pp = PhysicalProperty( fullname = TEST_PHYSICALPROPERTY_NAME, quantity = q, default_unit = mu )
+        pp = PhysicalProperty( fullname = TEST_PHYSICALPROPERTY_MASS_NETTO_NAME, quantity = q, default_unit = mu )
         pp.save()
 
         self.assertEqual( PhysicalProperty.objects.count(), 1 )
-        self.assertEqual( str( pp ), TEST_PHYSICALPROPERTY_NAME )
+        self.assertEqual( str( pp ), TEST_PHYSICALPROPERTY_MASS_NETTO_NAME )
 
         self.assertEqual( pp.linked_mu().count(), 1 )
 
