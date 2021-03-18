@@ -11,6 +11,10 @@ TEST_QUANTITY_MASS_NAME = 'Mass'
 TEST_MEASUREMENTUNITS_NAME_GR = 'Gram'
 TEST_PHYSICALPROPERTY_MASS_NETTO_NAME = 'Mass netto'
 
+TEST_QUANTITY_LENGHT_NAME = 'Lenght'
+TEST_MEASUREMENTUNITS_NAME_M = 'Metr'
+TEST_PHYSICALPROPERTY_LENGHT_NAME = 'Lenght'
+
 TEST_ENUMERABLEPROPERTY_NAME = 'Type'
 TEST_ENUMERABLEVARIANTS_NAME = 'Aero'
 
@@ -67,3 +71,32 @@ class Property_Test(TestCase):
         self.assertEqual( pp.linked_mu().count(), 1 )
 
         self.assertEqual( pp.linked_mu()[0], mu )
+
+    def test_wrong_mu(self):
+        q_mass = Quantity( fullname = TEST_QUANTITY_MASS_NAME )
+        q_mass.save()
+
+        mu_gr = MeasurementUnits( fullname = TEST_MEASUREMENTUNITS_NAME_GR, quantity = q_mass, factor = 1 )
+        mu_gr.save()
+
+        pp_mn = PhysicalProperty( fullname = TEST_PHYSICALPROPERTY_MASS_NETTO_NAME, quantity = q_mass, default_unit = mu_gr )
+        pp_mn.save()
+
+        q_lenght = Quantity( fullname = TEST_QUANTITY_LENGHT_NAME )
+        q_lenght.save()
+
+        mu_m = MeasurementUnits( fullname = TEST_MEASUREMENTUNITS_NAME_M, quantity = q_lenght, factor = 1 )
+        mu_m.save()
+
+        #raise
+        with self.assertRaises(Exception) as cm:
+            pp_l = PhysicalProperty( fullname = TEST_PHYSICALPROPERTY_LENGHT_NAME, quantity = q_lenght, default_unit = mu_gr )
+            pp_l.save()
+
+        the_exception = cm.exception
+        self.assertEqual( str( the_exception ), 'Wrong measure unit!' )
+
+        pp_l = PhysicalProperty( fullname = TEST_PHYSICALPROPERTY_LENGHT_NAME, quantity = q_lenght, default_unit = mu_m )
+        pp_l.save()
+        self.assertEqual( pp_l.fullname, TEST_PHYSICALPROPERTY_LENGHT_NAME )
+        self.assertEqual( pp_l.quantity, pp_l.default_unit.quantity )
