@@ -55,8 +55,13 @@ class MeasurementUnits(models.Model):
     quantity = models.ForeignKey(Quantity, on_delete=models.PROTECT)
     shortname = models.CharField(max_length=25)
     fullname = models.CharField(max_length=255)
+    # kilogram to gram
     factor = models.FloatField()
+    # Fahrenheit to Celsius scale
     shift_scale = models.FloatField(blank=True, null=True)
+    # for sample
+    # Kilogram to gram : factor = 1000
+    # Fahrenheit to Celsius scale : faltor = 5/9, shift_scale = -32
 
     def __str__(self):
         return self.fullname
