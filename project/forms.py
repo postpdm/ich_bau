@@ -1,7 +1,7 @@
 ﻿# project forms
 
 from django import forms
-from project.models import Project, PROJECT_VISIBLE_LIST_CHOICES, PROJECT_VISIBLE_PRIVATE, Task, TaskComment, Milestone, Member, TaskDomain, TaskLink, TaskProfile, TASK_PROFILE_PRIORITY_LIST, TASK_PROFILE_PRIORITY_INTERESTED, TASK_PROFILE_PRIORITY_LIST_CHOICES, TaskCheckList, Task2Domain, Get_Profiles_Available2Task, Sub_Project
+from project.models import Project, PROJECT_VISIBLE_LIST_CHOICES, PROJECT_VISIBLE_PRIVATE, Task, TaskComment, Milestone, Member, TaskDomain, TaskLink, TaskProfile, TASK_PROFILE_PRIORITY_LIST, TASK_PROFILE_PRIORITY_INTERESTED, TASK_PROFILE_PRIORITY_LIST_CHOICES, TaskCheckList, Task2Domain, Get_Profiles_Available2Task, Sub_Project, Task_Property_Amount
 from ich_bau.profiles.models import PROFILE_TYPE_USER
 
 from django.forms.widgets import HiddenInput, CheckboxSelectMultiple
@@ -138,7 +138,21 @@ class TaskCheckListForm(forms.ModelForm):
 
 
 class Sub_ProjectForm(forms.ModelForm):
-
     class Meta:
         model = Sub_Project
         fields = ['fullname',  ]
+
+class Task_Property_Amount_Form(forms.ModelForm):
+
+    class Meta:
+        model = Task_Property_Amount
+        fields = [ 'property', 'amount' ]
+
+    def __init__(self, *args, **kwargs):
+        allowed_properties = kwargs.pop('arg_allowed_properties', None)
+        super(Task_Property_Amount_Form, self).__init__(*args, **kwargs)
+
+        if allowed_properties is None:
+            self.fields['property'].widget = HiddenInput()
+        else:
+            self.fields['property'].queryset = allowed_properties

@@ -56,6 +56,9 @@ urlpatterns = [
     url(r'^task/(?P<task_id>\w+)/history/$', views.task_history, name='task_history'),
     url(r'^add_linked/(?P<task_id>\w+)/$', views.add_linked, name='add_linked'),
 
+    url(r'^task/(?P<task_id>\w+)/add_property/$', views.task_add_property, name='task_add_property'),
+    url(r'^task/(?P<task_property_id>\w+)/edit_property/$', views.task_edit_property, name='task_edit_property'),
+
     url(r'^sub_project_add/(?P<project_id>\w+)/$', views.Sub_ProjectCreateView.as_view(), name='sub_project_add'),
     url(r'^sub_project/(?P<sub_project_id>\w+)/$', views.sub_project_view, name='sub_project_view'),
     url(r'^sub_project/(?P<pk>\w+)/edit/$', views.Sub_ProjectUpdateView.as_view(), name='sub_project_edit'),

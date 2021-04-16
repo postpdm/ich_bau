@@ -1,0 +1,51 @@
+{% extends 'site_base.html' %}
+
+{% load bootstrap %}
+
+{% block body_class %}property{% endblock %}
+
+{% block head_title %}
+{% if tpa.pk %}
+Edit property
+{% else %}
+Add property
+{% endif %}
+
+{% endblock %}
+
+{% block body %}
+<div class="row">
+<div class="col-md-9">
+                {% if tpa.pk %}
+                    <h2>Edit property</h2>
+                {% else %}
+                    <h2>Add property to <a href="{{task.get_absolute_url}}">{{task}}</a></h2>
+                {% endif %}
+
+
+        {{ form.media }}
+        <form class="span6" id="link_form" method="post" action="" enctype="multipart/form-data">
+
+                {% if tpa.pk %}
+                    <legend>Edit property</legend>
+                {% else %}
+                    <legend>Add property to {{task}}</legend>
+                {% endif %}
+
+            {% csrf_token %}
+            {% for hidden in form.hidden_fields %}
+                {{ hidden }}
+            {% endfor %}
+
+            {% for field in form.visible_fields %}
+
+                {{ field|bootstrap }}
+            {% endfor %}
+
+
+            <button class="btn btn-primary" type="submit" name="submit">Save</button>
+        </form>
+
+</div>
+</div>
+{% endblock %}

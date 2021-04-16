@@ -735,4 +735,12 @@ class Task_Property_Type(models.Model):
     physical_property = models.ForeignKey( PhysicalProperty, on_delete=models.PROTECT, blank=True, null=True )
 
     def __str__(self):
-        return self.name
+        return self.name + " (" + str( self.physical_property.default_unit ) + ")"
+
+class Task_Property_Amount(BaseStampedModel):
+    task=models.ForeignKey( Task, on_delete=models.PROTECT )
+    property = models.ForeignKey( Task_Property_Type, on_delete=models.PROTECT, blank=False, null=False )
+    amount = models.DecimalField( max_digits=10, decimal_places=2, blank=True, null=True )
+
+    class Meta:
+        unique_together = ("task", "property")

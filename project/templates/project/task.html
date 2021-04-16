@@ -201,6 +201,31 @@ no history to view
 
 </li>
 
+
+{% if task.project.use_properties %}
+
+    <li class="list-group-item"><p><strong>Task properties</strong>
+                  {% if user_can_work and task.get_opened %}
+                    <a class="btn btn-default" href="{{task.get_absolute_url}}add_property">Add property</a>
+                  {% endif %}
+    </p>
+
+    {% if task_properties %}
+    <ul>
+    {% for tp in task_properties %}
+    <li><a href="{% url 'project:task_edit_property' task_property_id=tp.pk %}">
+    {{tp.property}}</a>
+    {{tp.amount|default_if_none:""}}
+    </li>
+    {% endfor %}
+    </ul>
+    {% endif %}
+
+    </li>
+
+{% endif %}
+
+
   <!-- List group -->
 {% if comments %}
 

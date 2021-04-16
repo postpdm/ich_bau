@@ -1,5 +1,5 @@
 ﻿from project.models import *
-from project.forms import ProjectForm, TaskForm, TaskCommentForm, MilestoneForm, MemberForm, TaskLinkedForm, TaskProfileForm, TaskCheckListForm, TaskDomainForm, Sub_ProjectForm
+from project.forms import ProjectForm, TaskForm, TaskCommentForm, MilestoneForm, MemberForm, TaskLinkedForm, TaskProfileForm, TaskCheckListForm, TaskDomainForm, Sub_ProjectForm, Task_Property_Amount_Form
 from ich_bau.profiles.models import Get_Users_Profiles, Close_All_Unread_Notifications_For_Task_For_One_User, Is_User_Manager, Get_Profiles_From_Level, PROFILE_TYPE_FOR_TREE
 from django.forms.models import modelformset_factory
 from django.urls import reverse
@@ -823,6 +823,7 @@ def task_view(request, task_id):
         subtasks = TaskLink.objects.filter(maintask=task).filter( subtask__project__in = GetAvailableProjectList( request.user ) )
         maintasks = TaskLink.objects.filter(subtask=task)
         task_checklist = TaskCheckList.objects.filter( parenttask = task )
+        task_properties = Task_Property_Amount.objects.filter( task = task )
         profiles = task.get_profiles().order_by('profile__profile_type')
         domains = Task2Domain.objects.filter(task=task)
 
@@ -885,6 +886,7 @@ def task_view(request, task_id):
                          'domains' : domains,
                          'maintasks' : maintasks,
                          'task_checklist' : task_checklist,
+                         'task_properties' : task_properties,
                          'task_comment_form': task_comment_form,
                          'user_can_work' : user_can_work,
                          'user_can_admin' : user_can_admin,
@@ -943,6 +945,69 @@ def task_checklist(request, task_id):
 
     # Рендерить ответ
     return render( request, 'project/task_checklist.html', context_dict )
+
+@login_required
+def task_add_property(request, task_id):
+    # Получить контекст запроса
+    context = RequestContext(request)
+
+    task = get_object_or_404( Task, pk=task_id)
+
+    if request.method == 'POST':
+        form = Task_Property_Amount_Form( request.POST, arg_allowed_properties = None )
+        if form.is_valid():
+            ta = form.save(commit=False)
+            ta.task = task
+
+            with transaction.atomic(), reversion.create_revision():
+                reversion.set_user(request.user)
+                ta.set_change_user(request.user)
+                ta.save()
+
+            # перебросить пользователя на задание
+            messages.success(request, "You successfully add the property to task!")
+            return HttpResponseRedirect('/project/task/' + task_id )
+        else:
+            print( form.errors )
+    else:
+        allowed_properties = Task_Property_Type.objects.exclude( task_property_amount__task_id = task_id )
+        form = Task_Property_Amount_Form( arg_allowed_properties = allowed_properties )
+
+    return render( request, 'project/task_add_property.html',
+            {'task_id': task_id,
+             'task' : task,
+             'form': form,
+             } )
+
+@login_required
+def task_edit_property(request, task_property_id):
+    context = RequestContext(request)
+
+    tpa = get_object_or_404( Task_Property_Amount, pk=task_property_id )
+    task_id = tpa.task_id
+
+    if request.method == 'POST':
+        form = Task_Property_Amount_Form( request.POST, instance = tpa )
+        if form.is_valid():
+            tpa = form.save(commit=False)
+
+            with transaction.atomic(), reversion.create_revision():
+                reversion.set_user(request.user)
+                tpa.set_change_user(request.user)
+                tpa.save()
+
+            # перебросить пользователя на задание
+            messages.success(request, "You successfully edit the property amount for the task!")
+            return HttpResponseRedirect('/project/task/' + str( task_id ) )
+        else:
+            print( form.errors )
+    else:
+        form = Task_Property_Amount_Form( instance = tpa )
+
+    return render( request, 'project/task_add_property.html',
+            { 'tpa' : tpa,
+             'form': form,
+             } )
 
 @login_required
 def edit_task_comment(request, task_comment_id):
