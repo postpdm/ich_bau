@@ -213,9 +213,13 @@ no history to view
     {% if task_properties %}
     <ul>
     {% for tp in task_properties %}
-    <li><a href="{% url 'project:task_edit_property' task_property_id=tp.pk %}">
-    {{tp.property}}</a>
-    {{tp.amount|default_if_none:""}}
+    <li>
+
+    {% if user_can_work and task.get_opened %}
+        <a href="{% url 'project:task_edit_property' task_property_id=tp.pk %}">{{tp.property}}</a> {{tp.amount|default_if_none:""}}
+    {% else %}
+        {{tp.property}} {{tp.amount|default_if_none:""}}
+    {% endif %}
     </li>
     {% endfor %}
     </ul>
