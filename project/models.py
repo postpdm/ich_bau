@@ -11,6 +11,7 @@ from django.utils import timezone
 from django.db import transaction
 import reversion
 from mptt.models import MPTTModel, TreeForeignKey
+from property.models import PhysicalProperty
 
 from ich_bau.profiles.notification_helper import Send_Notification
 from ich_bau.profiles.models import Profile, PROFILE_TYPE_USER, PROFILE_TYPE_FOR_TASK
@@ -731,6 +732,7 @@ class ScheduleItem_Task(BaseStampedModel):
 
 class Task_Property_Type(models.Model):
     name = models.CharField(max_length=255, null=False, blank=False, unique=True, verbose_name = 'Task property name!' )
+    physical_property = models.ForeignKey( PhysicalProperty, on_delete=models.PROTECT, blank=True, null=True )
 
     def __str__(self):
         return self.name

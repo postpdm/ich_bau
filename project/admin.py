@@ -85,4 +85,8 @@ admin.site.register(
 
 admin.site.register(
     Task_Property_Type,
+    list_display=[
+        "name",
+        "physical_property",
+    ],
     )
