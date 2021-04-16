@@ -11,6 +11,7 @@ from django.utils import timezone
 from django.db import transaction
 import reversion
 from mptt.models import MPTTModel, TreeForeignKey
+from property.models import PhysicalProperty
 
 from ich_bau.profiles.notification_helper import Send_Notification
 from ich_bau.profiles.models import Profile, PROFILE_TYPE_USER, PROFILE_TYPE_FOR_TASK
@@ -58,6 +59,7 @@ class Project(BaseStampedModel):
     # доступность проекта для пользователей
     private_type=models.PositiveSmallIntegerField( blank=False, null=False, default = PROJECT_VISIBLE_PRIVATE, verbose_name = 'Private project' )
     use_sub_projects=models.BooleanField(blank=False, default=False)
+    use_properties=models.BooleanField(blank=False, default=False)
     description = models.TextField(blank=True, null=True)
     repo_name = models.CharField( max_length=255, blank=True, null = True )
 
@@ -364,6 +366,17 @@ class TaskDomain(MPTTModel):
         return self.name
 
 @reversion.register()
+class Sub_Project(BaseStampedModel):
+    project = models.ForeignKey(Project, on_delete=models.PROTECT, blank=False, null=False )
+    fullname = models.CharField(max_length=255, verbose_name = 'Full name!', blank=False, null=False )
+
+    def __str__(self):
+        return self.fullname
+
+    def get_absolute_url(self):
+        return "/project/sub_project/%i/" % self.id
+
+@reversion.register()
 class Task(BaseStampedModel):
     project = models.ForeignKey(Project, on_delete=models.PROTECT, blank=False, null=False, related_name = "project2tasks" )
     fullname = models.CharField(max_length=255, verbose_name = 'Full name!' )
@@ -379,6 +392,7 @@ class Task(BaseStampedModel):
     finished_fact_at = models.DateTimeField( blank=True, null=True )
     important = models.BooleanField(blank=True, default=False)
     kind = models.ForeignKey(TaskKind, on_delete=models.PROTECT, blank=True, null=True )
+    sub_project = models.ForeignKey(Sub_Project, on_delete=models.PROTECT, blank=True, null=True )
 
     class Meta:
         ordering = ['-important']
@@ -438,6 +452,11 @@ class Task(BaseStampedModel):
 
     def get_profiles(self):
         return TaskProfile.objects.filter( parenttask = self )
+
+    def can_be_moved( self ):
+        # can't move task if sub poject is set (becouse where is not a such sub project in another projects
+        can = self.sub_project is None
+        return can
 
 @reversion.register()
 class Task2Domain(BaseStampedModel):
@@ -548,8 +567,19 @@ def taskcomment_post_save_Notifier_Composer(sender, instance, **kwargs):
     Send_Notifications_For_Task( parent_task, instance.modified_user, msg_type, message_str, task_users, parent_task.get_absolute_url(), parenttask_holder_user )
 
 # Priority for profile assignment to tasks
-TASK_PROFILE_PRIORITY_INTERESTED   = 0
-TASK_PROFILE_PRIORITY_RESPONSIBLE  = 1
+TASK_PROFILE_PRIORITY_INTERESTED            = 0
+TASK_PROFILE_PRIORITY_RESPONSIBLE_FULL      = 1
+TASK_PROFILE_PRIORITY_RESPONSIBLE_HOLDER    = 2
+TASK_PROFILE_PRIORITY_RESPONSIBLE_EXECUTANT = 3
+
+TASK_PROFILE_PRIORITY_LIST = ( TASK_PROFILE_PRIORITY_INTERESTED, TASK_PROFILE_PRIORITY_RESPONSIBLE_FULL, TASK_PROFILE_PRIORITY_RESPONSIBLE_HOLDER, TASK_PROFILE_PRIORITY_RESPONSIBLE_EXECUTANT )
+
+TASK_PROFILE_PRIORITY_LIST_CHOICES = (
+      ( TASK_PROFILE_PRIORITY_INTERESTED, 'Interested'),
+      ( TASK_PROFILE_PRIORITY_RESPONSIBLE_FULL, 'Full responsible'),
+      ( TASK_PROFILE_PRIORITY_RESPONSIBLE_HOLDER, 'Holder'),
+      ( TASK_PROFILE_PRIORITY_RESPONSIBLE_EXECUTANT, 'Executant'),
+    )
 
 def Get_Tasks_Ordered_By_Priority():
     return Task.objects.all().order_by( '-profile2task__priority' )
@@ -577,6 +607,20 @@ class TaskProfile(BaseStampedModel):
 
     class Meta:
         unique_together = ("parenttask", "profile")
+
+    def get_priority_caption(self):
+        return TASK_PROFILE_PRIORITY_LIST_CHOICES[ self.priority ][1]
+
+    def get_allowed_priority(self):
+        i = self.priority
+        # exclude used priority
+        return TASK_PROFILE_PRIORITY_LIST_CHOICES[:i] + TASK_PROFILE_PRIORITY_LIST_CHOICES[i+1:]
+
+    def save(self, *args, **kwargs):
+        if self.priority in TASK_PROFILE_PRIORITY_LIST: # check for private visible type
+            return super(TaskProfile, self).save(*args, **kwargs)
+        else:
+            raise Exception("Cannot save - wrong priority " + self.priority + " !" )
 
 @receiver(post_save, sender=TaskProfile)
 def taskprofile_post_save_Notifier_Composer(sender, instance, **kwargs):
@@ -683,3 +727,20 @@ def Get_Profile_ScheduleItem_Next_Week( arg_schedule_filter ):
 class ScheduleItem_Task(BaseStampedModel):
     schedule_item = models.ForeignKey( ScheduleItem, on_delete=models.PROTECT, blank=False, null=False )
     scheduledtask = models.ForeignKey( Task, on_delete=models.PROTECT, related_name = 'scheduledtask' )
+
+# task properties
+
+class Task_Property_Type(models.Model):
+    name = models.CharField(max_length=255, null=False, blank=False, unique=True, verbose_name = 'Task property name!' )
+    physical_property = models.ForeignKey( PhysicalProperty, on_delete=models.PROTECT, blank=True, null=True )
+
+    def __str__(self):
+        return self.name + " (" + str( self.physical_property.default_unit ) + ")"
+
+class Task_Property_Amount(BaseStampedModel):
+    task=models.ForeignKey( Task, on_delete=models.PROTECT )
+    property = models.ForeignKey( Task_Property_Type, on_delete=models.PROTECT, blank=False, null=False )
+    amount = models.DecimalField( max_digits=10, decimal_places=2, blank=True, null=True )
+
+    class Meta:
+        unique_together = ("task", "property")

@@ -31,6 +31,7 @@ urlpatterns = [
     url(r'^project/(?P<project_id>\w+)/search_task/$', views.project_view_search_tasks, name='project_view_search_tasks'),
 
     url(r'^project/(?P<project_id>\w+)/last_actions/$', views.project_view_last_actions, name='project_view_last_actions'),
+    url(r'^project/(?P<project_id>\w+)/sub_projects/$', views.project_view_sub_projects, name='project_view_sub_projects'),
     url(r'^project/(?P<project_id>\w+)/members/$', views.project_view_members, name='project_view_members'),
     url(r'^project/(?P<project_id>\w+)/milestones/$', views.project_view_milestones, name='project_view_milestones'),
     url(r'^project/(?P<project_id>\w+)/reports/$', views.project_view_reports, name='project_view_reports'),
@@ -55,13 +56,21 @@ urlpatterns = [
     url(r'^task/(?P<task_id>\w+)/history/$', views.task_history, name='task_history'),
     url(r'^add_linked/(?P<task_id>\w+)/$', views.add_linked, name='add_linked'),
 
+    url(r'^task/(?P<task_id>\w+)/add_property/$', views.task_add_property, name='task_add_property'),
+    url(r'^task/(?P<task_property_id>\w+)/edit_property/$', views.task_edit_property, name='task_edit_property'),
+
+    url(r'^sub_project_add/(?P<project_id>\w+)/$', views.Sub_ProjectCreateView.as_view(), name='sub_project_add'),
+    url(r'^sub_project/(?P<sub_project_id>\w+)/$', views.sub_project_view, name='sub_project_view'),
+    url(r'^sub_project/(?P<pk>\w+)/edit/$', views.Sub_ProjectUpdateView.as_view(), name='sub_project_edit'),
+    url(r'^sub_project/(?P<sub_project_id>\w+)/history/$', views.sub_project_history, name='sub_project_history'),
+
     url(r'^task_move2project_dialog/(?P<task_id>\w+)/$', views.task_move2project, name='task_move2project_dialog'),
     url(r'^task_move2project_check/(?P<task_id>\w+)/target_project/(?P<project_id>\w+)/$', views.task_move2project, name='task_move2project_check'),
 
     url(r'^add_profile/(?P<task_id>\w+)/$', views.add_profile, name='add_profile'),
     url(r'^add_profile/(?P<task_id>\w+)/level/(?P<level_pk>\w+)/$', views.add_profile, name='add_profile_sub_tree_view'),
     url(r'^add_user/(?P<task_id>\w+)/$', views.add_user, name='add_user'),
-    url(r'^switch_assign_responsibillty/(?P<taskprofile_id>\w+)/$', views.switch_assign_responsibillty, name='switch_assign_responsibillty'),
+    url(r'^switch_assign_responsibillty/(?P<taskprofile_id>\w+)/priority/(?P<priority_int>\w+)/$', views.switch_assign_responsibillty, name='switch_assign_responsibillty'),
     url(r'^remove_assign_responsibillty/(?P<taskprofile_id>\w+)/$', views.remove_assign_responsibillty, name='remove_assign_responsibillty'),
 
     url(r'^add_domain/(?P<task_id>\w+)/$', views.add_domain, name='add_domain'),

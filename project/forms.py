@@ -1,7 +1,7 @@
 ﻿# project forms
 
 from django import forms
-from project.models import Project, PROJECT_VISIBLE_LIST_CHOICES, PROJECT_VISIBLE_PRIVATE, Task, TaskComment, Milestone, Member, TaskDomain, TaskLink, TaskProfile, TaskCheckList, Task2Domain, Get_Profiles_Available2Task
+from project.models import Project, PROJECT_VISIBLE_LIST_CHOICES, PROJECT_VISIBLE_PRIVATE, Task, TaskComment, Milestone, Member, TaskDomain, TaskLink, TaskProfile, TASK_PROFILE_PRIORITY_LIST, TASK_PROFILE_PRIORITY_INTERESTED, TASK_PROFILE_PRIORITY_LIST_CHOICES, TaskCheckList, Task2Domain, Get_Profiles_Available2Task, Sub_Project, Task_Property_Amount
 from ich_bau.profiles.models import PROFILE_TYPE_USER
 
 from django.forms.widgets import HiddenInput, CheckboxSelectMultiple
@@ -20,7 +20,7 @@ class ProjectForm(forms.ModelForm):
 
     class Meta:
         model = Project
-        fields = ['fullname', 'private_type', 'active_flag', 'use_sub_projects', 'description' ]
+        fields = ['fullname', 'private_type', 'active_flag', 'use_sub_projects', 'use_properties', 'description' ]
 
 class MilestoneForm(forms.ModelForm):
     planned_at = DateTime_Field( False )
@@ -51,7 +51,7 @@ class TaskForm(forms.ModelForm):
 
     class Meta:
         model = Task
-        fields = ['fullname', 'description', 'milestone', 'holder', 'important', 'kind', ]
+        fields = ['fullname', 'description', 'milestone', 'holder', 'important', 'kind', 'sub_project' ]
 
     def __init__(self, *args, **kwargs):
         super(TaskForm, self).__init__(*args, **kwargs)
@@ -63,9 +63,14 @@ class TaskForm(forms.ModelForm):
         else:
             p = instance.project
 
-        # отображать вехи и пользователей только этого проекта
+        # отображать вехи, подпроекты и пользователей только этого проекта
         if not ( p is None):
             self.fields['milestone'].queryset = Milestone.objects.filter( project = p, finished_at__isnull = True )
+            if p.use_sub_projects:
+                self.fields['sub_project'].queryset = Sub_Project.objects.filter( project = p )
+            else:
+                self.fields['sub_project'].widget = HiddenInput()
+
             list = p.GetFullMemberProfiles()
             self.fields['holder'].queryset = list
 
@@ -84,8 +89,15 @@ class TaskLinkedForm(forms.ModelForm):
         fields = ['subtasks']
 
 class TaskProfileForm(forms.ModelForm):
-    profile=forms.ModelChoiceField( Profile.objects, help_text="profile", required=True )
-    priority=forms.BooleanField( label = 'Responsible', help_text="Responsible or interested", required=False )
+    profile=forms.ModelChoiceField( Profile.objects,
+                                    help_text="profile",
+                                    widget=forms.RadioSelect,
+                                    required=True )
+    # forms.BooleanField( label = 'Responsible', help_text="Responsible or interested", required=False )
+    priority=forms.ChoiceField( label='Priority',
+                                      widget=forms.RadioSelect,
+                                      choices=TASK_PROFILE_PRIORITY_LIST_CHOICES,
+                                      initial = TASK_PROFILE_PRIORITY_INTERESTED )
 
     def __init__(self, *args, **kwargs):
         argmaintaskid = kwargs.pop('argmaintaskid', None)
@@ -123,3 +135,24 @@ class TaskCheckListForm(forms.ModelForm):
     class Meta:
         model = TaskCheckList
         fields = ['checkname', 'check_flag' ]
+
+
+class Sub_ProjectForm(forms.ModelForm):
+    class Meta:
+        model = Sub_Project
+        fields = ['fullname',  ]
+
+class Task_Property_Amount_Form(forms.ModelForm):
+
+    class Meta:
+        model = Task_Property_Amount
+        fields = [ 'property', 'amount' ]
+
+    def __init__(self, *args, **kwargs):
+        allowed_properties = kwargs.pop('arg_allowed_properties', None)
+        super(Task_Property_Amount_Form, self).__init__(*args, **kwargs)
+
+        if allowed_properties is None:
+            self.fields['property'].widget = HiddenInput()
+        else:
+            self.fields['property'].queryset = allowed_properties

@@ -6,7 +6,7 @@ from django.test.testcases import SimpleTestCase, TransactionTestCase
 
 from django.urls import reverse_lazy
 
-from .models import Project, Task, Milestone, TaskComment, GetTaskAssignedUser, TaskProfile, PROJECT_VISIBLE_PRIVATE, PROJECT_VISIBLE_VISIBLE
+from .models import Project, Task, Milestone, TaskComment, GetTaskAssignedUser, TaskProfile, PROJECT_VISIBLE_PRIVATE, PROJECT_VISIBLE_VISIBLE, TASK_PROFILE_PRIORITY_RESPONSIBLE_FULL
 
 from reversion.models import Version
 
@@ -247,8 +247,7 @@ class Project_Collaboration_View_Test_Client(TestCase):
 
         self.assertEqual( GetTaskAssignedUser(test_task_1).count(), 0 )
 
-        response = c_a.post( reverse_lazy('project:add_user', args = (test_task_1.id,) ), { 'profile' : test_worker_user.profile.id, } )
-
+        response = c_a.post( reverse_lazy('project:add_user', args = (test_task_1.id,) ), { 'profile' : test_worker_user.profile.id, 'priority' : TASK_PROFILE_PRIORITY_RESPONSIBLE_FULL, } )
         # we are redirected to task page
         self.assertEqual( response.status_code, 302 )
 

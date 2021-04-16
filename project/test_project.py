@@ -1,9 +1,10 @@
-#from django.contrib.auth.models import User
+from django.contrib.auth.models import AnonymousUser
 from .models import *
 
 from django.test import TestCase
 
 from django.db import transaction
+
 import reversion
 
 TEST_USER_NAME_CREATOR = 'test project creator'
@@ -73,6 +74,11 @@ class Project_Test(TestCase):
         test_project = get_public_project()
         user_creator = get_creator_user()
         self.assertEqual( test_project.is_admin(user_creator), True )
+
+    def test_anon_is_NOT_admin(self):
+        test_project = get_public_project()
+        user_anon = AnonymousUser()
+        self.assertEqual( test_project.is_admin(user_anon), False )
 
     def test_creator_can_admin(self):
         test_project = get_public_project()
@@ -170,9 +176,18 @@ class Project_Test(TestCase):
         t = Get_User_Tasks( None )
         self.assertEqual( t.count(), 0 )
         test_task = create_task()
-        test_task.assignee__user = get_creator_user()
-        test_task.save()
-        self.assertEqual( t.count(), 1 )
+        self.assertEqual( test_task.get_profiles().count(), 0 )
+        tp = TaskProfile( parenttask = test_task, profile = get_creator_user().profile )
+        tp.set_change_user( get_creator_user() )
+
+        for p in TASK_PROFILE_PRIORITY_LIST:
+            tp.priority = p
+            tp.save()
+            self.assertEqual( tp.priority, p )
+
+        with self.assertRaises(Exception):
+            tp.priority = max( TASK_PROFILE_PRIORITY_LIST ) + 1
+            tp.save()
 
     def test_linked_resource(self):
         test_task = create_task()
@@ -182,6 +197,9 @@ class Project_Test(TestCase):
         self.assertEqual( p.count(), 1 ) # 1 profile is available
         self.assertEqual( p.filter( user = get_creator_user() ).count(), 1 ) # creator_user profile is available
 
+    def test_sub_project_default_false(self):
+        test_project = get_public_project()
+        self.assertEqual( test_project.use_sub_projects, False )
 
 class Project_Set_Wrong_Private_Type_Test(TestCase):
 

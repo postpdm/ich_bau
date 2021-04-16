@@ -35,8 +35,8 @@ class Profile_AffiliationForm(forms.ModelForm):
         pop = kwargs.pop('initial', None)
         
         mp = pop['main_profile']
-        level_profiles = pop['level_profiles']
+        level_profiles = pop['sub_profile']
     
         # отображать только не привязанные
         if mp:
-            self.fields['sub_profile'].queryset = level_profiles & mp.list_of_avail_for_affiliate()
+            self.fields['sub_profile'].queryset = ( level_profiles & mp.list_of_avail_for_affiliate() )

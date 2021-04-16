@@ -1,6 +1,7 @@
 {% extends 'site_base.html' %}
 
 {% load bootstrap %}
+{% load profile_tag %}
 
 {% block body_class %}profile{% endblock %}
 
@@ -30,7 +31,8 @@ Create profile link
     {% if level_profiles %}
     <ol>
         {% for lp in level_profiles %}
-            <li><a href="{% url 'project:add_profile_sub_tree_view' task_id=task.pk level_pk=lp.pk %}" class="btn btn-default btn-sm" >{{lp}}</a></li>
+            <li>
+            <a href="{% url 'project:add_profile_sub_tree_view' task_id=task.pk level_pk=lp.pk %}" class="btn btn-default btn-sm" >{% fa_profile_icon lp.profile_type %} {{lp}}</a></li>
         {% endfor %}
     </ol>
     {% else %}

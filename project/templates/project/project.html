@@ -23,6 +23,9 @@
 
 <ul class="nav nav-tabs">
   <li role="presentation" {% if show_page == 'title' %} class="active" {% endif %}><a href="{{project.get_absolute_url}}">{% trans "Project" %}</a></li>
+  {% if project.use_sub_projects %}
+  <li role="presentation" {% if show_page == 'sub_projects' %} class="active" {% endif %}><a href="{{project.get_absolute_url}}sub_projects/">{% trans "Sub projects" %}</a></li>
+  {% endif %}
   <li role="presentation" {% if show_page == 'members' %} class="active" {% endif %}><a href="{{project.get_absolute_url}}members/">{% trans "Members" %}</a></li>
   <li role="presentation" {% if show_page == 'last_actions' %} class="active" {% endif %}><a href="{{project.get_absolute_url}}last_actions/">{% trans "Last activities" %}</a></li>
 
@@ -127,6 +130,18 @@ no history to view
 {% include "project/project_members_list.html" %}
 {% endif %}
 
+{% if show_page == 'sub_projects' %}
+
+<h2>{% trans "Sub projects" %} {% if user_can_admin or user_can_work %}<a class="btn btn-default" href="{% url 'project:sub_project_add' project_id=project.id %}"><i class="fa fa-plus"></i> {% trans "Create sub project" %}</a>{% endif %}</h2>
+
+<ul>
+{% for sp in sub_projects %}
+<li><a href="{{sp.get_absolute_url}}">{{sp}}</a></li>
+{% endfor %}
+</ul>
+
+{% endif %}
+
 {% if show_page == 'last_actions' %}
 
 <h2>{% trans "Recent project activity" %}</h2>
@@ -134,20 +149,23 @@ no history to view
 <table class="table table-striped">
 <thead>
 <tr>
+    <th>Type</th>
     <th>Date time</th>
+    <th>Action</th>
     <th>User</th>
-    <th>Comment</th>
-    <th>Task</th>
 </tr>
 </thead>
 
 <tbody>
-    {% for c in last_actions %}
+    {% for la in last_actions %}
         <tr>
-            <td>{{c.modified_at}}</td>
-            <td>{{c.modified_user}}</td>
-            <td>{{c.comment|safe|truncatewords_html:12}}</td>
-            <td><a href="{{c.parenttask.get_absolute_url}}">{{c.parenttask}}</a></td>
+            <td>{{la.type}}</td>
+            <td>{{la.modified_at}}</td>
+            <td>
+                {{la.title|safe|truncatewords_html:12}}
+                <a href="{{la.url}}">{{la.url_title}}</a>
+            </td>
+            <td>{{la.modified_user}}</td>
         </tr>
     {%endfor%}
 </tbody>

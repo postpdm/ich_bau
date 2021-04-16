@@ -26,6 +26,7 @@
     <th>Important</th>
     <th>Kind</th>
     <th>Project</th>
+    <th>Sub project</th>
     <th>User</th>
     </tr>
     </thead>
@@ -43,6 +44,7 @@
         <td>{% if v.field_dict.important %}<i class="fa fa-exclamation-triangle" style="color:red"></i>{%endif%}</td>
         <td>{{v.field_dict.kind_id|default_if_none:''}}</td>
         <td>{{v.field_dict.project_id}}</td>
+        <td>{{v.field_dict.sub_project_id}}</td>
         <td><a href="{% url 'profiles_detail' pk=v.revision.user.profile.id %}">{{v.revision.user.profile}}</a></td>
         </tr>
         {% endfor %}

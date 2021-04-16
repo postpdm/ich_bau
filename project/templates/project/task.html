@@ -47,6 +47,10 @@
 
   <td>{% if task.holder %}<p>Holder: <a href="{% url 'profiles_detail' pk=task.holder.id %}">{{task.holder}}</a></small></p></p>{% endif %}</td>
 
+  {% if task.project.use_sub_projects %}
+    <td>{% if task.sub_project %}<p>Sub project: <a href="{% url 'project:sub_project_view' sub_project_id=task.sub_project.id %}">{{task.sub_project}}</a></small></p></p>{% endif %}</td>
+  {% endif %}
+
   <p class="text-right">
 
   {% if user_can_work and task.get_opened %}
@@ -118,11 +122,13 @@ no history to view
                     <li><a href="{% url 'profiles_detail' pk=p.profile.id %}">{{p.profile}}</a>
                     {% if user_can_work and task.get_opened %}
                         <div class="btn-group">
-                          <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                            {%if p.priority%}Responsible{%else%}Interested{%endif%} <span class="caret"></span>
+                          <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">{{ p.get_priority_caption }}
+                          <span class="caret"></span>
                           </button>
                           <ul class="dropdown-menu">
-                            <li><a href="{% url 'project:switch_assign_responsibillty' p.pk %}">{%if p.priority%}Set interested{%else%}Set responsible{%endif%}</a></li>
+                            {% for pp in p.get_allowed_priority %}
+                                <li><a href="{% url 'project:switch_assign_responsibillty' p.pk pp.0 %}">Set {{p.profile}} {{pp.1}}</a></li>
+                            {% endfor %}
                             <li class="divider"></li>
                             <li><a href="{% url 'project:remove_assign_responsibillty' p.pk %}">Remove</a></li>
                             </li>
@@ -194,6 +200,35 @@ no history to view
 {% endif %}
 
 </li>
+
+
+{% if task.project.use_properties %}
+
+    <li class="list-group-item"><p><strong>Task properties</strong>
+                  {% if user_can_work and task.get_opened %}
+                    <a class="btn btn-default" href="{{task.get_absolute_url}}add_property">Add property</a>
+                  {% endif %}
+    </p>
+
+    {% if task_properties %}
+    <ul>
+    {% for tp in task_properties %}
+    <li>
+
+    {% if user_can_work and task.get_opened %}
+        <a href="{% url 'project:task_edit_property' task_property_id=tp.pk %}">{{tp.property}}</a> {{tp.amount|default_if_none:""}}
+    {% else %}
+        {{tp.property}} {{tp.amount|default_if_none:""}}
+    {% endif %}
+    </li>
+    {% endfor %}
+    </ul>
+    {% endif %}
+
+    </li>
+
+{% endif %}
+
 
   <!-- List group -->
 {% if comments %}

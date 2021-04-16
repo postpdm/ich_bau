@@ -133,7 +133,7 @@ class ProfileCreateSubView(LoginRequiredMixin, CreateView):
 
             return { 'main_profile': self.mp,
                      'level_pk' : self.level_pk,
-                     'level_profiles' : self.level_profiles,
+                     'sub_profile' : self.level_profiles,
                    }
         except:
             Http404()
@@ -143,7 +143,7 @@ class ProfileCreateSubView(LoginRequiredMixin, CreateView):
         context_dict['main_profile'] = self.mp
         context_dict['level_pk'] = self.level_pk
         context_dict['root_profile'] = self.root_profile
-        context_dict['level_profiles'] = self.level_profiles
+        context_dict['level_profiles'] = self.level_profiles.filter( profile_type__in = PROFILE_TYPE_FOR_TREE )
         return context_dict
 
     def form_valid(self, form):

@@ -1,28 +1,21 @@
 {% extends 'site_base.html' %}
 
-{% load i18n %}
 {% load bootstrap %}
-{% load thumbnail %}
 
-{% block head_title %}{{project}} history{% endblock %}
+{% block head_title %}{{sub_project}} history{% endblock %}
 
 {% block body %}
     <div class="row">
         <div class="col-md-12">
-<h1>{{project}} history</h1>
-
-<a href="{{project.get_absolute_url}}">back</a>
+        
+<h1>{{sub_project}} history</h1>
+<a href="{{sub_project.get_absolute_url}}">back</a>
 
     <table class="table table-striped">
     <thead>
     <tr>
     <th>Date-time</th>
     <th>Full name</th>
-    <th>Description</th>
-    <th>Active flag</th>
-    <th>Private flag</th>
-    <th>Use sub projects</th>
-    <th>Use properties</th>
     <th>User</th>
     </tr>
     </thead>
@@ -31,11 +24,6 @@
         <tr>
         <td>{{v.revision.date_created}}</td>
         <td>{{v.field_dict.fullname}}</td>
-        <td>{{v.field_dict.description|safe}}</td>
-        <td>{{v.field_dict.active_flag}}</td>
-        <td>{{v.field_dict.private_flag}}</td>
-        <td>{{v.field_dict.use_sub_projects}}</td>
-        <td>{{v.field_dict.use_properties}}</td>
         <td><a href="{% url 'profiles_detail' pk=v.revision.user.profile.pk %}">{{v.revision.user}}</a></td>
         </tr>
         {% endfor %}
@@ -43,8 +31,9 @@
     </tbody>
     <table>  
 
+</div>
+</div>
 
-</div>
-</div>
-  
+<small>This page was last modified on {{ sub_project.modified_at }}</small>
+    
 {% endblock %}

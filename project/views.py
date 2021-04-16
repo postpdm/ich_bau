@@ -1,6 +1,6 @@
 ﻿from project.models import *
-from project.forms import ProjectForm, TaskForm, TaskCommentForm, MilestoneForm, MemberForm, TaskLinkedForm, TaskProfileForm, TaskCheckListForm, TaskDomainForm
-from ich_bau.profiles.models import Get_Users_Profiles, Close_All_Unread_Notifications_For_Task_For_One_User, Is_User_Manager, Get_Profiles_From_Level
+from project.forms import ProjectForm, TaskForm, TaskCommentForm, MilestoneForm, MemberForm, TaskLinkedForm, TaskProfileForm, TaskCheckListForm, TaskDomainForm, Sub_ProjectForm, Task_Property_Amount_Form
+from ich_bau.profiles.models import Get_Users_Profiles, Close_All_Unread_Notifications_For_Task_For_One_User, Is_User_Manager, Get_Profiles_From_Level, PROFILE_TYPE_FOR_TREE
 from django.forms.models import modelformset_factory
 from django.urls import reverse
 from django.db.models import Count
@@ -186,6 +186,7 @@ TASK_FILTER_UNASSIGNED = 5
 PROJECT_PAGE_TITLE = 0
 PROJECT_PAGE_MEMBERS = 5
 PROJECT_PAGE_LAST_ACTIONS = 8
+PROJECT_PAGE_SUB_PROJECTS = 9
 PROJECT_PAGE_FILES = 10
 PROJECT_PAGE_MILESTONES = 15
 PROJECT_PAGE_REPORTS = 25
@@ -195,6 +196,7 @@ PROJECT_PAGE_FILTER = {
   PROJECT_PAGE_TITLE : 'title',
   PROJECT_PAGE_MEMBERS : 'members',
   PROJECT_PAGE_LAST_ACTIONS : 'last_actions',
+  PROJECT_PAGE_SUB_PROJECTS : 'sub_projects',
   PROJECT_PAGE_FILES : 'files',
   PROJECT_PAGE_MILESTONES : 'milestones' ,
   PROJECT_PAGE_REPORTS : 'reports' ,
@@ -220,6 +222,9 @@ def project_view_search_tasks(request, project_id):
 
 def project_view_last_actions(request, project_id):
     return get_project_view(request, project_id, arg_page = PROJECT_PAGE_LAST_ACTIONS )
+
+def project_view_sub_projects(request, project_id):
+    return get_project_view(request, project_id, arg_page = PROJECT_PAGE_SUB_PROJECTS )
 
 def project_view_milestones(request, project_id):
     return get_project_view(request, project_id, arg_page = PROJECT_PAGE_MILESTONES )
@@ -280,6 +285,24 @@ def project_create_repo(request, project_id):
             else:
                 raise Http404() # хотя такого быть не должно
 
+def get_last_action_content( arg_project ):
+    def mySort(e):
+        return e['modified_at']
+
+    depth = 10
+    res = []
+    comments = TaskComment.objects.filter( parenttask__project = arg_project ).order_by('-modified_at')[:depth]
+    for c in comments:
+        res.append( { 'modified_at' : c.modified_at, 'type' : 'comment', 'modified_user' : c.modified_user, 'title' : c.comment, 'url' : c.parenttask.get_absolute_url, 'url_title' : c.parenttask, } )
+
+    tasks = Task.objects.filter( project = arg_project ).order_by('-modified_at')[:depth]
+    for t in tasks:
+        res.append( { 'modified_at' : t.modified_at, 'type' : 'task', 'modified_user' : t.modified_user, 'title' : t.fullname, 'url' : t.get_absolute_url, 'url_title' : t, } )
+
+    res.sort(reverse=True, key=mySort)
+
+    return res
+
 def get_project_view(request, project_id, arg_task_filter = TASK_FILTER_OPEN, arg_page = PROJECT_PAGE_TITLE, arg_domain_id = None ):
     # Получить контекст запроса
     context = RequestContext(request)
@@ -320,6 +343,7 @@ def get_project_view(request, project_id, arg_task_filter = TASK_FILTER_OPEN, ar
     domains = None
     selected_domain = None
     last_actions = None
+    sub_projects = None
 
     if arg_page == PROJECT_PAGE_MILESTONES:
         milestones = Get_Milestone_Report_for_Project(project)
@@ -393,7 +417,13 @@ def get_project_view(request, project_id, arg_task_filter = TASK_FILTER_OPEN, ar
         members = project.GetMemberList()
 
     if arg_page == PROJECT_PAGE_LAST_ACTIONS:
-        last_actions = TaskComment.objects.filter( parenttask__project = project ).order_by('-modified_at')[:10]
+        last_actions = get_last_action_content( project )
+
+    if arg_page == PROJECT_PAGE_SUB_PROJECTS:
+        if project.use_sub_projects:
+            sub_projects = Sub_Project.objects.filter( project = project )
+        else:
+            raise Http404
 
     if arg_page == PROJECT_PAGE_REPORTS:
         pass
@@ -417,6 +447,7 @@ def get_project_view(request, project_id, arg_task_filter = TASK_FILTER_OPEN, ar
                      'domains' : domains,
                      'selected_domain' : selected_domain,
                      'last_actions' : last_actions,
+                     'sub_projects' : sub_projects,
                          }
 
     # Рендерить ответ
@@ -792,6 +823,7 @@ def task_view(request, task_id):
         subtasks = TaskLink.objects.filter(maintask=task).filter( subtask__project__in = GetAvailableProjectList( request.user ) )
         maintasks = TaskLink.objects.filter(subtask=task)
         task_checklist = TaskCheckList.objects.filter( parenttask = task )
+        task_properties = Task_Property_Amount.objects.filter( task = task )
         profiles = task.get_profiles().order_by('profile__profile_type')
         domains = Task2Domain.objects.filter(task=task)
 
@@ -854,6 +886,7 @@ def task_view(request, task_id):
                          'domains' : domains,
                          'maintasks' : maintasks,
                          'task_checklist' : task_checklist,
+                         'task_properties' : task_properties,
                          'task_comment_form': task_comment_form,
                          'user_can_work' : user_can_work,
                          'user_can_admin' : user_can_admin,
@@ -912,6 +945,69 @@ def task_checklist(request, task_id):
 
     # Рендерить ответ
     return render( request, 'project/task_checklist.html', context_dict )
+
+@login_required
+def task_add_property(request, task_id):
+    # Получить контекст запроса
+    context = RequestContext(request)
+
+    task = get_object_or_404( Task, pk=task_id)
+
+    if request.method == 'POST':
+        form = Task_Property_Amount_Form( request.POST, arg_allowed_properties = None )
+        if form.is_valid():
+            ta = form.save(commit=False)
+            ta.task = task
+
+            with transaction.atomic(), reversion.create_revision():
+                reversion.set_user(request.user)
+                ta.set_change_user(request.user)
+                ta.save()
+
+            # перебросить пользователя на задание
+            messages.success(request, "You successfully add the property to task!")
+            return HttpResponseRedirect('/project/task/' + task_id )
+        else:
+            print( form.errors )
+    else:
+        allowed_properties = Task_Property_Type.objects.exclude( task_property_amount__task_id = task_id )
+        form = Task_Property_Amount_Form( arg_allowed_properties = allowed_properties )
+
+    return render( request, 'project/task_add_property.html',
+            {'task_id': task_id,
+             'task' : task,
+             'form': form,
+             } )
+
+@login_required
+def task_edit_property(request, task_property_id):
+    context = RequestContext(request)
+
+    tpa = get_object_or_404( Task_Property_Amount, pk=task_property_id )
+    task_id = tpa.task_id
+
+    if request.method == 'POST':
+        form = Task_Property_Amount_Form( request.POST, instance = tpa )
+        if form.is_valid():
+            tpa = form.save(commit=False)
+
+            with transaction.atomic(), reversion.create_revision():
+                reversion.set_user(request.user)
+                tpa.set_change_user(request.user)
+                tpa.save()
+
+            # перебросить пользователя на задание
+            messages.success(request, "You successfully edit the property amount for the task!")
+            return HttpResponseRedirect('/project/task/' + str( task_id ) )
+        else:
+            print( form.errors )
+    else:
+        form = Task_Property_Amount_Form( instance = tpa )
+
+    return render( request, 'project/task_add_property.html',
+            { 'tpa' : tpa,
+             'form': form,
+             } )
 
 @login_required
 def edit_task_comment(request, task_comment_id):
@@ -1037,15 +1133,18 @@ def add_user_or_profile(request, task_id, add_user, arg_level_pk = 0 ):
     level_profiles = None
 
     if add_user:
+        # select only users
         query_for_combo = Get_Profiles_Available2Task( task_id ) # base query - all types profiles, unassigned
         query_for_combo = query_for_combo.filter( profile_type = PROFILE_TYPE_USER ) # only users
     else:
+        # select profiles (except users) and build tree navigation
         if level_pk > 0:
             root_profile = get_object_or_404( Profile, pk = level_pk )
         else:
             root_profile = None
         level_profiles = Get_Profiles_From_Level( level_pk )
         query_for_combo = ( level_profiles.distinct() & Get_Profiles_Available2Task( task_id ) ).exclude( profile_type = PROFILE_TYPE_USER ) # unlinked, from current level and except users
+        level_profiles = level_profiles.filter(  profile_type__in = PROFILE_TYPE_FOR_TREE )
 
     if request.method == 'POST':
         form = TaskProfileForm(request.POST, argmaintaskid = task_id, arg_query_for_combo = query_for_combo )
@@ -1073,15 +1172,17 @@ def add_user_or_profile(request, task_id, add_user, arg_level_pk = 0 ):
              } )
 
 @login_required
-def switch_assign_responsibillty(request, taskprofile_id):
+def switch_assign_responsibillty(request, taskprofile_id, priority_int ):
     tp = get_object_or_404( TaskProfile, pk = taskprofile_id )
-    if tp.priority == TASK_PROFILE_PRIORITY_INTERESTED:
-        tp.priority = TASK_PROFILE_PRIORITY_RESPONSIBLE
-    else:
-        tp.priority = TASK_PROFILE_PRIORITY_INTERESTED
+    try:
+        priority_int = int( priority_int )
+        if tp.priority != priority_int:
+            tp.priority = priority_int
+            tp.set_change_user(request.user)
+            tp.save()
+    except:
+        messages.error( request, "Can't set wrong priority!")
 
-    tp.set_change_user(request.user)
-    tp.save()
     # перебросить пользователя на задание
     return HttpResponseRedirect('/project/task/' + str( tp.parenttask_id ) )
 
@@ -1251,8 +1352,16 @@ def unschedule_one_task( request, schedule_item_id, task_id ):
 
 @login_required
 def task_move2project( request, task_id, project_id = 0 ):
+
     task = get_object_or_404( Task, pk=task_id )
     target_project_id = int( project_id )
+
+    if not task.can_be_moved():
+        error_mesage = "Can't move this task, because it was linked to sub project!!"
+        return render( request, 'project/task_move2project.html',
+            { 'task' : task,
+              'error_mesage'   : error_mesage,
+            } )
 
     if target_project_id > 0:
         can_move_task = False
@@ -1294,3 +1403,80 @@ def task_move2project( request, task_id, project_id = 0 ):
                 { 'task' : task,
                   'available_projects' : available_projects,
                 } )
+
+class Sub_ProjectCreateView(LoginRequiredMixin, CreateView):
+    form_class = Sub_ProjectForm
+    model = Sub_Project
+
+    def form_valid(self, form):
+        if 'project_id' in self.kwargs:
+            project_id = self.kwargs['project_id']
+        else:
+            raise Http404()
+
+        self.object = form.save(commit=False)
+        self.object.set_change_user(self.request.user)
+        if not ( project_id is None ):
+            p = get_object_or_404( Project, pk = project_id )
+            self.object.project = p
+
+        with transaction.atomic(), reversion.create_revision():
+            reversion.set_user(self.request.user)
+            self.object.save()
+
+        messages.success(self.request, "You successfully create the subproject!")
+        return HttpResponseRedirect(self.get_success_url())
+
+class Sub_ProjectUpdateView(LoginRequiredMixin, UpdateView):
+    form_class = Sub_ProjectForm
+    model = Sub_Project
+
+    def form_valid(self, form):
+        self.object = form.save(commit=False)
+        self.object.set_change_user(self.request.user)
+        with transaction.atomic(), reversion.create_revision():
+            reversion.set_user(self.request.user)
+            self.object.save()
+
+        messages.success(self.request, "You successfully update the sub project!")
+        return HttpResponseRedirect(self.get_success_url())
+
+def sub_project_history(request, sub_project_id):
+    context = RequestContext(request)
+
+    sub_project = get_object_or_404( Sub_Project, pk=sub_project_id)
+
+    versions = Version.objects.get_for_object( sub_project )
+
+    context_dict = { 'sub_project': sub_project,
+                     'versions': versions }
+
+    return render( request, 'project/sub_project_history.html', context_dict )
+
+def sub_project_view(request, sub_project_id):
+    context = RequestContext(request)
+
+    sub_project = get_object_or_404( Sub_Project, pk=sub_project_id)
+
+    ual = sub_project.project.user_access_level( request.user )
+    user_can_work = False
+    user_can_admin = False
+    if ual == PROJECT_ACCESS_NONE:
+        raise Http404()
+    else:
+        if ual == PROJECT_ACCESS_WORK:
+            user_can_work = True
+        else:
+            if ual == PROJECT_ACCESS_ADMIN:
+                user_can_work = True
+                user_can_admin = True
+
+    tasks = Task.objects.filter( sub_project = sub_project ).order_by('state')
+
+    context_dict = { 'sub_project': sub_project,
+                     'tasks' : tasks,
+                     'user_can_admin' : user_can_admin,
+                     'user_can_work' : user_can_work,
+                         }
+
+    return render( request, 'project/sub_project.html', context_dict )
