@@ -22,6 +22,7 @@
     <th>Active flag</th>
     <th>Private flag</th>
     <th>Use sub projects</th>
+    <th>Use properties</th>
     <th>User</th>
     </tr>
     </thead>
@@ -34,6 +35,7 @@
         <td>{{v.field_dict.active_flag}}</td>
         <td>{{v.field_dict.private_flag}}</td>
         <td>{{v.field_dict.use_sub_projects}}</td>
+        <td>{{v.field_dict.use_properties}}</td>
         <td><a href="{% url 'profiles_detail' pk=v.revision.user.profile.pk %}">{{v.revision.user}}</a></td>
         </tr>
         {% endfor %}

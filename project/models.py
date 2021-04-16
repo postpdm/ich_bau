@@ -58,6 +58,7 @@ class Project(BaseStampedModel):
     # доступность проекта для пользователей
     private_type=models.PositiveSmallIntegerField( blank=False, null=False, default = PROJECT_VISIBLE_PRIVATE, verbose_name = 'Private project' )
     use_sub_projects=models.BooleanField(blank=False, default=False)
+    use_properties=models.BooleanField(blank=False, default=False)
     description = models.TextField(blank=True, null=True)
     repo_name = models.CharField( max_length=255, blank=True, null = True )
 
@@ -725,3 +726,11 @@ def Get_Profile_ScheduleItem_Next_Week( arg_schedule_filter ):
 class ScheduleItem_Task(BaseStampedModel):
     schedule_item = models.ForeignKey( ScheduleItem, on_delete=models.PROTECT, blank=False, null=False )
     scheduledtask = models.ForeignKey( Task, on_delete=models.PROTECT, related_name = 'scheduledtask' )
+
+# task properties
+
+class Task_Property_Type(models.Model):
+    name = models.CharField(max_length=255, null=False, blank=False, unique=True, verbose_name = 'Task property name!' )
+
+    def __str__(self):
+        return self.name
