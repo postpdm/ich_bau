@@ -493,7 +493,7 @@ class project_view_report_all_tasks_xls(View):
         data = project.project2tasks.all().order_by('created_at')
 
         # Write data.
-        fields = { 'id', 'created_at', 'fullname', 'holder', 'state', 'detailed_state', 'milestone', 'finished_fact_at', 'important', 'kind', 'sub_project' }
+        fields = ( 'id', 'created_at', 'fullname', 'holder', 'state', 'detailed_state', 'milestone', 'finished_fact_at', 'important', 'kind', 'sub_project' )
 
         #Task._meta.get_fields()
         row_num = 0
@@ -519,7 +519,7 @@ class project_view_report_all_tasks_xls(View):
         output.seek(0)
 
         # Set up the Http response.
-        filename = project_id + '.xlsx'
+        filename = project_id + '_' + project.fullname + '.xlsx'
         response = HttpResponse(
             output,
             content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
