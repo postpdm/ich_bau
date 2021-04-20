@@ -5,10 +5,12 @@ from django.forms.models import modelformset_factory
 from django.urls import reverse
 from django.db.models import Count
 
-from django.http import HttpResponseForbidden
+from django.http import HttpResponseForbidden, HttpResponse
+
 from django.utils.html import strip_tags
 
 from account.mixins import LoginRequiredMixin
+from django.views.generic import View
 from django.views.generic.edit import CreateView, UpdateView
 
 from django.contrib.auth.mixins import PermissionRequiredMixin
@@ -464,6 +466,67 @@ def project_view_report_all_tasks(request, project_id ):
 
     return render( request, 'project/project_report_all_tasks.html',
                    context_dict )
+
+class project_view_report_all_tasks_xls(View):
+
+    def get(self, request, project_id):
+        context = RequestContext(request)
+        project = get_object_or_404( Project, pk=project_id)
+
+        if not project.can_view( request.user ):
+            raise Http404()
+
+        import io
+        import xlsxwriter
+
+        # Create an in-memory output file for the new workbook.
+        output = io.BytesIO()
+
+        # Even though the final file will be in memory the module uses temp
+        # files during assembly for efficiency. To avoid this on servers that
+        # don't allow temp files, for example the Google APP Engine, set the
+        # 'in_memory' Workbook() constructor option as shown in the docs.
+        workbook = xlsxwriter.Workbook(output)
+        worksheet = workbook.add_worksheet()
+
+        # Get data to write to the spreadsheet.
+        data = project.project2tasks.all().order_by('created_at')
+
+        # Write data.
+        fields = { 'id', 'created_at', 'fullname', 'holder', 'state', 'detailed_state', 'milestone', 'finished_fact_at', 'important', 'kind', 'sub_project' }
+
+        #Task._meta.get_fields()
+        row_num = 0
+        col_num = 0
+        for field in fields:
+            cell_data = field
+            worksheet.write(row_num, col_num, cell_data)
+            col_num = col_num + 1
+
+        row_num = 1
+        for task in data:
+            col_num = 0
+            for field in fields:
+                cell_data = getattr(task, field )
+                worksheet.write(row_num, col_num, str( cell_data) )
+                col_num = col_num + 1
+            row_num = row_num + 1
+
+        # Close the workbook before sending the data.
+        workbook.close()
+
+        # Rewind the buffer.
+        output.seek(0)
+
+        # Set up the Http response.
+        filename = project_id + '.xlsx'
+        response = HttpResponse(
+            output,
+            content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+        )
+        response['Content-Disposition'] = 'attachment; filename=%s' % filename
+
+        return response
 
 def project_view_file_commit_view(request, project_id, rev_id):
     context = RequestContext(request)
