@@ -499,7 +499,7 @@ class project_view_report_all_tasks_xls(View):
         row_num = 0
         col_num = 0
         for field in fields:
-            cell_data = field
+            cell_data = Task._meta.get_field( field ).verbose_name
             worksheet.write(row_num, col_num, cell_data)
             col_num = col_num + 1
 
