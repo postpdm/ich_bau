@@ -8,7 +8,7 @@ from django.db.models import Count
 from django.http import HttpResponseForbidden, HttpResponse
 
 from django.utils.html import strip_tags
-
+from django.utils.encoding import escape_uri_path
 from account.mixins import LoginRequiredMixin
 from django.views.generic import View
 from django.views.generic.edit import CreateView, UpdateView
@@ -520,12 +520,12 @@ class project_view_report_all_tasks_xls(View):
 
         # Set up the Http response.
         filename = project_id + '_' + project.fullname + '.xlsx'
+
         response = HttpResponse(
             output,
             content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
         )
-        response['Content-Disposition'] = 'attachment; filename=%s' % filename
-
+        response['Content-Disposition'] = "attachment; filename=%s" % escape_uri_path(filename)
         return response
 
 def project_view_file_commit_view(request, project_id, rev_id):
