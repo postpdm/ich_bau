@@ -1,7 +1,7 @@
 from django.contrib import admin
 from mptt.admin import MPTTModelAdmin
 
-from .models import Project, Member, TaskKind, TaskDomain, Task, Task2Domain, Milestone, TaskLink, ScheduleItem, ScheduleItem_Task, Task_Property_Type
+from .models import Project, Member, TaskKind, TaskDomain, Task, Task2Domain, Milestone, TaskLink, ScheduleItem, ScheduleItem_Task, Task_Property_Type, Task_Property_Amount
 
 admin.site.register(
     Project,
@@ -88,5 +88,14 @@ admin.site.register(
     list_display=[
         "name",
         "physical_property",
+    ],
+    )
+
+admin.site.register(
+    Task_Property_Amount,
+    list_display=[
+        "property",
+        "task",
+        "amount",
     ],
     )
