@@ -8,6 +8,8 @@ from django.db.models import Count
 from django.http import HttpResponseForbidden, HttpResponse
 
 from django.utils.html import strip_tags
+from django.utils.encoding import escape_uri_path
+from django.utils import timezone
 
 from account.mixins import LoginRequiredMixin
 from django.views.generic import View
@@ -495,21 +497,45 @@ class project_view_report_all_tasks_xls(View):
         # Write data.
         fields = ( 'id', 'created_at', 'fullname', 'holder', 'state', 'detailed_state', 'milestone', 'finished_fact_at', 'important', 'kind', 'sub_project' )
 
-        #Task._meta.get_fields()
+        # linked properties titles
+        prop_fields = None
+        if project.use_properties:
+            tpt = Task_Property_Type.objects.all()
+            prop_fields = {}
+            for p in tpt:
+                prop_fields[p.id] = p.name
+
         row_num = 0
         col_num = 0
         for field in fields:
-            cell_data = Task._meta.get_field( field ).verbose_name
-            worksheet.write(row_num, col_num, cell_data)
+            title = Task._meta.get_field( field ).verbose_name
+            worksheet.write(row_num, col_num, title)
             col_num = col_num + 1
+        if prop_fields:
+            for pf in prop_fields:
+                title = prop_fields[ pf ]
+                worksheet.write(row_num, col_num, title)
+                col_num = col_num + 1
 
         row_num = 1
         for task in data:
             col_num = 0
             for field in fields:
                 cell_data = getattr(task, field )
-                worksheet.write(row_num, col_num, str( cell_data) )
+                if cell_data:
+                    worksheet.write(row_num, col_num, str( cell_data) )
                 col_num = col_num + 1
+
+            if prop_fields:
+                for pf in prop_fields:
+                    try:
+                        a = Task_Property_Amount.objects.get( task=task, property_id = pf )
+                        cell_data = a.amount
+                        if a.amount:
+                            worksheet.write(row_num, col_num, str( cell_data) )
+                    except:
+                        pass
+                    col_num = col_num + 1
             row_num = row_num + 1
 
         # Close the workbook before sending the data.
@@ -519,13 +545,14 @@ class project_view_report_all_tasks_xls(View):
         output.seek(0)
 
         # Set up the Http response.
-        filename = project_id + '_' + project.fullname + '.xlsx'
+        n = timezone.now()
+        filename = project_id + '_' + project.fullname + '_' + str( n ) + '.xlsx'
+
         response = HttpResponse(
             output,
             content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
         )
-        response['Content-Disposition'] = 'attachment; filename=%s' % filename
-
+        response['Content-Disposition'] = "attachment; filename=%s" % escape_uri_path(filename)
         return response
 
 def project_view_file_commit_view(request, project_id, rev_id):
