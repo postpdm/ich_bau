@@ -12,24 +12,26 @@
 {%comment%}<th>Target (milestone or date)</th>{%endcomment%}
 {% if table_mode != 'milestone' %}<th>Target milestone</th>{% endif %}
 <th>Holder</th>
+{% if show_assignee_flag %}
 <th>Assignee</th>
+{% endif %}
 <th>State</th>
 </tr>
 </thead>
 <tbody>
     {% for t in tasks %}
     <tr>
-    
+
 {% if table_mode == 'index' %}
 <td><a href="{{t.project.get_absolute_url}}">{{t.project}}</a></td>
 {% endif %}
-    
+
     <td>
     {% if not t.get_opened %}<strike>{% endif %}
-   
+
     <a href="{{t.get_absolute_url}}">{{t}}</a>
     {% if not t.get_opened %}</strike>{% endif %}
-    
+
     {% if t.important %}
     <i class="fa fa-exclamation-triangle" style="color:red"></i>
     {% endif %}
@@ -41,11 +43,13 @@
     <td>{% if t.milestone %} Milestone - <a href="{{t.milestone.get_absolute_url}}">{{t.milestone}} {% if t.milestone.planned_at %} {{ t.milestone.planned_at|date }} {% endif %} </a>{% endif %}
     {% endif %}
     <td>{% if t.holder %} {{t.holder}}{% endif %}</td>
-    <td>  
-        {% for p in t.get_profiles %}
-            {% if p.priority %}<strong>{% endif %}{{p.profile}}{% if p.priority %}</strong>{% endif %}<br>
-        {% endfor %}    
-    </td>
+    {% if show_assignee_flag %}
+        <td>
+            {% for p in t.get_profiles %}
+                {% if p.priority %}<strong>{% endif %}{{p.profile}}{% if p.priority %}</strong>{% endif %}<br>
+            {% endfor %}
+        </td>
+    {% endif %}
     <td>{{t.get_state_name}}</td>
     </tr>
     {% endfor %}

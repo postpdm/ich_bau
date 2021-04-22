@@ -118,7 +118,7 @@ no history to view
 
 {% endif %}
 
-{% include "project/task_list.html" with table_mode='project' %}
+{% include "project/task_list.html" with table_mode='project' show_assignee_flag=show_assignee_flag %}
 
 {% comment %} end if TITLE {% endcomment %}
 {% endif %}

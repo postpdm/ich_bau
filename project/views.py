@@ -343,6 +343,7 @@ def get_project_view(request, project_id, arg_task_filter = TASK_FILTER_OPEN, ar
     filter_type = ''
     task_filter = None
     tasks = None
+    show_assignee_flag = None
     repo_rel_path = None
     domains = None
     selected_domain = None
@@ -409,6 +410,8 @@ def get_project_view(request, project_id, arg_task_filter = TASK_FILTER_OPEN, ar
                     else:
                         if arg_task_filter == TASK_FILTER_ASSIGNED:
                             filter_type = 'filter_task_assigned'
+                            show_assignee_flag = True
+                            print( show_assignee_flag)
                             tasks = base_tasks.filter( state = TASK_STATE_NEW ).filter( profile2task__priority__in = TASK_PROFILE_PRIORITY_ASSIGNED_LIST ).distinct()
                         else:
                             if arg_task_filter == TASK_FILTER_UNASSIGNED:
@@ -437,6 +440,7 @@ def get_project_view(request, project_id, arg_task_filter = TASK_FILTER_OPEN, ar
                      'members':members,
                      'milestones' : milestones,
                      'tasks' : tasks,
+                     'show_assignee_flag' : show_assignee_flag,
                      'filter': task_filter,
                      'filter_type' : filter_type,
                      'user_can_work' : user_can_work,
