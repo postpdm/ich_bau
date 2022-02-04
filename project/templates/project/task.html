@@ -70,7 +70,8 @@ no history to view
 <a href="{{task.get_absolute_url}}history">History</a>
 {% endif %}
   <br>
-  <small>{{task.created_at}} by <a href="{% url 'profiles_detail' pk=task.created_user.profile.id %}">{{task.created_user}}</a></small></p>
+  <small>{{task.created_at}} by <a href="{% url 'profiles_detail' pk=task.created_user.profile.id %}">{{task.created_user.profile}}</a></small></p>
+
   </div>
 
 <ul class="list-group">
