@@ -339,6 +339,8 @@ TASK_DETAIL_STATE_NEED_INFO = 1040
 TASK_DETAIL_STATE_NEED_STATUS = 1050
 TASK_DETAIL_STATE_IN_WORK = 1100
 TASK_DETAIL_STATE_READY_TO_TEST = 1200
+TASK_DETAIL_STATE_TESTED_OK = 1300
+TASK_DETAIL_STATE_TEST_FAIL = 1301
 
 TASK_OPEN_DETAIL_STATE_TITLES = {
   TASK_DETAIL_STATE_ON_PAUSE : 'PAUSE',
@@ -346,6 +348,8 @@ TASK_OPEN_DETAIL_STATE_TITLES = {
   TASK_DETAIL_STATE_NEED_STATUS : 'Need status from assigne',
   TASK_DETAIL_STATE_IN_WORK  : 'In work',
   TASK_DETAIL_STATE_READY_TO_TEST : 'Ready to test',
+  TASK_DETAIL_STATE_TESTED_OK : 'Test passed successfully',
+  TASK_DETAIL_STATE_TEST_FAIL : 'Test failed',
 }
 
 TASK_OPEN_DETAIL_STATE_TITLES_TUPL = [(v, k) for v, k in TASK_OPEN_DETAIL_STATE_TITLES.items()]
@@ -390,6 +394,7 @@ class Task(BaseStampedModel):
     # 0 - новая задача
     milestone = models.ForeignKey(Milestone, on_delete=models.PROTECT, blank=True, null=True )
     finished_fact_at = models.DateTimeField( blank=True, null=True )
+    # priority?
     important = models.BooleanField(blank=True, default=False)
     kind = models.ForeignKey(TaskKind, on_delete=models.PROTECT, blank=True, null=True )
     sub_project = models.ForeignKey(Sub_Project, on_delete=models.PROTECT, blank=True, null=True )
