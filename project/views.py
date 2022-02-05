@@ -349,6 +349,7 @@ def get_project_view(request, project_id, arg_task_filter = TASK_FILTER_OPEN, ar
     selected_domain = None
     last_actions = None
     sub_projects = None
+    open_tasks_without_subproject = None
 
     if arg_page == PROJECT_PAGE_MILESTONES:
         milestones = Get_Milestone_Report_for_Project(project)
@@ -429,6 +430,7 @@ def get_project_view(request, project_id, arg_task_filter = TASK_FILTER_OPEN, ar
     if arg_page == PROJECT_PAGE_SUB_PROJECTS:
         if project.use_sub_projects:
             sub_projects = Sub_Project.objects.filter( project = project )
+            open_tasks_without_subproject = project.Get_Tasks().filter( state = TASK_STATE_NEW ).filter( sub_project__isnull = True )
         else:
             raise Http404
 
@@ -456,6 +458,7 @@ def get_project_view(request, project_id, arg_task_filter = TASK_FILTER_OPEN, ar
                      'selected_domain' : selected_domain,
                      'last_actions' : last_actions,
                      'sub_projects' : sub_projects,
+                     'open_tasks_without_subproject' : open_tasks_without_subproject,
                          }
 
     # Рендерить ответ
@@ -541,6 +544,8 @@ class project_view_report_all_tasks_xls(View):
                         pass
                     col_num = col_num + 1
             row_num = row_num + 1
+
+        worksheet.autofilter(0, 0, 1, col_num - 1 )  # set the filter
 
         # Close the workbook before sending the data.
         workbook.close()

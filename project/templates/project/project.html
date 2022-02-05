@@ -140,6 +140,12 @@ no history to view
 {% endfor %}
 </ul>
 
+<h3>List of opened tasks without a sub-project</h3>
+<ol>
+{% for t in open_tasks_without_subproject %}
+<li><a href="{{t.get_absolute_url}}">{{t}}</a></li>
+{% endfor %}
+</ol>
 {% endif %}
 
 {% if show_page == 'last_actions' %}
@@ -196,6 +202,10 @@ no history to view
 <h2>{% trans "Reports" %}</h2>
 
 <p><a href="{% url 'project:project_view_report_all_tasks' project.id %}" target="_blank">Download all tasks report (new window)</a></p>
+
+
+<h3>EXCEL</h3>
+
 <p><a href="{% url 'project:project_view_report_all_tasks_xls' project.id %}" target="_blank">Download all tasks report (as Excel)</a></p>
 
 {% endif %}
