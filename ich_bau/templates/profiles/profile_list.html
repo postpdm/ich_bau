@@ -35,7 +35,16 @@
                     {% endif %}
 
                     <div class="media-body">
-                        <h4 class="media-heading"><a href="{% url 'profiles_detail' pk=p.id %}">{{ p.display_name }}</a></h4>
+                        <h4 class="media-heading"><a href="{% url 'profiles_detail' pk=p.id %}">
+
+                        {% if p.user and not p.user.is_active %}
+                            <s>{{ p.display_name }}</s>
+                        {% else %}
+                            {{ p.display_name }}
+                        {%endif%}
+                        </a>
+
+                        </h4>
                     {% if p.location %}
                         <div>
                             <span class="dim">
