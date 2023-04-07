@@ -6,7 +6,13 @@
 <ul>
 {% for m in members %}
 <li>
-<a href="{% url 'profiles_detail' pk=m.member_profile.pk %}">{{m.member_profile.simple_name}}</a>
+<a href="{% url 'profiles_detail' pk=m.member_profile.pk %}">
+    {% if m.member_profile.user.is_active %}
+        {{m.member_profile.simple_name}}
+    {% else %}
+        <s>{{m.member_profile.simple_name}}</s>
+    {%endif%}
+</a>
 
 {% if m.admin_flag %}
 {% trans "(admin)" %}
