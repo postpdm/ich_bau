@@ -120,7 +120,14 @@ no history to view
             <li>{% profile_type_name pt.grouper %}
                 <ul>
                     {% for p in pt.list %}
-                    <li><a href="{% url 'profiles_detail' pk=p.profile.id %}">{{p.profile}}</a>
+                    <li><a href="{% url 'profiles_detail' pk=p.profile.id %}">
+
+                    {% if p.profile.user.is_active %}
+                        {{p.profile}}
+                    {% else %}
+                        <s>{{p.profile}}</s>
+                    {% endif %}
+                    </a>
                     {% if user_can_work and task.get_opened %}
                         <div class="btn-group">
                           <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">{{ p.get_priority_caption }}
