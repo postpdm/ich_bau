@@ -1234,7 +1234,7 @@ def add_user_or_profile(request, task_id, add_user, arg_level_pk = 0 ):
     if add_user:
         # select only users
         query_for_combo = Get_Profiles_Available2Task( task_id ) # base query - all types profiles, unassigned
-        query_for_combo = query_for_combo.filter( profile_type = PROFILE_TYPE_USER ) # only users
+        query_for_combo = query_for_combo.filter( profile_type = PROFILE_TYPE_USER, user__is_active = True ) # only users and only active users
     else:
         # select profiles (except users) and build tree navigation
         if level_pk > 0:
